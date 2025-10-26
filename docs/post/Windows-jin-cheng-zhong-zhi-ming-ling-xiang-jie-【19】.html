@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/240149665?v=4"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="
+```plain text
+windos中直接杀死进程的命令分哪几个级别，分别有那些方式请详细举例说明。">
+<meta property="og:title" content="Windows进程终止命令详解【19】">
+<meta property="og:description" content="
+```plain text
+windos中直接杀死进程的命令分哪几个级别，分别有那些方式请详细举例说明。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://luminku.github.io/post/Windows-jin-cheng-zhong-zhi-ming-ling-xiang-jie-%E3%80%9019%E3%80%91.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
+<title>Windows进程终止命令详解【19】</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">Windows进程终止命令详解【19】</h1>
+<div class="title-right">
+    <a href="https://luminku.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/LuminKu/luminku.github.io/issues/19" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><pre lang="plain" data-meta="text" class="notranslate"><code class="notranslate">windos中直接杀死进程的命令分哪几个级别，分别有那些方式请详细举例说明。如进程redis-server.exe的pid是39556，我想分别演示（redis自动结束和redis宕机即自动终止和强制终止）
+</code></pre>
+<blockquote>
+<p>在Windows操作系统中，杀死进程的命令可以分为几个级别，从温和到强制。以下是一些常见的方式：</p>
+<ol>
+<li><strong>温和终止</strong>：使用任务管理器或<code class="notranslate">taskkill</code>命令正常结束进程。</li>
+<li><strong>强制终止</strong>：使用<code class="notranslate">taskkill</code>命令的<code class="notranslate">/F</code>选项，或者使用其他工具如<code class="notranslate">wmic</code>命令。</li>
+<li><strong>系统级强制终止</strong>：使用更底层的系统工具或API，例如使用<code class="notranslate">ntsd</code>或<code class="notranslate">debug</code>工具，但这些在较新的Windows版本中可能不再适用。现在更常用的是<code class="notranslate">taskkill</code>和<code class="notranslate">wmic</code>。</li>
+</ol>
+<p>下面我们分别举例说明，以进程<code class="notranslate">redis-server.exe</code>（PID为39556）为例。</p>
+<h3>1. 温和终止（正常结束）</h3>
+<p>这种方式会尝试让进程自己清理资源并退出。如果进程响应终止信号，它会执行清理工作然后退出。</p>
+<h4>使用<code class="notranslate">taskkill</code>命令（不带<code class="notranslate">/F</code>参数）：</h4>
+<p>cmd</p>
+<pre class="notranslate"><code class="notranslate">taskkill /PID 39556
+</code></pre>
+<p>如果Redis服务器能够正常关闭，它会执行保存数据等操作然后退出。</p>
+<h3>2. 强制终止（进程无响应时使用）</h3>
+<p>如果进程不响应正常的终止信号，我们可以使用强制终止。</p>
+<h4>使用<code class="notranslate">taskkill</code>命令带<code class="notranslate">/F</code>参数：</h4>
+<p>cmd</p>
+<pre class="notranslate"><code class="notranslate">taskkill /PID 39556 /F
+</code></pre>
+<p>这将强制终止进程，进程没有机会执行清理操作。对于Redis来说，这可能导致数据丢失。</p>
+<h3>3. 使用WMIC命令</h3>
+<p>WMIC（Windows Management Instrumentation Command-line）也可以用来终止进程。</p>
+<h4>温和终止（实际上WMIC默认是强制终止？）</h4>
+<p>实际上，WMIC的<code class="notranslate">process</code>命令中的<code class="notranslate">delete</code>操作是强制性的，类似于<code class="notranslate">taskkill /F</code>。所以通常我们不用WMIC来做温和终止。</p>
+<h4>强制终止：</h4>
+<p>cmd</p>
+<pre class="notranslate"><code class="notranslate">wmic process where processid=39556 delete
+</code></pre>
+<h3>4. 使用PowerShell</h3>
+<p>在PowerShell中，也可以使用<code class="notranslate">Stop-Process</code>命令来终止进程。</p>
+<h4>温和终止：</h4>
+<p>PowerShell的<code class="notranslate">Stop-Process</code>默认是强制终止，但我们可以先尝试使用<code class="notranslate">.CloseMainWindow()</code>方法（仅适用于有图形界面的应用程序）。对于控制台应用程序，我们可以尝试发送Ctrl+C信号，但这不是直接支持的。因此，对于Redis这样的服务，通常我们使用<code class="notranslate">Stop-Process</code>时也是强制性的。</p>
+<h4>强制终止：</h4>
+<p>powershell</p>
+<pre class="notranslate"><code class="notranslate">Stop-Process -Id 39556 -Force
+</code></pre>
+<h3>演示场景</h3>
+<p>假设我们想要演示三种情况：</p>
+<ol>
+<li><strong>Redis自动结束</strong>：我们通过正常关闭命令让Redis自己退出。</li>
+<li><strong>Redis宕机（自动终止）</strong>：这里可能指的是由于某种条件（如资源不足）导致Redis自动终止，或者我们模拟一种情况，比如使用一个脚本在满足条件时正常终止Redis。</li>
+<li><strong>强制终止</strong>：直接强制杀死Redis进程。</li>
+</ol>
+<h4>演示1：Redis自动结束</h4>
+<p>我们可以使用Redis客户端发送关闭命令，或者使用<code class="notranslate">taskkill</code>正常结束。</p>
+<p>cmd</p>
+<pre class="notranslate"><code class="notranslate">taskkill /PID 39556
+</code></pre>
+<p>如果Redis配置了持久化，它会执行保存操作然后退出。</p>
+<h4>演示2：Redis宕机（自动终止）</h4>
+<p>我们可以编写一个脚本，监控某个条件（比如一个文件的存在），然后正常结束Redis。例如，创建一个批处理文件，检查某个标志文件，如果存在则正常结束Redis。</p>
+<p>cmd</p>
+<pre class="notranslate"><code class="notranslate">@echo off
+:loop
+timeout /t 5 &gt;nul
+if exist "C:\stop_redis.flag" (
+    taskkill /PID 39556
+    del "C:\stop_redis.flag"
+    goto :eof
+)
+goto loop
+</code></pre>
+<p>然后，当我们在<code class="notranslate">C:\</code>下创建<code class="notranslate">stop_redis.flag</code>文件时，脚本就会执行正常结束Redis的命令。</p>
+<h4>演示3：强制终止</h4>
+<p>直接使用强制终止命令：</p>
+<p>cmd</p>
+<pre class="notranslate"><code class="notranslate">taskkill /PID 39556 /F
+</code></pre>
+<p>或者使用PowerShell：</p>
+<p>powershell</p>
+<pre class="notranslate"><code class="notranslate">Stop-Process -Id 39556 -Force
+</code></pre>
+<h3>注意：</h3>
+<p>在实际操作中，请确保你拥有足够的权限来终止进程，并且注意强制终止可能导致数据丢失或系统不稳定。特别是在生产环境中，要谨慎使用强制终止。</p>
+<p>另外，以上命令都需要在管理员权限下运行，以确保有权限终止进程。</p>
+</blockquote>
+<p>在Windows中，杀死进程的命令可以分为几个级别，从温和到强制。以下是详细的分类和示例：</p>
+<h2>1. 温和终止（Graceful Termination）</h2>
+<h3>方式1：通过进程名正常结束</h3>
+<div class="highlight highlight-source-batchfile"><pre class="notranslate"><span class="pl-k">taskkill</span> /IM redis-server.exe</pre></div>
+<p><strong>效果</strong>：发送关闭信号，让进程自行清理资源后退出</p>
+<h3>方式2：通过PID正常结束</h3>
+<div class="highlight highlight-source-batchfile"><pre class="notranslate"><span class="pl-k">taskkill</span> /PID <span class="pl-c1">39556</span></pre></div>
+<p><strong>效果</strong>：Redis会执行持久化操作后正常关闭</p>
+<h2>2. 自动结束（指定超时时间）</h2>
+<h3>方式1：带超时的正常结束</h3>
+<div class="highlight highlight-source-batchfile"><pre class="notranslate"><span class="pl-k">taskkill</span> /PID <span class="pl-c1">39556</span> /T /TIMEOUT <span class="pl-c1">10</span></pre></div>
+<p><strong>效果</strong>：给进程10秒时间自行退出，超时后自动强制终止</p>
+<h3>方式2：通过WMIC命令结束</h3>
+<div class="highlight highlight-source-batchfile"><pre class="notranslate"><span class="pl-k">wmic</span> process <span class="pl-k">where</span> processid=<span class="pl-c1">39556</span> <span class="pl-k">call</span> terminate</pre></div>
+<p><strong>效果</strong>：相对温和的系统级终止方式</p>
+<h2>3. 强制终止（Forced Termination）</h2>
+<h3>方式1：强制结束进程</h3>
+<div class="highlight highlight-source-batchfile"><pre class="notranslate"><span class="pl-k">taskkill</span> /PID <span class="pl-c1">39556</span> /F</pre></div>
+<p><strong>效果</strong>：立即终止进程，不等待资源清理</p>
+<h3>方式2：强制结束进程树</h3>
+<div class="highlight highlight-source-batchfile"><pre class="notranslate"><span class="pl-k">taskkill</span> /PID <span class="pl-c1">39556</span> /F /T</pre></div>
+<p><strong>效果</strong>：终止进程及其所有子进程</p>
+<h3>方式3：使用WMIC强制终止</h3>
+<div class="highlight highlight-source-batchfile"><pre class="notranslate"><span class="pl-k">wmic</span> process <span class="pl-k">where</span> processid=<span class="pl-c1">39556</span> delete</pre></div>
+<p><strong>效果</strong>：立即强制删除进程</p>
+<h2>4. 系统级强制终止</h2>
+<h3>方式1：使用PowerShell强制终止</h3>
+<div class="highlight highlight-source-powershell"><pre class="notranslate"><span class="pl-c1">Stop-Process</span> <span class="pl-k">-</span>Id <span class="pl-c1">39556</span> <span class="pl-k">-</span>Force</pre></div>
+<h3>方式2：使用PowerShell立即终止</h3>
+<div class="highlight highlight-source-powershell"><pre class="notranslate"><span class="pl-c1">Get-Process</span> <span class="pl-k">-</span>Id <span class="pl-c1">39556</span> <span class="pl-k">|</span> Kill <span class="pl-k">-</span>Force</pre></div>
+<h2>针对Redis的演示示例：</h2>
+<h3>场景1：Redis自动结束（正常关闭）</h3>
+<div class="highlight highlight-source-batchfile"><pre class="notranslate"># 方式1：通过进程名正常关闭
+<span class="pl-k">taskkill</span> /IM redis-server.exe
+
+# 方式2：通过PID正常关闭
+<span class="pl-k">taskkill</span> /PID <span class="pl-c1">39556</span>
+
+# 方式3：使用Redis客户端发送关闭命令
+redis-cli <span class="pl-k">shutdown</span></pre></div>
+<p><strong>结果</strong>：Redis会执行RDB或AOF持久化后正常退出</p>
+<h3>场景2：Redis宕机（自动终止）</h3>
+<div class="highlight highlight-source-batchfile"><pre class="notranslate"># 设置10秒超时，模拟服务无响应后的自动终止
+<span class="pl-k">taskkill</span> /PID <span class="pl-c1">39556</span> /T /TIMEOUT <span class="pl-c1">10</span>
+
+# 或者使用WMIC温和终止
+<span class="pl-k">wmic</span> process <span class="pl-k">where</span> processid=<span class="pl-c1">39556</span> <span class="pl-k">call</span> terminate</pre></div>
+<p><strong>结果</strong>：如果Redis在指定时间内无响应，系统会自动强制终止</p>
+<h3>场景3：强制终止</h3>
+<div class="highlight highlight-source-batchfile"><pre class="notranslate"># 立即强制终止Redis进程
+<span class="pl-k">taskkill</span> /PID <span class="pl-c1">39556</span> /F
+
+# 或者终止整个进程树
+<span class="pl-k">taskkill</span> /IM redis-server.exe /F /T
+
+# 使用PowerShell强制终止
+Stop-Process -Name <span class="pl-s"><span class="pl-pds">"</span>redis-server<span class="pl-pds">"</span></span> -Force</pre></div>
+<p><strong>结果</strong>：Redis立即被终止，可能丢失未保存的数据</p>
+<h2>注意事项：</h2>
+<ol>
+<li><strong>数据安全</strong>：对于Redis等数据库服务，优先使用正常关闭方式</li>
+<li><strong>权限要求</strong>：某些命令需要管理员权限</li>
+<li><strong>进程树</strong>：使用<code class="notranslate">/T</code>参数可以终止整个进程树</li>
+<li><strong>返回值</strong>：命令执行成功返回0，失败返回非0值</li>
+</ol>
+<h2>推荐使用顺序：</h2>
+<ol>
+<li>首先尝试：<code class="notranslate">taskkill /PID 39556</code></li>
+<li>如果无响应：<code class="notranslate">taskkill /PID 39556 /T /TIMEOUT 10</code></li>
+<li>最后选择：<code class="notranslate">taskkill /PID 39556 /F</code></li>
+</ol>
+<p>这样可以在保证数据安全的前提下，有效地管理进程生命周期。</p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://luminku.github.io">布谷博客</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","LuminKu/luminku.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
+
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
+
+</script>
+
+
+</html>
