@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/240149665?v=4"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="> 在工作中遇到了传统分层架构的问题，比如代码混乱、维护困难，或者正在参与复杂业务系统开发，需要更系统的方法来管理复杂度。">
+<meta property="og:title" content="DDD领域驱动设计全解析【10】">
+<meta property="og:description" content="> 在工作中遇到了传统分层架构的问题，比如代码混乱、维护困难，或者正在参与复杂业务系统开发，需要更系统的方法来管理复杂度。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://luminku.github.io/post/DDD-ling-yu-qu-dong-she-ji-quan-jie-xi-%E3%80%9010%E3%80%91.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
+<title>DDD领域驱动设计全解析【10】</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">DDD领域驱动设计全解析【10】</h1>
+<div class="title-right">
+    <a href="https://luminku.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/LuminKu/luminku.github.io/issues/10" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><blockquote>
+<p>在工作中遇到了传统分层架构的问题，比如代码混乱、维护困难，或者正在参与复杂业务系统开发，需要更系统的方法来管理复杂度。</p>
+<p>接下来要拆解DDD的各个方面，但不能堆砌术语。得从痛点入手，比如先解释为什么需要DDD，对比传统开发的问题。然后逐步引入战略设计和战术设计，避免一开始就陷入细节。</p>
+<p>要注意区分战略和战术，因为初学者容易混淆。战略部分强调问题空间，比如领域、子域、限界上下文，帮助他划分业务边界。战术部分则给出具体的Java实现例子，比如实体、值对象怎么用代码体现。</p>
+<p>还要考虑他可能熟悉的Spring、JPA等技术，结合这些工具展示DDD的实现，降低陌生感。比如用<a class="user-mention notranslate" data-hovercard-type="user" data-hovercard-url="/users/entity/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/entity">@entity</a>注解时，如何避免贫血模型，加入领域行为。</p>
+<p>另外，他可能关心团队协作和落地流程，比如事件风暴如何操作，如何与现有项目结合。需要强调DDD不是银弹，适合复杂业务，简单CRUD可能过度设计。</p>
+<p>最后，总结学习路径，推荐实践和资源，让他有明确的下一步行动方向。避免让他感到信息过载，而是循序渐进，鼓励从小模块开始尝试。</p>
+</blockquote>
+<p>好的，非常棒的问题！作为一名Java后端开发人员，接触DDD是一个非常自然且能极大提升你代码和架构设计能力的阶段。我将从一个Java后端“过来人”的视角，为你全方位、由浅入深地解析DDD。</p>
+<hr>
+<h3>一、为什么我们需要DDD？—— 从我们熟悉的痛点说起</h3>
+<p>在你日常的Java开发中，是否遇到过这些情况？</p>
+<ol>
+<li><strong>“大泥球”架构</strong>：<code class="notranslate">Service</code> 类越来越臃肿，成百上千行代码，业务逻辑散落各处，牵一发而动全身。</li>
+<li><strong>“贫血模型”的困扰</strong>：你的 <code class="notranslate">User</code>、<code class="notranslate">Order</code> 等实体类（Entity）是不是只有一堆 <code class="notranslate">getter/setter</code>，没有任何业务逻辑？所有业务操作都写在 <code class="notranslate">Service</code> 里，<code class="notranslate">User</code> 只是一个“数据载体”，而不是一个“业务对象”。</li>
+<li><strong>沟通的鸿沟</strong>：你和产品经理、领域专家沟通时，你说的是“<code class="notranslate">users</code> 表”、“<code class="notranslate">orders</code> 表”，而他们说的是“用户”、“订单”、“履约流程”。这种术语的不一致，导致需求理解偏差，代码实现与真实业务脱节。</li>
+<li><strong>技术绑架业务</strong>：因为用了某个ORM框架（如MyBatis），你的数据库表结构直接决定了你的代码模型。为了一个简单的业务变更，你可能需要改动数据库、DAO、Service等多个层面。</li>
+</ol>
+<p><strong>DDD（领域驱动设计）就是为了解决这些问题而生的。</strong> 它的核心思想是：<strong>让软件的核心业务逻辑（领域）成为项目的重心，并且使用业务领域的术语和概念来驱动软件设计。</strong></p>
+<hr>
+<h3>二、DDD到底是什么？—— 一个高层次的概述</h3>
+<p>DDD不是一种架构，也不是一种技术框架，而是一套<strong>方法论</strong>、一套<strong>设计思想</strong>。它由Eric Evans在其经典著作《领域驱动设计》中提出。</p>
+<p>它的核心可以概括为两点：</p>
+<ol>
+<li><strong>统一语言（Ubiquitous Language）</strong>：在项目团队内部（包括开发、测试、产品经理、业务专家等）建立一种基于业务领域的通用语言。这种语言贯穿于需求讨论、设计、编码、测试等所有环节。代码中的类名、方法名，都应该直接使用这种语言。</li>
+<li><strong>模型驱动设计（Model-Driven Design）</strong>：将统一语言中提炼出的核心概念，直接映射为软件模型。这个模型不是数据库表模型，而是真正表达业务逻辑的代码模型。</li>
+</ol>
+<hr>
+<h3>三、DDD的核心构成——战略设计与战术设计</h3>
+<p>DDD可以划分为两大块：<strong>战略设计</strong>和<strong>战术设计</strong>。这是理解DDD的关键。</p>
+<h4>（一）战略设计 —— 帮你划分战场，理清边界</h4>
+<p>战略设计关心的是“做什么”和“边界在哪里”。它帮助我们在宏观层面分解复杂的业务系统。</p>
+<ol>
+<li>
+<p><strong>领域 &amp; 子域（Domain / Subdomain）</strong></p>
+<ul>
+<li><strong>领域</strong>：一个组织所做的事情以及其中包含的一切。比如“电商领域”、“保险领域”。</li>
+<li><strong>子域</strong>：将庞大领域拆解成更小、更内聚的部分。分为：
+<ul>
+<li><strong>核心域</strong>：公司的核心竞争力，最应该投入精力的地方。例如电商的<strong>商品、订单、支付</strong>。</li>
+<li><strong>支撑子域</strong>：不是核心，但业务必不可少。例如电商的<strong>用户权限、日志系统</strong>。</li>
+<li><strong>通用子域</strong>：很通用，可以直接买现成或使用开源方案。例如电商的<strong>消息通知</strong>。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>限界上下文（Bounded Context，BC）—— 战略设计的核心！</strong></p>
+<ul>
+<li><strong>概念</strong>：一个显式的边界，在这个边界内，领域模型（包括代码和语言）是自包含的、一致的、无二义的。</li>
+<li><strong>Java中的理解</strong>：<strong>一个限界上下文通常对应一个微服务，或者一个Java模块（JAR包）</strong>。例如，“订单上下文”和“商品上下文”就是两个不同的BC。</li>
+<li><strong>为什么重要</strong>：在“订单上下文”里，“Product”可能只关心<code class="notranslate">productId</code>和<code class="notranslate">price</code>；而在“商品上下文”里，“Product”则拥有<code class="notranslate">name</code>, <code class="notranslate">description</code>, <code class="notranslate">inventory</code>等完整信息。BC明确了同一个词在不同语境下的不同含义和职责。</li>
+</ul>
+</li>
+<li>
+<p><strong>上下文映射图（Context Mapping）</strong></p>
+<ul>
+<li>描述了不同限界上下文之间如何通信和集成。</li>
+<li>常见关系：<strong>合作关系</strong>、<strong>客户-供应商关系</strong>、<strong>遵奉者</strong>、<strong>防腐层（ACL）</strong> 等。其中<strong>防腐层</strong>非常重要，它像一个适配器，隔离外部上下文的“腐败”模型对你核心域的影响。</li>
+</ul>
+</li>
+</ol>
+<h4>（二）战术设计 —— 帮你组织代码，实现模型</h4>
+<p>战术设计关心的是“在边界内部如何实现”。它提供了一系列构建块（Building Blocks），让我们用面向对象的方式编写出富血的领域模型。</p>
+<p>以下是Java后端视角下的核心战术组件：</p>
+<ol>
+<li>
+<p><strong>实体（Entity）</strong></p>
+<ul>
+<li><strong>特点</strong>：有唯一标识（ID），会随着时间推移而改变。关心的是生命周期和连续性。</li>
+<li><strong>Java示例</strong>：
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// 传统贫血模型（Bad）</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">User</span> {
+    <span class="pl-k">private</span> <span class="pl-smi">Long</span> <span class="pl-s1">id</span>;
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> <span class="pl-s1">name</span>;
+    <span class="pl-c">// ... getters and setters only</span>
+}
+
+<span class="pl-c">// DDD富血模型（Good）</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">User</span> {
+    <span class="pl-k">private</span> <span class="pl-smi">UserId</span> <span class="pl-s1">id</span>; <span class="pl-c">// 值对象，封装ID</span>
+    <span class="pl-k">private</span> <span class="pl-smi">String</span> <span class="pl-s1">name</span>;
+    <span class="pl-k">private</span> <span class="pl-smi">Email</span> <span class="pl-s1">email</span>; <span class="pl-c">// 值对象，封装业务规则</span>
+
+    <span class="pl-c">// 业务行为</span>
+    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">changeName</span>(<span class="pl-smi">String</span> <span class="pl-s1">newName</span>) {
+        <span class="pl-k">if</span> (<span class="pl-s1">newName</span> == <span class="pl-c1">null</span> || <span class="pl-s1">newName</span>.<span class="pl-en">trim</span>().<span class="pl-en">isEmpty</span>()) {
+            <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">IllegalArgumentException</span>(<span class="pl-s">"Name cannot be empty"</span>);
+        }
+        <span class="pl-smi">this</span>.<span class="pl-s1">name</span> = <span class="pl-s1">newName</span>;
+    }
+
+    <span class="pl-c">// 静态工厂方法，封装创建逻辑</span>
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">User</span> <span class="pl-en">create</span>(<span class="pl-smi">String</span> <span class="pl-s1">name</span>, <span class="pl-smi">String</span> <span class="pl-s1">email</span>) {
+        <span class="pl-c">// ... 校验逻辑</span>
+        <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-smi">User</span>(<span class="pl-smi">UserId</span>.<span class="pl-en">generate</span>(), <span class="pl-s1">name</span>, <span class="pl-k">new</span> <span class="pl-smi">Email</span>(<span class="pl-s1">email</span>));
+    }
+}</pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>值对象（Value Object, VO）</strong></p>
+<ul>
+<li><strong>特点</strong>：没有唯一标识，通过其属性值来定义。不可变（Immutable）。</li>
+<li><strong>Java示例</strong>：
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// 地址是一个典型的VO</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">Address</span> {
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-s1">province</span>;
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-s1">city</span>;
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-s1">detail</span>;
+
+    <span class="pl-k">public</span> <span class="pl-smi">Address</span>(<span class="pl-smi">String</span> <span class="pl-s1">province</span>, <span class="pl-smi">String</span> <span class="pl-s1">city</span>, <span class="pl-smi">String</span> <span class="pl-s1">detail</span>) {
+        <span class="pl-smi">this</span>.<span class="pl-s1">province</span> = <span class="pl-s1">province</span>;
+        <span class="pl-smi">this</span>.<span class="pl-s1">city</span> = <span class="pl-s1">city</span>;
+        <span class="pl-smi">this</span>.<span class="pl-s1">detail</span> = <span class="pl-s1">detail</span>;
+    }
+    <span class="pl-c">// 没有setter，只有getter</span>
+    <span class="pl-c">// 可以定义equals和hashCode，通过所有字段来判断相等性</span>
+}</pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>聚合 &amp; 聚合根（Aggregate &amp; Aggregate Root）—— 战术设计的核心！</strong></p>
+<ul>
+<li><strong>概念</strong>：将一组高度相关的对象（实体和值对象）组合在一起，形成一个数据修改的单元。每个聚合都有一个<strong>聚合根</strong>。</li>
+<li><strong>规则</strong>：
+<ul>
+<li>外部对象只能通过聚合根的引用与整个聚合交互。</li>
+<li>聚合内的对象可以互相引用，但聚合之间只能通过ID引用。</li>
+<li>聚合要设计得尽可能小。</li>
+</ul>
+</li>
+<li><strong>Java示例</strong>：
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// Order是聚合根</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">Order</span> {
+    <span class="pl-k">private</span> <span class="pl-smi">OrderId</span> <span class="pl-s1">id</span>;
+    <span class="pl-k">private</span> <span class="pl-smi">CustomerId</span> <span class="pl-s1">customerId</span>; <span class="pl-c">// 外部聚合引用，只用ID</span>
+    <span class="pl-k">private</span> <span class="pl-smi">List</span>&lt;<span class="pl-smi">OrderItem</span>&gt; <span class="pl-s1">items</span>; <span class="pl-c">// 聚合内的实体</span>
+    <span class="pl-k">private</span> <span class="pl-smi">Money</span> <span class="pl-s1">totalAmount</span>; <span class="pl-c">// 值对象</span>
+
+    <span class="pl-c">// 业务方法</span>
+    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">addItem</span>(<span class="pl-smi">ProductId</span> <span class="pl-s1">productId</span>, <span class="pl-smi">int</span> <span class="pl-s1">quantity</span>, <span class="pl-smi">Money</span> <span class="pl-s1">price</span>) {
+        <span class="pl-c">// 业务逻辑：检查重复、计算总价等</span>
+        <span class="pl-smi">this</span>.<span class="pl-s1">items</span>.<span class="pl-en">add</span>(<span class="pl-k">new</span> <span class="pl-smi">OrderItem</span>(<span class="pl-s1">productId</span>, <span class="pl-s1">quantity</span>, <span class="pl-s1">price</span>));
+        <span class="pl-smi">this</span>.<span class="pl-en">calculateTotalAmount</span>();
+    }
+
+    <span class="pl-k">private</span> <span class="pl-smi">void</span> <span class="pl-en">calculateTotalAmount</span>() { ... }
+}
+
+<span class="pl-c">// OrderItem是聚合内的实体，它的生命周期完全由Order管理</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">OrderItem</span> {
+    <span class="pl-k">private</span> <span class="pl-smi">ProductId</span> <span class="pl-s1">productId</span>;
+    <span class="pl-k">private</span> <span class="pl-smi">int</span> <span class="pl-s1">quantity</span>;
+    <span class="pl-k">private</span> <span class="pl-smi">Money</span> <span class="pl-s1">price</span>;
+}</pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>领域服务（Domain Service）</strong></p>
+<ul>
+<li><strong>场景</strong>：当一个操作或业务逻辑不适合放在任何实体或值对象内部时（例如，涉及多个聚合的协调，或者是一个无状态的计算过程）。</li>
+<li><strong>Java示例</strong>：<code class="notranslate">FundTransferService</code> 处理两个银行账户之间的转账，这个操作涉及两个<code class="notranslate">Account</code>聚合。</li>
+</ul>
+</li>
+<li>
+<p><strong>领域事件（Domain Event）</strong></p>
+<ul>
+<li><strong>概念</strong>：表示在领域中发生的、对业务有意义的事情。</li>
+<li><strong>作用</strong>：用于实现聚合之间的最终一致性，解耦系统。</li>
+<li><strong>Java示例</strong>：
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">OrderCreatedEvent</span> {
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">OrderId</span> <span class="pl-s1">orderId</span>;
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">CustomerId</span> <span class="pl-s1">customerId</span>;
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">Instant</span> <span class="pl-s1">occurredOn</span>;
+    <span class="pl-c">// ... constructor, getters</span>
+}
+
+<span class="pl-c">// 在Order聚合根中</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">Order</span> {
+    <span class="pl-k">public</span> <span class="pl-smi">Order</span> <span class="pl-en">create</span>(...) {
+        <span class="pl-smi">Order</span> <span class="pl-s1">order</span> = <span class="pl-k">new</span> <span class="pl-smi">Order</span>(...);
+        <span class="pl-c">// ... 初始化逻辑</span>
+        <span class="pl-smi">DomainEventPublisher</span>.<span class="pl-en">publish</span>(<span class="pl-k">new</span> <span class="pl-smi">OrderCreatedEvent</span>(<span class="pl-s1">order</span>.<span class="pl-en">getId</span>(), ...));
+        <span class="pl-k">return</span> <span class="pl-s1">order</span>;
+    }
+}</pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>仓储（Repository）</strong></p>
+<ul>
+<li><strong>职责</strong>：负责聚合的持久化和检索，只针对聚合根。</li>
+<li><strong>关键</strong>：在领域层，我们只定义仓储的<strong>接口</strong>，在基础设施层实现它。这符合<strong>依赖倒置原则</strong>。</li>
+<li><strong>Java示例</strong>：
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// 在领域层</span>
+<span class="pl-k">public</span> <span class="pl-k">interface</span> <span class="pl-smi">OrderRepository</span> {
+    <span class="pl-smi">Order</span> <span class="pl-en">findById</span>(<span class="pl-smi">OrderId</span> <span class="pl-s1">id</span>);
+    <span class="pl-smi">void</span> <span class="pl-en">save</span>(<span class="pl-smi">Order</span> <span class="pl-s1">order</span>);
+    <span class="pl-smi">void</span> <span class="pl-en">delete</span>(<span class="pl-smi">OrderId</span> <span class="pl-s1">id</span>);
+}
+
+<span class="pl-c">// 在基础设施层（使用JPA）</span>
+<span class="pl-c1">@</span><span class="pl-c1">Repository</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">JpaOrderRepository</span> <span class="pl-k">implements</span> <span class="pl-smi">OrderRepository</span> {
+    <span class="pl-c1">@</span><span class="pl-c1">PersistenceContext</span>
+    <span class="pl-k">private</span> <span class="pl-smi">EntityManager</span> <span class="pl-s1">entityManager</span>;
+
+    <span class="pl-c1">@</span><span class="pl-c1">Override</span>
+    <span class="pl-k">public</span> <span class="pl-smi">Order</span> <span class="pl-en">findById</span>(<span class="pl-smi">OrderId</span> <span class="pl-s1">id</span>) {
+        <span class="pl-k">return</span> <span class="pl-s1">entityManager</span>.<span class="pl-en">find</span>(<span class="pl-smi">Order</span>.<span class="pl-k">class</span>, <span class="pl-s1">id</span>);
+    }
+    <span class="pl-c">// ... save, delete</span>
+}</pre></div>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3>四、DDD与分层架构</h3>
+<p>DDD通常与清晰的分层架构结合使用，最经典的是<strong>四层架构</strong>：</p>
+<ol>
+<li><strong>用户接口层</strong>：处理外部请求（如Controller），展示数据。</li>
+<li><strong>应用层</strong>：很薄的一层，<strong>协调任务</strong>，不包含业务逻辑。它负责：
+<ul>
+<li>获取聚合（通过仓储）。</li>
+<li>调用聚合上的业务方法。</li>
+<li>发布领域事件。</li>
+<li>事务管理。</li>
+<li><strong>Java示例（Application Service）</strong>：
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">Transactional</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">OrderApplicationService</span> {
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">OrderRepository</span> <span class="pl-s1">orderRepository</span>;
+    <span class="pl-k">private</span> <span class="pl-k">final</span> <span class="pl-smi">DomainEventPublisher</span> <span class="pl-s1">eventPublisher</span>;
+
+    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">createOrder</span>(<span class="pl-smi">CreateOrderCommand</span> <span class="pl-s1">command</span>) {
+        <span class="pl-c">// 1. 业务逻辑校验（如果需要跨多个聚合的校验，可以放这里或领域服务）</span>
+        <span class="pl-c">// 2. 创建聚合</span>
+        <span class="pl-smi">Order</span> <span class="pl-s1">order</span> = <span class="pl-smi">Order</span>.<span class="pl-en">create</span>(...);
+        <span class="pl-c">// 3. 保存聚合</span>
+        <span class="pl-s1">orderRepository</span>.<span class="pl-en">save</span>(<span class="pl-s1">order</span>);
+        <span class="pl-c">// 4. 应用层可以发布事件（或者由仓储在事务提交后自动发布）</span>
+        <span class="pl-s1">eventPublisher</span>.<span class="pl-en">publish</span>(<span class="pl-k">new</span> <span class="pl-smi">OrderCreatedEvent</span>(...));
+    }
+}</pre></div>
+</li>
+</ul>
+</li>
+<li><strong>领域层</strong>：<strong>系统的核心</strong>！包含实体、值对象、领域服务、领域事件、仓储接口等。它完全专注于业务逻辑，不依赖任何外部框架。</li>
+<li><strong>基础设施层</strong>：实现技术细节，如数据库持久化（实现仓储）、消息通信、外部API调用等。</li>
+</ol>
+<hr>
+<h3>五、给Java后端的学习路径和实践建议</h3>
+<ol>
+<li>
+<p><strong>第一步：转变思想</strong></p>
+<ul>
+<li>认识到“贫血模型”的危害，尝试在你的 <code class="notranslate">Entity</code> 中加入业务方法。</li>
+<li>在团队中推动建立“统一语言”，从命名开始。</li>
+</ul>
+</li>
+<li>
+<p><strong>第二步：从小处着手</strong></p>
+<ul>
+<li>不要试图一次性在所有模块应用DDD。选择一个核心的、复杂的业务模块开始尝试。</li>
+<li>先尝试识别<strong>聚合根</strong>和设计<strong>聚合</strong>，这是最有价值的起点。</li>
+</ul>
+</li>
+<li>
+<p><strong>第三步：技术栈选择</strong></p>
+<ul>
+<li><strong>Spring Boot</strong>：天然的基石。</li>
+<li><strong>JPA/Hibernate</strong>：对实现DDD的实体、聚合支持很好。注意使用 <code class="notranslate">@Entity</code>， <code class="notranslate">@Embeddable</code>（用于值对象）。</li>
+<li><strong>MapStruct</strong>：用于在应用层和接口层进行DTO转换，避免领域对象泄漏出去。</li>
+<li><strong>Spring Data JPA</strong>：可以简化仓储的实现。</li>
+</ul>
+</li>
+<li>
+<p><strong>第四步：实践流程</strong></p>
+<ul>
+<li><strong>事件风暴（Event Storming）</strong>：一个非常好的DDD实践工作坊，通过贴纸的方式，与业务人员一起梳理领域事件、聚合、命令等，快速建立领域模型。</li>
+<li>设计 -&gt; 编码 -&gt; 重构，循环往复。</li>
+</ul>
+</li>
+</ol>
+<h3>总结</h3>
+<p>对于Java后端开发者来说，DDD是一套从“CRUD程序员”走向“领域专家”的思维武器和工程实践。它初期有学习成本，但长期来看，它能为你带来：</p>
+<ul>
+<li><strong>可维护性</strong>：业务逻辑高度内聚，代码结构清晰。</li>
+<li><strong>可扩展性</strong>：清晰的边界（BC）让微服务拆分变得有理有据。</li>
+<li><strong>业务洞察力</strong>：通过与业务专家的深度沟通，你更能理解业务的本质。</li>
+</ul>
+<p>从今天起，试着在你的下一个 <code class="notranslate">User</code> 类里，把 <code class="notranslate">setPassword</code> 方法改成 <code class="notranslate">changePassword</code>，并加入密码强度的校验逻辑。这，就是你迈向DDD的第一步！</p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://luminku.github.io">布谷博客</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","LuminKu/luminku.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
+
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
+
+</script>
+
+
+</html>
