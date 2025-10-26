@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/240149665?v=4"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="```plain text
+如何运行下面项目代码中的类，用jdk8、jdk9分别运行（有什么区别）
+amass
+    |- src/main/java/cn/xiaxin/Multiple.java
+    |- pox.xml
+```
+
+> 由于问题中只提供了项目结构，并没有提供具体的代码内容，因此我将假设Multiple.java是一个简单的Java类，并且pom.xml是一个基本的Maven配置文件。">
+<meta property="og:title" content="JDK 8与JDK 9运行Amass项目指南【20】">
+<meta property="og:description" content="```plain text
+如何运行下面项目代码中的类，用jdk8、jdk9分别运行（有什么区别）
+amass
+    |- src/main/java/cn/xiaxin/Multiple.java
+    |- pox.xml
+```
+
+> 由于问题中只提供了项目结构，并没有提供具体的代码内容，因此我将假设Multiple.java是一个简单的Java类，并且pom.xml是一个基本的Maven配置文件。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://luminku.github.io/post/JDK%208-yu-JDK%209-yun-xing-Amass-xiang-mu-zhi-nan-%E3%80%9020%E3%80%91.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
+<title>JDK 8与JDK 9运行Amass项目指南【20】</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">JDK 8与JDK 9运行Amass项目指南【20】</h1>
+<div class="title-right">
+    <a href="https://luminku.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/LuminKu/luminku.github.io/issues/20" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><pre lang="plain" data-meta="text" class="notranslate"><code class="notranslate">如何运行下面项目代码中的类，用jdk8、jdk9分别运行（有什么区别）
+amass
+    |- src/main/java/cn/xiaxin/Multiple.java
+    |- pox.xml
+</code></pre>
+<blockquote>
+<p>由于问题中只提供了项目结构，并没有提供具体的代码内容，因此我将假设Multiple.java是一个简单的Java类，并且pom.xml是一个基本的Maven配置文件。<br>
+为了演示如何运行，我将创建一个简单的Multiple类，它有一个main方法，用于打印一条消息和使用的JDK版本。<br>
+同时，我将提供一个简单的pom.xml文件。</p>
+<p>注意：由于问题要求用JDK8和JDK9分别运行，我们需要考虑两种环境下的可能差异。在JDK9中，模块系统（JPMS）被引入，但如果我们没有使用模块化，那么代码可能无需修改即可运行。<br>
+假设我们的代码没有使用任何版本特定的特性，那么运行方式相同。但是，为了演示区别，我们可以在代码中通过系统属性打印java.version。</p>
+<p>步骤：</p>
+<ol>
+<li>创建项目结构</li>
+<li>编写Multiple.java</li>
+<li>编写pom.xml</li>
+<li>使用JDK8编译和运行</li>
+<li>使用JDK9编译和运行</li>
+</ol>
+<p>由于我们使用Maven，可以通过切换JAVA_HOME来使用不同的JDK版本，然后使用mvn compile exec:java来运行，或者先编译成jar再运行。</p>
+<p>但是，请注意，问题中并没有指定使用Maven exec插件来运行，所以我们也可以使用传统的先编译后运行的方式。</p>
+<p>由于问题中要求运行类，我们可以使用以下两种方式：</p>
+<p>方式一：使用Maven Exec插件（需要配置）<br>
+方式二：使用java命令直接运行（需要先编译并设置类路径）</p>
+<p>这里我们将使用Maven进行编译，然后使用java命令运行，以便更清楚地看到不同JDK版本下的运行情况。</p>
+<p>假设项目结构如下：</p>
+<p>amass<br>
+|-- src/main/java/cn/xiaxin/Multiple.java<br>
+|-- pom.xml</p>
+<p>Multiple.java 内容：</p>
+<p>text</p>
+<pre class="notranslate"><code class="notranslate">package cn.xiaxin;
+
+public class Multiple {
+    public static void main(String[] args) {
+        System.out.println("Hello, World!");
+        System.out.println("Java Version: " + System.getProperty("java.version"));
+    }
+}
+</code></pre>
+<p>pom.xml 内容：</p>
+<p>text</p>
+<pre class="notranslate"><code class="notranslate">&lt;project&gt;
+  &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
+  &lt;groupId&gt;cn.xiaxin&lt;/groupId&gt;
+  &lt;artifactId&gt;amass&lt;/artifactId&gt;
+  &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;
+
+  &lt;properties&gt;
+    &lt;maven.compiler.source&gt;1.8&lt;/maven.compiler.source&gt;
+    &lt;maven.compiler.target&gt;1.8&lt;/maven.compiler.target&gt;
+    &lt;project.build.sourceEncoding&gt;UTF-8&lt;/project.build.sourceEncoding&gt;
+  &lt;/properties&gt;
+
+  &lt;build&gt;
+    &lt;plugins&gt;
+      &lt;plugin&gt;
+        &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;
+        &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;
+        &lt;version&gt;3.8.1&lt;/version&gt;
+        &lt;configuration&gt;
+          &lt;source&gt;1.8&lt;/source&gt;
+          &lt;target&gt;1.8&lt;/target&gt;
+        &lt;/configuration&gt;
+      &lt;/plugin&gt;
+    &lt;/plugins&gt;
+  &lt;/build&gt;
+&lt;/project&gt;
+</code></pre>
+<p>注意：在pom.xml中，我们指定了编译的源代码和目标字节码版本为1.8，这意味着即使使用JDK9编译，也会生成与JDK8兼容的字节码。</p>
+<p>运行步骤：</p>
+<ol>
+<li>确保设置了JAVA_HOME为JDK8或JDK9的安装路径，并将PATH指向正确的java和javac。</li>
+<li>使用Maven编译项目：<br>
+mvn compile</li>
+<li>运行编译后的类：<br>
+由于类在target/classes目录下，我们可以使用java命令运行，注意要指定包名。</li>
+</ol>
+<p>对于JDK8：<br>
+java -cp target/classes cn.xiaxin.Multiple</p>
+<p>对于JDK9：<br>
+同样使用上述命令，因为我们的代码没有使用模块化，所以可以像JDK8一样运行。</p>
+<p>但是，如果我们想要体验JDK9的模块化，那么需要创建module-info.java。但问题中没有要求，所以我们先按照非模块化项目运行。</p>
+<p>区别：<br>
+在运行的时候，JDK8和JDK9的输出会显示不同的java.version属性值。</p>
+<p>另外，需要注意的是，如果代码中使用了JDK9中废弃的API或者被移除的API，那么在JDK9下运行可能会出现问题。但是我们的简单示例没有这个问题。</p>
+<p>如果使用Maven Exec插件来运行，则需要配置pom.xml中的exec插件。</p>
+<p>下面我们使用Maven Exec插件来运行：</p>
+<p>在pom.xml的build/plugins中添加：</p>
+<p>text</p>
+<pre class="notranslate"><code class="notranslate">&lt;plugin&gt;
+    &lt;groupId&gt;org.codehaus.mojo&lt;/groupId&gt;
+    &lt;artifactId&gt;exec-maven-plugin&lt;/artifactId&gt;
+    &lt;version&gt;1.6.0&lt;/version&gt;
+    &lt;configuration&gt;
+        &lt;mainClass&gt;cn.xiaxin.Multiple&lt;/mainClass&gt;
+    &lt;/configuration&gt;
+&lt;/plugin&gt;
+</code></pre>
+<p>然后运行：<br>
+mvn compile exec:java</p>
+<p>这样就会使用当前设置的JDK版本来运行。</p>
+<p>现在，我们分别用JDK8和JDK9来运行这个项目，观察输出中的Java版本。</p>
+<p>由于问题中没有给出具体代码，以上是一种假设的简单情况。如果实际代码中使用了JDK9的新特性，那么需要在JDK9下编译和运行，并且可能无法在JDK8下运行。</p>
+<p>但是根据问题，我们分别用JDK8和JDK9运行，所以如果代码中有版本特定的代码，则需要调整。这里假设代码是兼容JDK8和JDK9的。</p>
+<p>总结步骤：</p>
+<ol>
+<li>设置JAVA_HOME为JDK8路径，编译并运行（使用java命令或Maven exec插件）。</li>
+<li>设置JAVA_HOME为JDK9路径，编译并运行。</li>
+</ol>
+<p>注意：在切换JDK版本时，最好使用工具如SDKMAN!（在Linux/Mac上）或手动切换JAVA_HOME。</p>
+<p>输出区别：<br>
+在JDK8下运行，输出的版本字符串可能是1.8.0_XXX。<br>
+在JDK9下运行，输出的版本字符串可能是9.x.x。</p>
+<p>此外，如果没有其他版本特定代码，程序行为应该一致。</p>
+<p>如果实际项目代码中使用了JDK9的模块化，那么需要额外的步骤（创建module-info.java），并且运行方式也会有所不同（需要使用模块路径而不是类路径）。但是根据问题中的项目结构，并没有模块化，所以我们按传统方式运行。</p>
+</blockquote>
+<h1>直接使用java.exe命令运行Amass项目</h1>
+<p>我将详细介绍如何不使用Maven，而是直接使用<code class="notranslate">java.exe</code>命令来运行Amass项目中的Multiple类，并分别说明在JDK 8和JDK 9环境下的操作步骤和区别。</p>
+<h2>项目结构回顾</h2>
+<pre class="notranslate"><code class="notranslate">amass/
+├── src/main/java/cn/xiaxin/Multiple.java
+└── pom.xml
+</code></pre>
+<h2>基本步骤（适用于JDK 8和JDK 9）</h2>
+<h3>1. 编译Java文件</h3>
+<p>首先需要将Java源代码编译成字节码文件(.class)。</p>
+<h3>2. 运行编译后的类</h3>
+<p>使用java命令执行编译后的类。</p>
+<h2>JDK 8环境下的操作</h2>
+<h3>步骤1：编译Java文件</h3>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 创建输出目录</span>
+mkdir -p target/classes
+
+<span class="pl-c"><span class="pl-c">#</span> 编译Java文件（指定输出目录）</span>
+javac -d target/classes src/main/java/cn/xiaxin/Multiple.java</pre></div>
+<h3>步骤2：运行编译后的类</h3>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 运行程序（指定类路径）</span>
+java -cp target/classes cn.xiaxin.Multiple</pre></div>
+<h2>JDK 9环境下的操作</h2>
+<h3>步骤1：编译Java文件</h3>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 创建输出目录</span>
+mkdir -p target/classes
+
+<span class="pl-c"><span class="pl-c">#</span> 编译Java文件（与JDK 8命令相同）</span>
+javac -d target/classes src/main/java/cn/xiaxin/Multiple.java</pre></div>
+<h3>步骤2：运行编译后的类</h3>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 运行程序（与JDK 8命令相同）</span>
+java -cp target/classes cn.xiaxin.Multiple</pre></div>
+<h2>处理依赖项</h2>
+<p>如果Multiple类依赖其他JAR包，需要将这些JAR包添加到类路径中：</p>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 假设有lib目录包含依赖的JAR包</span>
+java -cp <span class="pl-s"><span class="pl-pds">"</span>target/classes:lib/*<span class="pl-pds">"</span></span> cn.xiaxin.Multiple
+
+<span class="pl-c"><span class="pl-c">#</span> Windows系统使用分号分隔</span>
+java -cp <span class="pl-s"><span class="pl-pds">"</span>target/classes;lib/*<span class="pl-pds">"</span></span> cn.xiaxin.Multiple</pre></div>
+<h2>JDK 8与JDK 9运行时的区别</h2>
+<p>虽然基本命令相同，但在JDK 9环境下可能会遇到以下差异：</p>
+<ol>
+<li>
+<p><strong>模块系统相关错误</strong>：</p>
+<ul>
+<li>如果代码使用了JDK 9的模块系统特性，可能需要添加模块相关参数</li>
+<li>示例：<code class="notranslate">java --add-modules java.sql -cp target/classes cn.xiaxin.Multiple</code></li>
+</ul>
+</li>
+<li>
+<p><strong>废弃API警告</strong>：</p>
+<ul>
+<li>JDK 9中某些在JDK 8中可用的API可能已被标记为废弃</li>
+<li>编译时可能看到更多警告信息</li>
+</ul>
+</li>
+<li>
+<p><strong>版本特定代码</strong>：</p>
+<ul>
+<li>如果代码中使用了版本特定的API，可能需要条件编译</li>
+</ul>
+</li>
+</ol>
+<h2>示例：处理版本特定的代码</h2>
+<p>如果Multiple.java中包含JDK 9特有的代码，可以这样处理：</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// Multiple.java</span>
+<span class="pl-k">package</span> <span class="pl-s1">cn</span>.<span class="pl-s1">xiaxin</span>;
+
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">Multiple</span> {
+    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">main</span>(<span class="pl-smi">String</span>[] <span class="pl-s1">args</span>) {
+        <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s">"Running with Java version: "</span> + <span class="pl-smi">System</span>.<span class="pl-en">getProperty</span>(<span class="pl-s">"java.version"</span>));
+        
+        <span class="pl-c">// 检查Java版本并执行相应代码</span>
+        <span class="pl-smi">String</span> <span class="pl-s1">version</span> = <span class="pl-smi">System</span>.<span class="pl-en">getProperty</span>(<span class="pl-s">"java.version"</span>);
+        <span class="pl-k">if</span> (<span class="pl-s1">version</span>.<span class="pl-en">startsWith</span>(<span class="pl-s">"1.8"</span>)) {
+            <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s">"Running on JDK 8"</span>);
+            <span class="pl-c">// JDK 8特定代码</span>
+        } <span class="pl-k">else</span> <span class="pl-k">if</span> (<span class="pl-s1">version</span>.<span class="pl-en">startsWith</span>(<span class="pl-s">"9"</span>)) {
+            <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s">"Running on JDK 9"</span>);
+            <span class="pl-k">try</span> {
+                <span class="pl-c">// 使用反射调用JDK 9特有API，避免编译错误</span>
+                <span class="pl-smi">Class</span>&lt;?&gt; <span class="pl-s1">processHandleClass</span> = <span class="pl-smi">Class</span>.<span class="pl-en">forName</span>(<span class="pl-s">"java.lang.ProcessHandle"</span>);
+                <span class="pl-smi">Object</span> <span class="pl-s1">currentProcess</span> = <span class="pl-s1">processHandleClass</span>.<span class="pl-en">getMethod</span>(<span class="pl-s">"current"</span>).<span class="pl-en">invoke</span>(<span class="pl-c1">null</span>);
+                <span class="pl-smi">long</span> <span class="pl-s1">pid</span> = (<span class="pl-smi">Long</span>) <span class="pl-s1">processHandleClass</span>.<span class="pl-en">getMethod</span>(<span class="pl-s">"pid"</span>).<span class="pl-en">invoke</span>(<span class="pl-s1">currentProcess</span>);
+                <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s">"Process PID: "</span> + <span class="pl-s1">pid</span>);
+            } <span class="pl-k">catch</span> (<span class="pl-smi">Exception</span> <span class="pl-s1">e</span>) {
+                <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s">"ProcessHandle API not available"</span>);
+            }
+        }
+    }
+}</pre></div>
+<h2>创建简单的启动脚本</h2>
+<p>为了方便在不同JDK版本间切换，可以创建启动脚本：</p>
+<h3>Linux/Mac脚本 (run.sh)</h3>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#!</span>/bin/bash</span>
+JAVA_HOME=<span class="pl-smi">${1<span class="pl-k">:-/</span>usr<span class="pl-k">/</span>lib<span class="pl-k">/</span>jvm<span class="pl-k">/</span>java-8-openjdk}</span>  <span class="pl-c"><span class="pl-c">#</span> 默认使用JDK 8</span>
+<span class="pl-smi">${JAVA_HOME}</span>/bin/javac -d target/classes src/main/java/cn/xiaxin/Multiple.java
+<span class="pl-smi">${JAVA_HOME}</span>/bin/java -cp target/classes cn.xiaxin.Multiple</pre></div>
+<h3>Windows脚本 (run.bat)</h3>
+<div class="highlight highlight-source-batchfile"><pre class="notranslate"><span class="pl-k">@</span><span class="pl-k">echo</span> <span class="pl-k">off</span>
+<span class="pl-k">set</span> <span class="pl-smi">JAVA_HOME</span><span class="pl-k">=</span><span class="pl-v">%1</span>
+<span class="pl-k">if</span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">%JAVA_HOME%</span><span class="pl-pds">"</span></span><span class="pl-k">==</span><span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span> <span class="pl-k">set</span> <span class="pl-smi">JAVA_HOME</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>C:\Program Files\Java\jdk1.8.0_201<span class="pl-pds">"</span></span>
+<span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">%JAVA_HOME%</span>\bin\javac<span class="pl-pds">"</span></span> -d target\classes src\main\java\cn\xiaxin\Multiple.java
+<span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">%JAVA_HOME%</span>\bin\java<span class="pl-pds">"</span></span> -cp target\classes cn.xiaxin.Multiple</pre></div>
+<h2>可能遇到的问题及解决方案</h2>
+<ol>
+<li>
+<p><strong>模块路径问题(JDK 9)</strong>：</p>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 如果遇到模块系统错误，尝试添加所有系统模块</span>
+java --add-modules ALL-SYSTEM -cp target/classes cn.xiaxin.Multiple</pre></div>
+</li>
+<li>
+<p><strong>版本兼容性问题</strong>：</p>
+<ul>
+<li>使用<code class="notranslate">-source</code>和<code class="notranslate">-target</code>选项确保向后兼容</li>
+</ul>
+<div class="highlight highlight-source-shell"><pre class="notranslate">javac -source 8 -target 8 -d target/classes src/main/java/cn/xiaxin/Multiple.java</pre></div>
+</li>
+<li>
+<p><strong>类路径问题</strong>：</p>
+<ul>
+<li>确保类路径正确包含所有依赖项</li>
+</ul>
+</li>
+</ol>
+<h2>总结</h2>
+<p>直接使用<code class="notranslate">java.exe</code>命令运行Java类的基本步骤在JDK 8和JDK 9中是相同的，主要包括：</p>
+<ol>
+<li>使用<code class="notranslate">javac</code>编译源代码</li>
+<li>使用<code class="notranslate">java</code>运行编译后的类</li>
+</ol>
+<p>主要区别在于：</p>
+<ul>
+<li>JDK 9引入了模块系统，可能需要额外的模块相关参数</li>
+<li>某些API在JDK 9中可能已被标记为废弃</li>
+<li>版本特定的代码可能需要条件编译或反射调用</li>
+</ul>
+<p>通过创建简单的脚本，可以更方便地在不同JDK版本间切换和测试代码兼容性。</p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://luminku.github.io">布谷博客</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","LuminKu/luminku.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
+
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
+
+</script>
+
+
+</html>
