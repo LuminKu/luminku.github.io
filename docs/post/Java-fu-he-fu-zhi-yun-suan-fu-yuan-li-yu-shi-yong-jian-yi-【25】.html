@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/240149665?v=4"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="```plain text
+java不同版本中对下面这3行代码：
+short i = 0; i = i + 1; 与 short i = 0; i += 1;
+short i = 0; i = i + '0'; 与 short i = 0; i += '0';
+short i = 0; i = i + 2.3; 与 short i = 0; i += 2.3; 
+同理 byte、char、int、float、long、double都有类似的特性；
+每行第一种编译时就会报错，而每行后一种则能自动强制类型转换，这是什么原理（底层设计），有何作用，是java编译器、java虚拟机正常工作的特性吗，注意与防范，使用中有何建议
+```
+
+
+这是一个非常经典且重要的Java问题，它触及了Java语言设计核心中的**类型安全**和**语法糖**概念。">
+<meta property="og:title" content="Java复合赋值运算符原理与使用建议【25】">
+<meta property="og:description" content="```plain text
+java不同版本中对下面这3行代码：
+short i = 0; i = i + 1; 与 short i = 0; i += 1;
+short i = 0; i = i + '0'; 与 short i = 0; i += '0';
+short i = 0; i = i + 2.3; 与 short i = 0; i += 2.3; 
+同理 byte、char、int、float、long、double都有类似的特性；
+每行第一种编译时就会报错，而每行后一种则能自动强制类型转换，这是什么原理（底层设计），有何作用，是java编译器、java虚拟机正常工作的特性吗，注意与防范，使用中有何建议
+```
+
+
+这是一个非常经典且重要的Java问题，它触及了Java语言设计核心中的**类型安全**和**语法糖**概念。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://luminku.github.io/post/Java-fu-he-fu-zhi-yun-suan-fu-yuan-li-yu-shi-yong-jian-yi-%E3%80%9025%E3%80%91.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
+<title>Java复合赋值运算符原理与使用建议【25】</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">Java复合赋值运算符原理与使用建议【25】</h1>
+<div class="title-right">
+    <a href="https://luminku.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/LuminKu/luminku.github.io/issues/25" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><pre lang="plain" data-meta="text" class="notranslate"><code class="notranslate">java不同版本中对下面这3行代码：
+short i = 0; i = i + 1; 与 short i = 0; i += 1;
+short i = 0; i = i + '0'; 与 short i = 0; i += '0';
+short i = 0; i = i + 2.3; 与 short i = 0; i += 2.3; 
+同理 byte、char、int、float、long、double都有类似的特性；
+每行第一种编译时就会报错，而每行后一种则能自动强制类型转换，这是什么原理（底层设计），有何作用，是java编译器、java虚拟机正常工作的特性吗，注意与防范，使用中有何建议
+</code></pre>
+<p>这是一个非常经典且重要的Java问题，它触及了Java语言设计核心中的<strong>类型安全</strong>和<strong>语法糖</strong>概念。</p>
+<p>您观察到的现象完全正确。下面我将从原理、作用、注意事项和建议等方面为您详细解释。</p>
+<hr>
+<h3>一、 原理与底层设计</h3>
+<p>根本原因在于：<strong>Java语言规范（JLS）对 <code class="notranslate">=</code>（简单赋值）和 <code class="notranslate">op=</code>（复合赋值，如 <code class="notranslate">+=</code>, <code class="notranslate">-=</code>, <code class="notranslate">*=</code> 等）运算符的定义不同。</strong></p>
+<h4>1. 对于 <code class="notranslate">i = i + 1;</code> （会编译错误）</h4>
+<ul>
+<li><strong>运算过程</strong>：
+<ol>
+<li><strong>二进制数值提升</strong>：在计算 <code class="notranslate">i + 1</code> 时，<code class="notranslate">i</code> 是 <code class="notranslate">short</code> 类型，<code class="notranslate">1</code> 是 <code class="notranslate">int</code> 类型（Java中整数字面量默认为 <code class="notranslate">int</code>）。根据Java的二进制数值提升规则，两个操作数中有一个是 <code class="notranslate">int</code>，另一个也会被自动提升为 <code class="notranslate">int</code>。因此，整个表达式 <code class="notranslate">i + 1</code> 的结果是一个 <code class="notranslate">int</code> 类型。</li>
+<li><strong>赋值</strong>：现在尝试将一个 <code class="notranslate">int</code> 类型的值赋值给一个 <code class="notranslate">short</code> 类型的变量 <code class="notranslate">i</code>。这是一种** narrowing primitive conversion**（缩窄原始类型转换），即从容量大的类型转换为容量小的类型。</li>
+<li><strong>类型安全检查</strong>：Java编译器要求这种<strong>可能丢失精度</strong>的转换必须是<strong>显式</strong>的。程序员必须使用强制类型转换 <code class="notranslate">(short)</code> 来表明“我知晓并接受可能的风险”。因为 <code class="notranslate">int</code> 的范围远大于 <code class="notranslate">short</code>，直接赋值可能导致溢出（例如，如果 <code class="notranslate">i</code> 的值是 <code class="notranslate">32767</code>，加1后应为 <code class="notranslate">32768</code>，但 <code class="notranslate">short</code> 的最大值是 <code class="notranslate">32767</code>，赋值后值会错误地变成 <code class="notranslate">-32768</code>）。</li>
+<li><strong>结果</strong>：由于缺少显式的强制类型转换，编译器出于类型安全考虑，会报错“<strong>不兼容的类型: 从int转换到short可能会有损失</strong>”。</li>
+</ol>
+</li>
+</ul>
+<h4>2. 对于 <code class="notranslate">i += 1;</code> （编译通过）</h4>
+<ul>
+<li><strong>运算过程</strong>：
+<ol>
+<li><strong>语言规范定义</strong>：Java语言规范将 <code class="notranslate">E1 op= E2</code> 等价于 <code class="notranslate">E1 = (T) ((E1) op (E2))</code>，其中 <code class="notranslate">T</code> 是 <code class="notranslate">E1</code> 的类型。</li>
+<li><strong>内部转换</strong>：这意味着 <code class="notranslate">i += 1;</code> 在编译器看来实际上是：<code class="notranslate">i = (short) (i + 1);</code></li>
+<li><strong>自动插入强制转换</strong>：编译器<strong>自动地、隐式地</strong>帮我们插入了那个必需的 <code class="notranslate">(short)</code> 强制转换。这个转换是语言规范强制要求编译器实现的。</li>
+<li><strong>结果</strong>：因为有了这个隐式的强制转换，赋值操作的类型就匹配了（右边是 <code class="notranslate">short</code>，左边也是 <code class="notranslate">short</code>），所以编译通过。</li>
+</ol>
+</li>
+</ul>
+<hr>
+<h3>二、 作用与是否为正常特性</h3>
+<ul>
+<li>
+<p><strong>作用</strong>：复合赋值运算符 <code class="notranslate">+=</code> 等是一种 <strong>语法糖</strong>。</p>
+<ul>
+<li><strong>便利性</strong>：它的主要目的是为了给程序员提供便利，让代码更简洁。例如 <code class="notranslate">i = i + 1</code> 可以简写为 <code class="notranslate">i++</code> 或 <code class="notranslate">i += 1</code>。</li>
+<li><strong>隐含约定</strong>：使用 <code class="notranslate">+=</code> 本身就隐含了“我知道操作数类型可能提升，但我愿意接受将其结果强制转换回原类型”的意图。它简化了那些非常常见且通常安全的操作（比如循环计数器递增）。</li>
+</ul>
+</li>
+<li>
+<p><strong>是否为正常特性</strong>：<br>
+<strong>是的，这完全是Java编译器和语言规范正常工作的特性，而不是Bug或未定义行为。</strong> 这个行为在Java语言规范（JLS, §15.26.2）中有明确定义。所有遵循规范的Java编译器（如javac, Eclipse JDT等）都必须实现这一特性。</p>
+</li>
+</ul>
+<hr>
+<h3>三、 注意与防范（潜在风险）</h3>
+<p><strong>最大的风险就是： silent overflow（静默溢出）。</strong></p>
+<p>编译器自动插入的强制转换可能会掩盖数值计算中的溢出问题。</p>
+<p><strong>示例：</strong></p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-smi">short</span> <span class="pl-s1">s</span> = <span class="pl-smi">Short</span>.<span class="pl-c1">MAX_VALUE</span>; <span class="pl-c">// 32767</span>
+<span class="pl-s1">s</span> += <span class="pl-c1">1</span>; <span class="pl-c">// 编译器处理为： s = (short) (s + 1);</span>
+<span class="pl-c">// s + 1 作为int计算，结果是32768，但强制转回short后，值变成了-32768</span>
+<span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s1">s</span>); <span class="pl-c">// 输出 -32768</span></pre></div>
+<p>如果你原本期望 <code class="notranslate">s</code> 变成 <code class="notranslate">32768</code>，但这个结果 silently（静默地）变成了一个完全错误的负值，且程序不会抛出任何异常，这会给调试带来巨大困难。</p>
+<p>相比之下，如果你使用 <code class="notranslate">s = (short) (s + 1);</code>，虽然结果相同，但那个显式的 <code class="notranslate">(short)</code> 就像是一个警示牌，提醒你这里发生了强制转换，可能存在风险。</p>
+<hr>
+<h3>四、 使用建议</h3>
+<ol>
+<li>
+<p><strong>理解其行为</strong>：首要的是理解我们上面讨论的全部内容。知道 <code class="notranslate">i += n</code> 等价于 <code class="notranslate">i = (T) (i + n)</code>。</p>
+</li>
+<li>
+<p><strong>用于明确安全的场景</strong>：</p>
+<ul>
+<li>在 <code class="notranslate">for</code> 循环中递增计数器：<code class="notranslate">for (int i=0; i&lt;10; i++)</code> 或 <code class="notranslate">for (short s=0; s&lt;10; s+=1)</code> 通常是安全的，因为你知道值不会超出范围。</li>
+<li>操作 <code class="notranslate">byte</code> 和 <code class="notranslate">short</code> 时，要格外小心数值范围。确保你要加的数不会导致结果超出目标类型的表示范围。</li>
+</ul>
+</li>
+<li>
+<p><strong>警惕静默溢出</strong>：</p>
+<ul>
+<li>当操作数可能很大时，避免对 <code class="notranslate">byte</code>, <code class="notranslate">short</code>, <code class="notranslate">char</code> 使用复合赋值运算符。使用普通赋值并在必要时自己进行显式转换，这可以作为一种代码文档，提醒阅读者注意潜在风险。</li>
+<li>例如：<code class="notranslate">s = (short) Math.max(Short.MIN_VALUE, Math.min(Short.MAX_VALUE, s + someLargeValue));</code> （先进行范围约束）</li>
+</ul>
+</li>
+<li>
+<p><strong>代码可读性</strong>：</p>
+<ul>
+<li>有时，为了清晰起见，即使需要多写一点代码，使用显式转换也比使用隐含复杂行为的语法糖更好。这让代码的意图更明确。</li>
+</ul>
+</li>
+<li>
+<p><strong>静态代码分析工具</strong>：</p>
+<ul>
+<li>可以使用 SonarQube、SpotBugs 等静态代码分析工具。它们通常有规则可以检测出可能导致溢出的复合赋值操作，并发出警告。</li>
+</ul>
+</li>
+</ol>
+<h3>总结对比表</h3>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left"><code class="notranslate">i = i + x</code></th>
+<th align="left"><code class="notranslate">i += x</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>本质</strong></td>
+<td align="left">简单赋值运算符</td>
+<td align="left"><strong>复合赋值运算符（语法糖）</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>计算过程</strong></td>
+<td align="left">先进行二进制提升计算，结果类型为提升后的类型</td>
+<td align="left">先进行二进制提升计算，然后<strong>隐式强制转换</strong>回左边变量的类型</td>
+</tr>
+<tr>
+<td align="left"><strong>类型安全</strong></td>
+<td align="left"><strong>严格</strong>，需要程序员显式强制转换</td>
+<td align="left"><strong>宽松</strong>，编译器自动插入强制转换</td>
+</tr>
+<tr>
+<td align="left"><strong>风险</strong></td>
+<td align="left">无静默溢出风险（因为不强制转换就编译失败）</td>
+<td align="left"><strong>有静默溢出风险</strong>，可能得到错误数值而无报错</td>
+</tr>
+<tr>
+<td align="left"><strong>代码简洁性</strong></td>
+<td align="left">较繁琐</td>
+<td align="left"><strong>更简洁</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>适用场景</strong></td>
+<td align="left">通用场景，尤其当结果可能超出目标类型范围时</td>
+<td align="left">明确知道计算结果在目标类型范围内的简单操作（如循环增量）</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>希望这个详细的解释能帮助您彻底理解这个Java特性！</p>
+<hr>
+<hr>
+<pre lang="plain" data-meta="text" class="notranslate"><code class="notranslate">继续上述问题，我又发现了下面这一规律，整数默认按int类型进行计算（算术运算、位运算等），
+       int i = 1 &lt;&lt; 31;     // -2147483648
+       long l = 1 &lt;&lt; 31;   // -2147483648
+       long l2 = 1L &lt;&lt; 31;  // 2147483648
+
+
+       long x = 0xFFFFFFFF;
+       long y = 0x11111111;
+       System.out.println(x | y); // -1
+       System.out.println(x &amp; y); // 286331153
+       System.out.println(x ^ y); // -286331154
+请你帮我介绍这一原理，及其相关内容
+</code></pre>
+<p>您观察到的这个现象非常棒，它触及了Java中整数运算的另一个核心规则：<strong>整数字面量的默认类型</strong>和<strong>二进制数字提升</strong>。这与我们之前讨论的复合赋值运算符的特性相辅相成，共同构成了Java整数运算的基础。</p>
+<p>下面我将为您详细解释这一原理。</p>
+<hr>
+<h3>一、 核心原理</h3>
+<h4>1. 整数字面量的默认类型</h4>
+<p>在Java中，任何一个整数字面量（如 <code class="notranslate">1</code>, <code class="notranslate">123</code>, <code class="notranslate">0xFF</code>）都有一个默认的静态类型。</p>
+<ul>
+<li><strong>没有后缀</strong> 的字面量（如 <code class="notranslate">1</code>），默认是 <code class="notranslate">int</code> 类型。</li>
+<li><strong>带有 <code class="notranslate">L</code> 或 <code class="notranslate">l</code> 后缀</strong> 的字面量（如 <code class="notranslate">1L</code>），默认是 <code class="notranslate">long</code> 类型。</li>
+</ul>
+<p>这个规则是<strong>所有整数运算的起点</strong>。</p>
+<h4>2. 运算时的类型提升（Usual Arithmetic Conversion）</h4>
+<p>当对整数进行一元或二元运算（如 <code class="notranslate">+</code>, <code class="notranslate">-</code>, <code class="notranslate">*</code>, <code class="notranslate">/</code>, <code class="notranslate">%</code>, <code class="notranslate">&lt;&lt;</code>, <code class="notranslate">&gt;&gt;</code>, <code class="notranslate">&gt;&gt;&gt;</code>, <code class="notranslate">&amp;</code>, <code class="notranslate">|</code>, <code class="notranslate">^</code>）时，Java虚拟机会遵循一套确定的规则来提升操作数的类型，这套规则的核心是<strong>二进制数字提升</strong>。</p>
+<p>简单来说，规则是：</p>
+<ul>
+<li>如果有一个操作数是 <code class="notranslate">long</code>，那么整个表达式提升为 <code class="notranslate">long</code>。</li>
+<li>否则，所有操作数都提升为 <code class="notranslate">int</code>。</li>
+</ul>
+<p><strong>这意味着，只要操作数中没有 <code class="notranslate">long</code>，即使你把结果存到 <code class="notranslate">long</code> 变量里，计算过程也是在 <code class="notranslate">int</code> 的精度下完成的！</strong></p>
+<hr>
+<h3>二、 逐例分析</h3>
+<p>现在我们用上述原理来分析您提供的每一段代码。</p>
+<h4>示例 1：移位运算</h4>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-smi">int</span> <span class="pl-s1">i</span> = <span class="pl-c1">1</span> &lt;&lt; <span class="pl-c1">31</span>;     <span class="pl-c">// -2147483648</span>
+<span class="pl-smi">long</span> <span class="pl-s1">l</span> = <span class="pl-c1">1</span> &lt;&lt; <span class="pl-c1">31</span>;   <span class="pl-c">// -2147483648</span>
+<span class="pl-smi">long</span> <span class="pl-s1">l2</span> = <span class="pl-c1">1L</span> &lt;&lt; <span class="pl-c1">31</span>;  <span class="pl-c">// 2147483648</span></pre></div>
+<ul>
+<li>
+<p><code class="notranslate">1 &lt;&lt; 31</code>:</p>
+<ul>
+<li><code class="notranslate">1</code> 是 <code class="notranslate">int</code> 类型。</li>
+<li><code class="notranslate">31</code> 也是 <code class="notranslate">int</code> 类型。</li>
+<li>两个操作数都是 <code class="notranslate">int</code>，因此运算在 <code class="notranslate">int</code> 精度下进行。</li>
+<li><code class="notranslate">1</code> 的二进制：<code class="notranslate">00000000 00000000 00000000 00000001</code></li>
+<li>左移31位后变成：<code class="notranslate">10000000 00000000 00000000 00000000</code></li>
+<li>这个二进制数在 <code class="notranslate">int</code> 类型下表示的是 <strong>-2147483648</strong>（最高位是符号位，1表示负数）。</li>
+<li>所以，无论是 <code class="notranslate">int i</code> 还是 <code class="notranslate">long l</code> 来接收，它们接收到的都是<strong>这个已经计算好的 <code class="notranslate">int</code> 值</strong>，然后再进行可能的类型转换（对于 <code class="notranslate">long l</code>，是 <code class="notranslate">int</code> -&gt; <code class="notranslate">long</code> 的符号扩展）。所以 <code class="notranslate">i</code> 和 <code class="notranslate">l</code> 的值都是 <code class="notranslate">-2147483648</code>。</li>
+</ul>
+</li>
+<li>
+<p><code class="notranslate">1L &lt;&lt; 31</code>:</p>
+<ul>
+<li><code class="notranslate">1L</code> 是 <code class="notranslate">long</code> 类型。</li>
+<li><code class="notranslate">31</code> 是 <code class="notranslate">int</code> 类型。</li>
+<li>根据规则，有一个操作数是 <code class="notranslate">long</code>，所以 <code class="notranslate">31</code> 被提升为 <code class="notranslate">long</code> 类型，整个运算在 <code class="notranslate">long</code> 精度下进行。</li>
+<li><code class="notranslate">1L</code> 的二进制：<code class="notranslate">00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000001</code></li>
+<li>左移31位后变成：<code class="notranslate">00000000 00000000 00000000 00100000 00000000 00000000 00000000 00000000</code> (一个正的 <code class="notranslate">long</code> 数值)</li>
+<li>这个值换算成十进制就是 <strong>2147483648</strong>。</li>
+</ul>
+</li>
+</ul>
+<p><strong>关键区别</strong>：<code class="notranslate">1 &lt;&lt; 31</code> 是 <code class="notranslate">int</code> 运算，结果溢出为负数；<code class="notranslate">1L &lt;&lt; 31</code> 是 <code class="notranslate">long</code> 运算，结果是一个正的大数。</p>
+<h4>示例 2：位运算</h4>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-smi">long</span> <span class="pl-s1">x</span> = <span class="pl-c1">0xFFFFFFFF</span>;
+<span class="pl-smi">long</span> <span class="pl-s1">y</span> = <span class="pl-c1">0x11111111</span>;
+<span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s1">x</span> | <span class="pl-s1">y</span>); <span class="pl-c">// -1</span>
+<span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s1">x</span> &amp; <span class="pl-s1">y</span>); <span class="pl-c">// 286331153</span>
+<span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s1">x</span> ^ <span class="pl-s1">y</span>); <span class="pl-c">// -286331154</span></pre></div>
+<p>这里的情况更加微妙，是理解类型提升的绝佳例子。</p>
+<ul>
+<li>
+<p><code class="notranslate">x</code> 和 <code class="notranslate">y</code> 的赋值：</p>
+<ul>
+<li><code class="notranslate">0xFFFFFFFF</code> 和 <code class="notranslate">0x11111111</code> 都是没有后缀的字面量，所以它们都是 <code class="notranslate">int</code> 类型。</li>
+<li><code class="notranslate">0xFFFFFFFF</code> 作为一个 <code class="notranslate">int</code> 类型的值，它的二进制是32个1，表示的是 <strong>-1</strong>。</li>
+<li><code class="notranslate">0x11111111</code> 作为一个 <code class="notranslate">int</code> 类型的值，表示的是十进制正数 <strong>286331153</strong>。</li>
+<li>然后将这两个 <code class="notranslate">int</code> 值分别赋值给 <code class="notranslate">long</code> 类型的变量 <code class="notranslate">x</code> 和 <code class="notranslate">y</code>。这个过程会发生 <strong>符号扩展</strong>：
+<ul>
+<li><code class="notranslate">x = (long) -1;</code> -&gt; 扩展后 <code class="notranslate">x</code> 的二进制是64个1，仍然表示 <code class="notranslate">long</code> 类型的 -1。</li>
+<li><code class="notranslate">y = (long) 286331153;</code> -&gt; 扩展后 <code class="notranslate">y</code> 的二进制是 <code class="notranslate">00000000 00000000 00000000 00000000 00010001 00010001 00010001 00010001</code>，值仍然是286331153。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p><code class="notranslate">x | y</code>, <code class="notranslate">x &amp; y</code>, <code class="notranslate">x ^ y</code>:</p>
+<ul>
+<li>现在 <code class="notranslate">x</code> 和 <code class="notranslate">y</code> 都是 <code class="notranslate">long</code> 类型。</li>
+<li>对两个 <code class="notranslate">long</code> 进行位运算，结果自然也是 <code class="notranslate">long</code> 类型。</li>
+<li><code class="notranslate">x | y</code> (-1 OR任何数) = -1。因为 -1 的二进制全是1，按位或操作后结果也全是1，即 -1。</li>
+<li><code class="notranslate">x &amp; y</code> (-1 AND 286331153) = 286331153。因为 -1 的二进制全是1，按位与操作相当于保留 <code class="notranslate">y</code> 原来的值。</li>
+<li><code class="notranslate">x ^ y</code> (-1 XOR 286331153) = -286331154。计算过程：
+<ol>
+<li>-1 的二进制： <code class="notranslate">11111111 11111111 11111111 11111111 11111111 11111111 11111111 11111111</code></li>
+<li>286331153 的二进制： <code class="notranslate">00000000 00000000 00000000 00000000 00010001 00010001 00010001 00010001</code></li>
+<li>按位异或后得到： <code class="notranslate">11111111 11111111 11111111 11111111 11101110 11101110 11101110 11101110</code></li>
+<li>这个二进制数在 <code class="notranslate">long</code> 类型下表示的是一个负数（最高位是1）。我们可以计算它的值：它其实是 <code class="notranslate">~(286331153)</code> （286331153的按位取反），也就是 <code class="notranslate">-286331154</code>。</li>
+</ol>
+</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3>三、 相关内容与使用建议</h3>
+<ol>
+<li>
+<p><strong>警惕 <code class="notranslate">int</code> 溢出</strong>：<br>
+这是最需要防范的一点。在进行可能产生大数的运算时（尤其是移位、乘法），如果操作数都是 <code class="notranslate">int</code>，即使结果用 <code class="notranslate">long</code> 接收，也可能已经发生了溢出。<br>
+<strong>错误示例</strong>：<code class="notranslate">long result = 1024 * 1024 * 1024 * 80; // 溢出！因为右边全是int运算</code><br>
+<strong>正确写法</strong>：<code class="notranslate">long result = 1024L * 1024 * 1024 * 80; // 正确。加入一个long字面量，提升整个表达式为long运算</code></p>
+</li>
+<li>
+<p><strong>明确使用 <code class="notranslate">L</code> 后缀</strong>：<br>
+当你意图进行 <code class="notranslate">long</code> 精度运算时，<strong>确保至少有一个操作数是 <code class="notranslate">long</code> 类型</strong>。最可靠的方法就是在第一个操作数上使用 <code class="notranslate">L</code> 后缀。<br>
+<code class="notranslate">long bigNum = 10000000000L; // 必须加L，否则10000000000已超出int范围，直接编译报错</code><br>
+<code class="notranslate">long bigShift = 1L &lt;&lt; 40; // 正确的long精度移位</code></p>
+</li>
+<li>
+<p><strong>理解符号扩展</strong>：<br>
+当 <code class="notranslate">byte</code>, <code class="notranslate">short</code>, <code class="notranslate">char</code>, <code class="notranslate">int</code> 等窄整数类型向 <code class="notranslate">long</code> 转换时，如果原值是负数，扩展后的 <code class="notranslate">long</code> 值也是负数（通过填充1）。这在位运算中会产生可能“反直觉”的结果，如您的第二个例子所示。记住，变量 <code class="notranslate">x</code> 的值是 <code class="notranslate">long</code> 类型的 -1，而不是无符号的 <code class="notranslate">0xFFFFFFFFL</code>。</p>
+</li>
+<li>
+<p><strong>使用十六进制字面量表示 <code class="notranslate">long</code> 时更要小心</strong>：<br>
+<code class="notranslate">long a = 0xFFFFFFFF; // 等于long类型的-1</code><br>
+<code class="notranslate">long b = 0xFFFFFFFFL; // 等于long类型的4294967295</code><br>
+两者截然不同！前者是 <code class="notranslate">int</code> -1 扩展为 <code class="notranslate">long</code>，后者是直接表示一个大的正 <code class="notranslate">long</code>。</p>
+</li>
+</ol>
+<h3>总结</h3>
+<p>您发现的这个规律深刻地揭示了Java对整数运算的处理方式：</p>
+<ol>
+<li><strong>字面量有默认类型</strong> (<code class="notranslate">int</code> 或 <code class="notranslate">long</code>)。</li>
+<li><strong>运算基于操作数的类型，而非目标变量的类型</strong>。</li>
+<li><strong>运算前会发生类型提升</strong>，规则是“向 <code class="notranslate">long</code> 看齐，否则全升 <code class="notranslate">int</code>”。</li>
+</ol>
+<p>这个设计保证了运算行为的明确性和一致性，但也要求程序员必须心中有 type，主动防范 <code class="notranslate">int</code> 溢出，并在需要时明确使用 <code class="notranslate">L</code> 后缀来引导运算在更高的精度下进行。</p>
+<pre lang="plain" data-meta="text" class="notranslate"><code class="notranslate">继续上述问题，请总结Java中这一系列相关的结论或隐含特性（可以扩展至其他内容）（注：可进行网络检索相关内容）
+要求：适当分点介绍、emoji丰富、越多越好
+</code></pre>
+<p>好的！基于我们之前的讨论和Java语言的深层特性，我为您整理了一份超全的Java数值运算与类型系统「隐秘法则」总结清单！🚀</p>
+<p>这份清单将涵盖类型转换、运算规则、常见陷阱和最佳实践，助你成为Java类型系统大师！🎯</p>
+<hr>
+<h3>🔥 一、核心基础：字面量默认类型（The Law of Literals）</h3>
+<ol>
+<li>
+<p><strong>整数字面量是 <code class="notranslate">int</code></strong> 📏： 任何没有后缀的整数字面量（如 <code class="notranslate">123</code>, <code class="notranslate">0xFF</code>）默认类型都是 <code class="notranslate">int</code>。如果数值超过 <code class="notranslate">int</code> 范围（约21亿），编译器会直接报错。</p>
+<ul>
+<li><code class="notranslate">long bigNum = 10000000000; // 编译错误！数字太大</code></li>
+<li><code class="notranslate">long bigNum = 10000000000L; // 正确，使用L后缀</code></li>
+</ul>
+</li>
+<li>
+<p><strong>浮点字面量是 <code class="notranslate">double</code></strong> 🌊： 任何没有后缀的浮点字面量（如 <code class="notranslate">3.14</code>）默认类型都是 <code class="notranslate">double</code>。如果想用 <code class="notranslate">float</code>，必须加 <code class="notranslate">F</code> 或 <code class="notranslate">f</code> 后缀。</p>
+<ul>
+<li><code class="notranslate">float f = 3.14; // 编译错误！可能丢失精度</code></li>
+<li><code class="notranslate">float f = 3.14f; // 正确</code></li>
+</ul>
+</li>
+<li>
+<p><strong>字符字面量是 <code class="notranslate">char</code></strong> 🔤： 用单引号括起来的单个字符（如 <code class="notranslate">'A'</code>, <code class="notranslate">'0'</code>, <code class="notranslate">'中'</code>）是 <code class="notranslate">char</code> 类型，其本质是16位无符号整数。</p>
+</li>
+</ol>
+<hr>
+<h3>⚡ 二、运算法则：类型自动提升（Usual Arithmetic Conversion）</h3>
+<ol start="4">
+<li>
+<p><strong>二元运算的「向上提升」规则</strong> 📈： 当对基本类型进行二元运算（如 <code class="notranslate">+</code>, <code class="notranslate">-</code>, <code class="notranslate">*</code>, <code class="notranslate">/</code>, <code class="notranslate">%</code>, <code class="notranslate">&amp;</code>, <code class="notranslate">|</code>, <code class="notranslate">&lt;&lt;</code> 等）时，系统会自动将两个操作数提升到<strong>两者中容量更大的类型</strong>（<code class="notranslate">byte</code> -&gt; <code class="notranslate">short</code> -&gt; <code class="notranslate">int</code> -&gt; <code class="notranslate">long</code> -&gt; <code class="notranslate">float</code> -&gt; <code class="notranslate">double</code>）。</p>
+<ul>
+<li><code class="notranslate">int + long</code> -&gt; <code class="notranslate">long</code></li>
+<li><code class="notranslate">float * double</code> -&gt; <code class="notranslate">double</code></li>
+<li><code class="notranslate">byte + byte</code> -&gt; <code class="notranslate">int</code> (重要例外！)</li>
+</ul>
+</li>
+<li>
+<p><strong>「<code class="notranslate">byte</code>、<code class="notranslate">short</code>、<code class="notranslate">char</code> 的诅咒」</strong> <g-emoji class="g-emoji" alias="warning">⚠️</g-emoji>： 只要对 <code class="notranslate">byte</code>, <code class="notranslate">short</code>, <code class="notranslate">char</code> 进行任何算术运算，它们会<strong>先被无条件提升为 <code class="notranslate">int</code></strong>，然后再参与计算。这就是为什么 <code class="notranslate">byte b = 1; b = b + 1;</code> 会编译失败，因为 <code class="notranslate">b + 1</code> 的结果是 <code class="notranslate">int</code>。</p>
+</li>
+<li>
+<p><strong>运算精度取决于操作数，而非接收变量</strong> 🤔： 这是最容易出错的地方！计算的结果类型在赋值前就已确定。</p>
+<ul>
+<li><code class="notranslate">long l = 1 &lt;&lt; 31; // 结果是int类型的负数，再赋给l</code></li>
+<li><code class="notranslate">long l = 1L &lt;&lt; 31; // 结果是long类型的大正数</code></li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3>🍬 三、语法糖与陷阱：复合赋值运算符</h3>
+<ol start="7">
+<li>
+<p><strong>复合赋值的「隐形强制转换」</strong> 🎭： <code class="notranslate">E1 op= E2</code> (如 <code class="notranslate">+=</code>, <code class="notranslate">-=</code>, <code class="notranslate">*=</code>) 等价于 <code class="notranslate">E1 = (T)((E1) op (E2))</code>，其中 <code class="notranslate">T</code> 是 <code class="notranslate">E1</code> 的类型。编译器会自动帮你加上强制转换。</p>
+<ul>
+<li><code class="notranslate">short s = 1; s += 1; // 等价于 s = (short)(s + 1); 编译通过</code></li>
+</ul>
+</li>
+<li>
+<p><strong>静默溢出的风险</strong> 🚨： 上述隐形转换会掩盖数据溢出的错误，程序不会抛出任何异常，但结果可能是错误的。</p>
+<ul>
+<li><code class="notranslate">byte b = 127; b += 1; // b的值现在是-128！</code></li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3>🔄 四、赋值与强制转换（Casting）</h3>
+<ol start="9">
+<li>
+<p>** widening（拓宽转换）是安全的** ✅： 从小类型到大类型的转换（如 <code class="notranslate">int</code> -&gt; <code class="notranslate">long</code>, <code class="notranslate">float</code> -&gt; <code class="notranslate">double</code>) 是自动隐式进行的，不会丢失信息。</p>
+</li>
+<li>
+<p><strong>narrowing（缩窄转换）是危险的</strong> ❌： 从大类型到小类型的转换（如 <code class="notranslate">long</code> -&gt; <code class="notranslate">int</code>, <code class="notranslate">double</code> -&gt; <code class="notranslate">float</code>) 必须<strong>显式</strong>进行，因为可能丢失精度或发生溢出。</p>
+<ul>
+<li><code class="notranslate">int i = (int) 10000000000L; // 必须强转，但值会溢出</code></li>
+</ul>
+</li>
+<li>
+<p><strong>编译时常量的优化</strong> ✨： 如果是编译时可确定的常量，并且值在目标类型范围内，编译器允许省略强制转换。</p>
+<ul>
+<li><code class="notranslate">byte b = 100; // 合法，100是byte范围内的常量</code></li>
+<li><code class="notranslate">byte b = 1000; // 非法，1000超出了byte范围</code></li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3>🌈 五、扩展特性与冷知识</h3>
+<ol start="12">
+<li>
+<p><strong><code class="notranslate">switch</code> 表达式的类型限制</strong> 🔦： <code class="notranslate">switch</code> 的表达式的类型只能为 <code class="notranslate">byte</code>, <code class="notranslate">short</code>, <code class="notranslate">char</code>, <code class="notranslate">int</code>, 它们的包装类、<code class="notranslate">String</code> 和 <code class="notranslate">enum</code>。<code class="notranslate">long</code>, <code class="notranslate">float</code>, <code class="notranslate">double</code>, <code class="notranslate">boolean</code> 都不能用。</p>
+</li>
+<li>
+<p><strong>数组的 <code class="notranslate">length</code> 是 <code class="notranslate">int</code></strong> 📏： Java中数组的 <code class="notranslate">.length</code> 属性是 <code class="notranslate">int</code> 类型，这理论上限制了数组的最大长度约为20亿（虽然JVM实际限制可能小得多）。</p>
+</li>
+<li>
+<p><strong>无符号位运算</strong> 🧮： Java没有无符号整数类型，但提供了无符号位运算。</p>
+<ul>
+<li><code class="notranslate">&gt;&gt;&gt;</code> 是<strong>无符号右移</strong>，空位补0。</li>
+<li><code class="notranslate">Integer.toUnsignedString()</code>, <code class="notranslate">Long.divideUnsigned()</code> 等方法用于处理无符号数。</li>
+</ul>
+</li>
+<li>
+<p><strong>数值计算溢出「不报错」</strong> 🤐： 整数计算溢出时，不会抛出异常，只会默默地「回转」。</p>
+<ul>
+<li><code class="notranslate">int max = Integer.MAX_VALUE; max += 1; // 结果变为Integer.MIN_VALUE</code></li>
+</ul>
+</li>
+<li>
+<p><strong>浮点数的特殊值</strong> 🧪： <code class="notranslate">Float</code> 和 <code class="notranslate">Double</code> 有特殊的常量表示无穷大、NaN（Not-a-Number）。</p>
+<ul>
+<li><code class="notranslate">double d = 1.0 / 0.0; //结果是Infinity</code></li>
+<li><code class="notranslate">double d = Math.sqrt(-1); //结果是NaN</code></li>
+<li>任何涉及 <code class="notranslate">NaN</code> 的比较操作结果都是 <code class="notranslate">false</code>。</li>
+</ul>
+</li>
+<li>
+<p><strong>字符串连接的「魔法」</strong> ➕： 当 <code class="notranslate">+</code> 的操作数中有一个是 <code class="notranslate">String</code> 时，它会变成字符串连接运算符。另一个操作数会被自动转换为 <code class="notranslate">String</code>。</p>
+<ul>
+<li><code class="notranslate">System.out.println("a" + 1 + 2); // 输出 "a12"</code></li>
+<li><code class="notranslate">System.out.println(1 + 2 + "a"); // 输出 "3a"（先算1+2）</code></li>
+</ul>
+</li>
+<li>
+<p><strong><code class="notranslate">var</code> 关键字与类型推断</strong> 🔍： Java 10+ 的 <code class="notranslate">var</code> 让编译器推断局部变量类型，但它仍是静态类型。</p>
+<ul>
+<li><code class="notranslate">var list = new ArrayList&lt;String&gt;(); // list的类型是ArrayList&lt;String&gt;</code></li>
+<li><code class="notranslate">var i = 10; // i的类型是int</code></li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3>🛡️ 六、最佳实践与防范建议</h3>
+<ol>
+<li><strong><code class="notranslate">L</code> 后缀要养成习惯</strong>： 进行 <code class="notranslate">long</code> 类型运算时，第一个操作数就加上 <code class="notranslate">L</code>，如 <code class="notranslate">long capacity = 1024L * 1024 * 1024 * 80;</code>。</li>
+<li><strong>警惕 <code class="notranslate">int</code> 溢出</strong>： 涉及大数计算时，主动使用 <code class="notranslate">long</code> 甚至 <code class="notranslate">BigInteger</code>。</li>
+<li><strong>明确意图</strong>： 在对 <code class="notranslate">byte</code>/<code class="notranslate">short</code> 进行运算时，如果意图就是 <code class="notranslate">int</code> 结果，就直接用 <code class="notranslate">int</code> 变量接收。如果需要结果仍是原类型，再强制转换，让代码更清晰。</li>
+<li><strong>使用 <code class="notranslate">Math</code> 类进行安全转换</strong>： 使用 <code class="notranslate">Math.toIntExact(long)</code> 可以在 <code class="notranslate">long</code> 转 <code class="notranslate">int</code> 时如果发生溢出就抛出 <code class="notranslate">ArithmeticException</code>，避免静默溢出。</li>
+<li><strong>货币计算不用 <code class="notranslate">float/double</code></strong>： 由于精度问题，金融计算应使用 <code class="notranslate">BigDecimal</code>。</li>
+<li><strong>利用 IDE 和 Linter 工具</strong>： 好的 IDE（如 IntelliJ IDEA）和静态代码分析工具（如 SpotBugs）会提示很多潜在的数值溢出和精度丢失问题。</li>
+</ol>
+<p>希望这份大全能让你对Java的类型系统有一个全新的认识！🎉</p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://luminku.github.io">布谷博客</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","LuminKu/luminku.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
+
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
+
+</script>
+
+
+</html>
