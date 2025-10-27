@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/240149665?v=4"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="> 在SpringBoot应用中设置文件上传的大小限制，希望默认最大为1MB，但特定接口（upload）允许最大5MB。">
+<meta property="og:title" content="SpringBoot文件上传大小限制配置方案【24】">
+<meta property="og:description" content="> 在SpringBoot应用中设置文件上传的大小限制，希望默认最大为1MB，但特定接口（upload）允许最大5MB。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://luminku.github.io/post/SpringBoot-wen-jian-shang-chuan-da-xiao-xian-zhi-pei-zhi-fang-an-%E3%80%9024%E3%80%91.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
+<title>SpringBoot文件上传大小限制配置方案【24】</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">SpringBoot文件上传大小限制配置方案【24】</h1>
+<div class="title-right">
+    <a href="https://luminku.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/LuminKu/luminku.github.io/issues/24" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><blockquote>
+<p>在SpringBoot应用中设置文件上传的大小限制，希望默认最大为1MB，但特定接口（upload）允许最大5MB。这涉及到全局配置和局部覆盖的问题，我需要仔细思考如何实现。</p>
+<p>根据我看到的搜索结果，SpringBoot默认的文件上传限制确实是1MB，这与用户需求一致。我需要找到同时支持全局配置和接口级别覆盖的方法。</p>
+<p>首先考虑全局配置，从可以看到在application.properties中设置spring.servlet.multipart.max-file-size=1MB和spring.servlet.multipart.max-request-size=1MB可以实现默认限制。</p>
+<p>对于特定接口的5MB限制，搜索结果中没有直接提供注解解决方案。提到了自定义验证注解，但主要是用于文件类型验证而非大小限制。我需要结合Spring MVC的拦截器或自定义方法拦截思路来实现。</p>
+<p>我打算设计一个自定义注解@MaxFileSize(5 * 1024 * 1024)来标记需要特殊限制的接口，然后通过AOP或拦截器在文件上传前进行大小检查。当文件超过注解指定的大小时，会抛出异常并返回错误信息。</p>
+<p>同时我会考虑异常处理的重要性，参考的建议使用@ControllerAdvice全局异常处理，特别是捕获MultipartException和自定义的SizeLimitExceededException。</p>
+<p>还需要注意提到的性能和安全考虑，大文件上传对服务器内存和磁盘的影响，以及防范DoS攻击的措施。</p>
+<p>我将把这些信息组织成清晰的配置步骤和代码示例，帮助用户理解如何实现这个需求。虽然接口级别的配置需要自定义开发，但全局配置可以直接使用SpringBoot提供的机制。</p>
+</blockquote>
+<p>根据你的需求，可以在SpringBoot中实现默认全局文件上传大小为1MB，同时允许特定接口（如<code class="notranslate">/upload</code>）支持最大5MB的文件上传。下面是具体的实现方式，我会为你详细解释。</p>
+<h1>文件上传大小限制配置方案</h1>
+<h2>全局默认配置（1MB限制）</h2>
+<p>首先，通过配置文件设置<strong>全局默认</strong>的文件上传大小为1MB：</p>
+<div class="highlight highlight-source-ini"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> application.properties</span>
+<span class="pl-k">spring.servlet.multipart.enabled</span>=true
+<span class="pl-k">spring.servlet.multipart.max-file-size</span>=1MB
+<span class="pl-k">spring.servlet.multipart.max-request-size</span>=1MB</pre></div>
+<h2>特定接口配置（5MB限制）</h2>
+<p>要为特定接口设置更大的限制（5MB），<strong>目前Spring Boot并没有提供直接的注解方式</strong>来覆盖全局配置。但可以通过其他方式实现，下面介绍两种方法。</p>
+<h3>方式一：使用配置类与自定义验证（推荐）</h3>
+<p>这种方法通过自定义注解和AOP在控制器方法执行前进行文件大小验证。</p>
+<ol>
+<li>
+<p><strong>创建自定义注解</strong> <code class="notranslate">@MaxFileSize</code>：</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">Target</span>(<span class="pl-smi">ElementType</span>.<span class="pl-c1">METHOD</span>)
+<span class="pl-c1">@</span><span class="pl-c1">Retention</span>(<span class="pl-smi">RetentionPolicy</span>.<span class="pl-c1">RUNTIME</span>)
+<span class="pl-k">public</span> @interface <span class="pl-s1">MaxFileSize</span> {
+    <span class="pl-smi">long</span> <span class="pl-s1">value</span>(); <span class="pl-c">// 用于指定允许的最大文件大小</span>
+}</pre></div>
+</li>
+<li>
+<p><strong>实现一个AOP切面</strong> 进行文件大小检查：</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">Aspect</span>
+<span class="pl-c1">@</span><span class="pl-c1">Component</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">FileUploadAspect</span> {
+    
+    <span class="pl-c1">@</span><span class="pl-c1">Around</span>(<span class="pl-s">"@annotation(maxFileSize) &amp;&amp; args(file,..)"</span>) <span class="pl-c">// 拦截带有@MaxFileSize注解的方法，并获取MultipartFile参数</span>
+    <span class="pl-k">public</span> <span class="pl-smi">Object</span> <span class="pl-en">checkFileSize</span>(<span class="pl-smi">ProceedingJoinPoint</span> <span class="pl-s1">joinPoint</span>, <span class="pl-smi">MaxFileSize</span> <span class="pl-s1">maxFileSize</span>, <span class="pl-smi">MultipartFile</span> <span class="pl-s1">file</span>) <span class="pl-k">throws</span> <span class="pl-smi">Throwable</span> {
+        <span class="pl-smi">long</span> <span class="pl-s1">maxSize</span> = <span class="pl-s1">maxFileSize</span>.<span class="pl-en">value</span>();
+        <span class="pl-k">if</span> (<span class="pl-s1">file</span> != <span class="pl-c1">null</span> &amp;&amp; !<span class="pl-s1">file</span>.<span class="pl-en">isEmpty</span>() &amp;&amp; <span class="pl-s1">file</span>.<span class="pl-en">getSize</span>() &gt; <span class="pl-s1">maxSize</span>) {
+            <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">SizeLimitExceededException</span>(<span class="pl-s">"File size exceeds maximum allowed limit of "</span> + <span class="pl-s1">maxSize</span> + <span class="pl-s">" bytes"</span>);
+        }
+        <span class="pl-k">return</span> <span class="pl-s1">joinPoint</span>.<span class="pl-en">proceed</span>();
+    }
+}</pre></div>
+</li>
+<li>
+<p><strong>在Controller中使用注解</strong>：</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">RestController</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">FileUploadController</span> {
+    
+    <span class="pl-c1">@</span><span class="pl-c1">PostMapping</span>(<span class="pl-s">"upload"</span>)
+    <span class="pl-c1">@</span><span class="pl-c1">MaxFileSize</span>(<span class="pl-c1">5</span> * <span class="pl-c1">1024</span> * <span class="pl-c1">1024</span>) <span class="pl-c">// 5MB，单位为字节</span>
+    <span class="pl-k">public</span> <span class="pl-smi">Result</span>&lt;<span class="pl-smi">String</span>&gt; <span class="pl-en">upload</span>(<span class="pl-smi">MultipartFile</span> <span class="pl-s1">file</span>) <span class="pl-k">throws</span> <span class="pl-smi">IOException</span> {
+        <span class="pl-c">// 把文件的内容存储到本地磁盘中</span>
+        <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-s1">fileName</span> = <span class="pl-s1">file</span>.<span class="pl-en">getOriginalFilename</span>();
+        <span class="pl-s1">file</span>.<span class="pl-en">transferTo</span>(<span class="pl-k">new</span> <span class="pl-smi">File</span>(<span class="pl-s">"../"</span>+<span class="pl-s1">fileName</span>)); <span class="pl-c">// static/pic/</span>
+        <span class="pl-k">return</span> <span class="pl-smi">Result</span>.<span class="pl-en">success</span>(<span class="pl-s">"url..."</span>);
+    }
+}</pre></div>
+</li>
+</ol>
+<h3>方式二：使用配置类与MultipartConfigElement（需注意）</h3>
+<p>你可以尝试通过编程方式为特定URL模式创建多个<code class="notranslate">MultipartConfigElement</code> Bean，但这通常作用于整个应用或Servlet，<strong>难以精确到单一接口</strong>。</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">Configuration</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">FileUploadConfig</span> {
+
+    <span class="pl-c">// 全局默认配置（1MB）实际上已经在application.properties中设置了</span>
+    <span class="pl-c">// 如果需要通过Java Config设置全局，可以这样：</span>
+    <span class="pl-c1">@</span><span class="pl-c1">Bean</span>
+    <span class="pl-k">public</span> <span class="pl-smi">MultipartConfigElement</span> <span class="pl-en">globalMultipartConfig</span>() {
+        <span class="pl-smi">MultipartConfigFactory</span> <span class="pl-s1">factory</span> = <span class="pl-k">new</span> <span class="pl-smi">MultipartConfigFactory</span>();
+        <span class="pl-s1">factory</span>.<span class="pl-en">setMaxFileSize</span>(<span class="pl-smi">DataSize</span>.<span class="pl-en">ofMegabytes</span>(<span class="pl-c1">1</span>));
+        <span class="pl-s1">factory</span>.<span class="pl-en">setMaxRequestSize</span>(<span class="pl-smi">DataSize</span>.<span class="pl-en">ofMegabytes</span>(<span class="pl-c1">1</span>));
+        <span class="pl-k">return</span> <span class="pl-s1">factory</span>.<span class="pl-en">createMultipartConfig</span>();
+    }
+
+    <span class="pl-c">// 注意：为特定接口精确设置5MB限制在Spring MVC中通常不是这样实现的。</span>
+    <span class="pl-c">// 下面的Bean理论上会覆盖全局配置，但它是针对整个DispatcherServlet的，而不是单个接口。</span>
+    <span class="pl-c">// 这意味着如果应用中有多个文件上传接口，它们可能会共享这个配置。</span>
+    <span class="pl-c">// @Bean(name = "specificMultipartConfig")</span>
+    <span class="pl-c">// public MultipartConfigElement specificMultipartConfig() {</span>
+    <span class="pl-c">//    MultipartConfigFactory factory = new MultipartConfigFactory();</span>
+    <span class="pl-c">//    factory.setMaxFileSize(DataSize.ofMegabytes(5));</span>
+    <span class="pl-c">//    factory.setMaxRequestSize(DataSize.ofMegabytes(5));</span>
+    <span class="pl-c">//    return factory.createMultipartConfig();</span>
+    <span class="pl-c">//}</span>
+}</pre></div>
+<p><strong>注意</strong>：方式二中的<code class="notranslate">specificMultipartConfig</code>Bean通常会影响整个DispatcherServlet的Multipart配置，<strong>不能精确控制到单个<code class="notranslate">/upload</code>接口</strong>。Spring Boot的Multipart配置通常是全局性的。</p>
+<h2>异常处理</h2>
+<p>无论采用哪种方式，都需要处理文件大小超限的异常。</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">ControllerAdvice</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">GlobalExceptionHandler</span> {
+    
+    <span class="pl-c1">@</span><span class="pl-c1">ExceptionHandler</span>(<span class="pl-smi">SizeLimitExceededException</span>.<span class="pl-k">class</span>)
+    <span class="pl-c1">@</span><span class="pl-c1">ResponseBody</span>
+    <span class="pl-k">public</span> <span class="pl-smi">Result</span>&lt;<span class="pl-smi">String</span>&gt; <span class="pl-en">handleSizeLimitExceededException</span>(<span class="pl-smi">SizeLimitExceededException</span> <span class="pl-s1">e</span>) {
+        <span class="pl-k">return</span> <span class="pl-smi">Result</span>.<span class="pl-en">fail</span>(<span class="pl-c1">400</span>, <span class="pl-s1">e</span>.<span class="pl-en">getMessage</span>()); <span class="pl-c">// 或者其他适合的错误码和信息</span>
+    }
+    
+    <span class="pl-c">// 处理Spring Boot默认的MultipartException等</span>
+    <span class="pl-c1">@</span><span class="pl-c1">ExceptionHandler</span>(<span class="pl-smi">MultipartException</span>.<span class="pl-k">class</span>)
+    <span class="pl-c1">@</span><span class="pl-c1">ResponseBody</span>
+    <span class="pl-k">public</span> <span class="pl-smi">Result</span>&lt;<span class="pl-smi">String</span>&gt; <span class="pl-en">handleMultipartException</span>(<span class="pl-smi">MultipartException</span> <span class="pl-s1">e</span>) {
+        <span class="pl-k">return</span> <span class="pl-smi">Result</span>.<span class="pl-en">fail</span>(<span class="pl-c1">400</span>, <span class="pl-s">"File upload error: "</span> + <span class="pl-s1">e</span>.<span class="pl-en">getMessage</span>());
+    }
+}</pre></div>
+<h2>方案对比</h2>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">方式一 (AOP + 自定义注解)</th>
+<th align="left">方式二 (配置多个MultipartConfigElement - 不推荐用于此场景)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>精度</strong></td>
+<td align="left"><strong>方法级别</strong>，可精确控制单个接口</td>
+<td align="left"><strong>Servlet级别</strong>，影响范围较大，难以精确到单一接口</td>
+</tr>
+<tr>
+<td align="left"><strong>灵活性</strong></td>
+<td align="left"><strong>高</strong>，可为每个接口单独设置大小</td>
+<td align="left">低，通常用于全局配置</td>
+</tr>
+<tr>
+<td align="left"><strong>实现复杂度</strong></td>
+<td align="left">中等，需编写AOP和自定义注解</td>
+<td align="left">低，但难以满足精确到接口的需求</td>
+</tr>
+<tr>
+<td align="left"><strong>推荐度</strong></td>
+<td align="left"><strong>推荐</strong>✅</td>
+<td align="left">不推荐用于此需求❌</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h2>补充说明</h2>
+<ol>
+<li><strong>单位注意</strong>：在配置中，可以使用 <code class="notranslate">MB</code>（如 <code class="notranslate">5MB</code>）或 <code class="notranslate">Bytes</code>（如 <code class="notranslate">5242880</code>，即5<em>1024</em>1024）。在注解中，值通常以字节为单位（如 <code class="notranslate">5 * 1024 * 1024</code>）。</li>
+<li><strong><code class="notranslate">max-file-size</code> 与 <code class="notranslate">max-request-size</code></strong>：
+<ul>
+<li><code class="notranslate">max-file-size</code>：限制<strong>单个文件</strong>的最大大小。</li>
+<li><code class="notranslate">max-request-size</code>：限制<strong>整个请求</strong>（可能包含多个文件和其他表单数据）的最大大小。<br>
+如果你的接口只上传一个文件，将两者设置为相同值即可。如果一次请求可能上传多个文件，需根据实际情况调整 <code class="notranslate">max-request-size</code>。</li>
+</ul>
+</li>
+<li><strong>生产环境考虑</strong>：增大文件上传限制时，需综合考虑服务器磁盘空间、内存以及网络带宽，并注意防范通过大文件上传进行的DoS攻击。</li>
+</ol>
+<h2>总结</h2>
+<p>实现“<strong>全局默认1MB，特定接口5MB</strong>”的文件上传限制，<strong>推荐采用方式一（自定义注解结合AOP）</strong>。这种方式能给你带来更好的灵活性和精确的控制力。</p>
+<p>虽然Spring Boot自身没有提供直接覆盖单个接口的注解，但通过自定义注解和AOP，你可以优雅地实现这一需求。方式二（配置多个MultipartConfigElement）由于其作用范围（通常是整个Servlet）难以精确控制到单一接口，<strong>不推荐</strong>用于你的这个特定场景。</p>
+<p>希望这些解释和示例对你有帮助。</p>
+<hr>
+<hr>
+<p>在Spring Boot项目中，如果已经配置了Web启动依赖（<code class="notranslate">spring-boot-starter-web</code>），想要使用<code class="notranslate">@Aspect</code>实现AOP（比如我们之前讨论的文件上传大小检查），配置所需的Maven依赖非常简单。</p>
+<h1>🛠 AOP依赖配置</h1>
+<p>Spring Boot提供了专门的AOP starter，极大简化了依赖管理。</p>
+<h2>必需的依赖</h2>
+<p>只需在<code class="notranslate">pom.xml</code>中添加<strong>一个依赖</strong>：</p>
+<div class="highlight highlight-text-xml"><pre class="notranslate">&lt;<span class="pl-ent">dependency</span>&gt;
+    &lt;<span class="pl-ent">groupId</span>&gt;org.springframework.boot&lt;/<span class="pl-ent">groupId</span>&gt;
+    &lt;<span class="pl-ent">artifactId</span>&gt;spring-boot-starter-aop&lt;/<span class="pl-ent">artifactId</span>&gt;
+&lt;/<span class="pl-ent">dependency</span>&gt;</pre></div>
+<p><strong>Spring Boot的版本仲裁机制</strong>会自动管理<code class="notranslate">spring-boot-starter-aop</code>及其所有相关依赖（如<code class="notranslate">spring-aop</code>, <code class="notranslate">aspectjweaver</code>等）的版本，无需手动指定版本号。</p>
+<h2>依赖关系说明</h2>
+<p>当你添加<code class="notranslate">spring-boot-starter-aop</code>后，其内部主要包含以下核心依赖：</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th align="left">依赖组ID (groupId)</th>
+<th align="left">构件ID (artifactId)</th>
+<th align="left">说明</th>
+<th align="left">是否必需</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><code class="notranslate">org.springframework.boot</code></td>
+<td align="left"><code class="notranslate">spring-boot-starter-aop</code></td>
+<td align="left"><strong>AOP启动器</strong>，自动引入下面两个核心依赖</td>
+<td align="left"><strong>必需</strong>✅</td>
+</tr>
+<tr>
+<td align="left"><code class="notranslate">org.springframework</code></td>
+<td align="left"><code class="notranslate">spring-aop</code></td>
+<td align="left"><strong>Spring AOP核心框架</strong></td>
+<td align="left">由starter-aop自动引入</td>
+</tr>
+<tr>
+<td align="left"><code class="notranslate">org.aspectj</code></td>
+<td align="left"><code class="notranslate">aspectjweaver</code></td>
+<td align="left"><strong>AspectJ织入器</strong>，支持切面编程的注解和表达式</td>
+<td align="left">由starter-aop自动引入</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>💡 <strong>Spring Boot的starter机制</strong>的好处是，你不需要手动管理这些依赖的版本，避免了可能出现的版本冲突问题。</p>
+<h2>可选依赖</h2>
+<p>某些特定场景下可能会用到：</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th align="left">依赖组ID (groupId)</th>
+<th align="left">构件ID (artifactId)</th>
+<th align="left">说明</th>
+<th align="left">是否必需</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><code class="notranslate">org.aspectj</code></td>
+<td align="left"><code class="notranslate">aspectjrt</code></td>
+<td align="left">AspectJ运行时库，提供更复杂的AOP支持</td>
+<td align="left">可选，通常starter-aop已足够</td>
+</tr>
+<tr>
+<td align="left"><code class="notranslate">org.springframework</code></td>
+<td align="left"><code class="notranslate">spring-aspects</code></td>
+<td align="left">Spring对AspectJ的集成支持</td>
+<td align="left">可选，通常starter-aop已足够</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h1>📦 完整的pom.xml示例</h1>
+<p>这是一个整合了Web和AOP依赖的<code class="notranslate">pom.xml</code>示例：</p>
+<div class="highlight highlight-text-xml"><pre class="notranslate">&lt;?<span class="pl-ent">xml</span><span class="pl-e"> version</span>=<span class="pl-s"><span class="pl-pds">"</span>1.0<span class="pl-pds">"</span></span><span class="pl-e"> encoding</span>=<span class="pl-s"><span class="pl-pds">"</span>UTF-8<span class="pl-pds">"</span></span>?&gt;
+&lt;<span class="pl-ent">project</span> <span class="pl-e">xmlns</span>=<span class="pl-s"><span class="pl-pds">"</span>http://maven.apache.org/POM/4.0.0<span class="pl-pds">"</span></span>
+         <span class="pl-e">xmlns</span><span class="pl-e">:</span><span class="pl-e">xsi</span>=<span class="pl-s"><span class="pl-pds">"</span>http://www.w3.org/2001/XMLSchema-instance<span class="pl-pds">"</span></span>
+         <span class="pl-e">xsi</span><span class="pl-e">:</span><span class="pl-e">schemaLocation</span>=<span class="pl-s"><span class="pl-pds">"</span>http://maven.apache.org/POM/4.0.0 </span>
+<span class="pl-s">         http://maven.apache.org/xsd/maven-4.0.0.xsd<span class="pl-pds">"</span></span>&gt;
+    &lt;<span class="pl-ent">modelVersion</span>&gt;4.0.0&lt;/<span class="pl-ent">modelVersion</span>&gt;
+
+    &lt;<span class="pl-ent">parent</span>&gt;
+        &lt;<span class="pl-ent">groupId</span>&gt;org.springframework.boot&lt;/<span class="pl-ent">groupId</span>&gt;
+        &lt;<span class="pl-ent">artifactId</span>&gt;spring-boot-starter-parent&lt;/<span class="pl-ent">artifactId</span>&gt;
+        &lt;<span class="pl-ent">version</span>&gt;3.2.5&lt;/<span class="pl-ent">version</span>&gt; <span class="pl-c"><span class="pl-c">&lt;!--</span> 使用最新的Spring Boot版本 <span class="pl-c">--&gt;</span></span>
+        &lt;<span class="pl-ent">relativePath</span>/&gt;
+    &lt;/<span class="pl-ent">parent</span>&gt;
+
+    &lt;<span class="pl-ent">groupId</span>&gt;com.example&lt;/<span class="pl-ent">groupId</span>&gt;
+    &lt;<span class="pl-ent">artifactId</span>&gt;your-project&lt;/<span class="pl-ent">artifactId</span>&gt;
+    &lt;<span class="pl-ent">version</span>&gt;1.0.0&lt;/<span class="pl-ent">version</span>&gt;
+
+    &lt;<span class="pl-ent">properties</span>&gt;
+        &lt;<span class="pl-ent">java</span>.version&gt;17&lt;/<span class="pl-ent">java</span>.version&gt;
+    &lt;/<span class="pl-ent">properties</span>&gt;
+
+    &lt;<span class="pl-ent">dependencies</span>&gt;
+        <span class="pl-c"><span class="pl-c">&lt;!--</span> Web Starter (已配置) <span class="pl-c">--&gt;</span></span>
+        &lt;<span class="pl-ent">dependency</span>&gt;
+            &lt;<span class="pl-ent">groupId</span>&gt;org.springframework.boot&lt;/<span class="pl-ent">groupId</span>&gt;
+            &lt;<span class="pl-ent">artifactId</span>&gt;spring-boot-starter-web&lt;/<span class="pl-ent">artifactId</span>&gt;
+        &lt;/<span class="pl-ent">dependency</span>&gt;
+
+        <span class="pl-c"><span class="pl-c">&lt;!--</span> AOP Starter (新增) <span class="pl-c">--&gt;</span></span>
+        &lt;<span class="pl-ent">dependency</span>&gt;
+            &lt;<span class="pl-ent">groupId</span>&gt;org.springframework.boot&lt;/<span class="pl-ent">groupId</span>&gt;
+            &lt;<span class="pl-ent">artifactId</span>&gt;spring-boot-starter-aop&lt;/<span class="pl-ent">artifactId</span>&gt;
+        &lt;/<span class="pl-ent">dependency</span>&gt;
+
+        <span class="pl-c"><span class="pl-c">&lt;!--</span> 其他可能需要的依赖... <span class="pl-c">--&gt;</span></span>
+    &lt;/<span class="pl-ent">dependencies</span>&gt;
+
+    &lt;<span class="pl-ent">build</span>&gt;
+        &lt;<span class="pl-ent">plugins</span>&gt;
+            &lt;<span class="pl-ent">plugin</span>&gt;
+                &lt;<span class="pl-ent">groupId</span>&gt;org.springframework.boot&lt;/<span class="pl-ent">groupId</span>&gt;
+                &lt;<span class="pl-ent">artifactId</span>&gt;spring-boot-maven-plugin&lt;/<span class="pl-ent">artifactId</span>&gt;
+            &lt;/<span class="pl-ent">plugin</span>&gt;
+        &lt;/<span class="pl-ent">plugins</span>&gt;
+    &lt;/<span class="pl-ent">build</span>&gt;
+&lt;/<span class="pl-ent">project</span>&gt;</pre></div>
+<h1>⚙️ 补充说明</h1>
+<ol>
+<li><strong>自动配置</strong>：添加<code class="notranslate">spring-boot-starter-aop</code>后，Spring Boot会自动启用AOP支持（相当于自动添加了<code class="notranslate">@EnableAspectJAutoProxy</code>注解），通常<strong>无需额外配置</strong>。</li>
+<li><strong>版本管理</strong>：通过<code class="notranslate">spring-boot-starter-parent</code>进行<strong>依赖版本管理</strong>是推荐做法，可以避免手动指定版本可能带来的冲突。</li>
+<li><strong>与传统Spring项目的区别</strong>：在传统的Spring（非Boot）项目中，通常需要手动添加<code class="notranslate">spring-aop</code>和<code class="notranslate">aspectjweaver</code>等依赖并明确指定版本。Spring Boot的starter机制简化了这一点。</li>
+</ol>
+<h1>🔧 验证AOP是否生效</h1>
+<p>添加依赖后，你可以创建一个简单的切面来验证AOP是否正常工作，例如我们之前讨论的文件大小检查切面：</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">aspectj</span>.<span class="pl-s1">lang</span>.<span class="pl-s1">ProceedingJoinPoint</span>;
+<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">aspectj</span>.<span class="pl-s1">lang</span>.<span class="pl-s1">annotation</span>.<span class="pl-s1">Around</span>;
+<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">aspectj</span>.<span class="pl-s1">lang</span>.<span class="pl-s1">annotation</span>.<span class="pl-s1">Aspect</span>;
+<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">stereotype</span>.<span class="pl-s1">Component</span>;
+<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">web</span>.<span class="pl-s1">multipart</span>.<span class="pl-s1">MultipartFile</span>;
+
+<span class="pl-c1">@</span><span class="pl-c1">Aspect</span>
+<span class="pl-c1">@</span><span class="pl-c1">Component</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">FileUploadAspect</span> {
+
+    <span class="pl-c1">@</span><span class="pl-c1">Around</span>(<span class="pl-s">"@annotation(maxFileSize) &amp;&amp; args(file,..)"</span>)
+    <span class="pl-k">public</span> <span class="pl-smi">Object</span> <span class="pl-en">checkFileSize</span>(<span class="pl-smi">ProceedingJoinPoint</span> <span class="pl-s1">joinPoint</span>, <span class="pl-smi">MaxFileSize</span> <span class="pl-s1">maxFileSize</span>, <span class="pl-smi">MultipartFile</span> <span class="pl-s1">file</span>) <span class="pl-k">throws</span> <span class="pl-smi">Throwable</span> {
+        <span class="pl-smi">long</span> <span class="pl-s1">maxSize</span> = <span class="pl-s1">maxFileSize</span>.<span class="pl-en">value</span>();
+        <span class="pl-k">if</span> (<span class="pl-s1">file</span> != <span class="pl-c1">null</span> &amp;&amp; !<span class="pl-s1">file</span>.<span class="pl-en">isEmpty</span>() &amp;&amp; <span class="pl-s1">file</span>.<span class="pl-en">getSize</span>() &gt; <span class="pl-s1">maxSize</span>) {
+            <span class="pl-k">throw</span> <span class="pl-k">new</span> <span class="pl-smi">SizeLimitExceededException</span>(<span class="pl-s">"File size exceeds maximum allowed limit of "</span> + <span class="pl-s1">maxSize</span> + <span class="pl-s">" bytes"</span>);
+        }
+        <span class="pl-k">return</span> <span class="pl-s1">joinPoint</span>.<span class="pl-en">proceed</span>();
+    }
+}</pre></div>
+<h1>💎 总结</h1>
+<p>在Spring Boot项目中，为使用<code class="notranslate">@Aspect</code>等AOP功能：</p>
+<ol>
+<li><strong>核心配置</strong>：在已有<code class="notranslate">spring-boot-starter-web</code>的基础上，<strong>仅需添加</strong><code class="notranslate">spring-boot-starter-aop</code><strong>一个依赖</strong>。</li>
+<li><strong>无需手动指定版本</strong>：依靠Spring Boot的<strong>版本仲裁</strong>（通过<code class="notranslate">spring-boot-starter-parent</code>）来管理相关依赖的版本。</li>
+<li><strong>自动配置</strong>：Spring Boot会<strong>自动启用AOP支持</strong>，通常无需其他配置。</li>
+</ol>
+<p>这样就能优雅地实现诸如文件上传大小检查这样的AOP功能了。</p>
+<hr>
+<hr>
+<p>你遇到的<code class="notranslate">MaxUploadSizeExceededException</code>异常，是因为<strong>全局Multipart配置的限制（1MB）生效在先</strong>，它阻止了请求到达你的Controller方法，使得你精心编写的AOP切面（<code class="notranslate">@MaxFileSize(5 * 1024 * 1024)</code>）根本没有机会运行。</p>
+<p>下面是一个帮你快速理解和解决这个问题的表格：</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th align="left">配置层面</th>
+<th align="left">当前状态</th>
+<th align="left">所需状态</th>
+<th align="left">如何配置</th>
+<th align="left">优先级</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>🌐 全局Multipart配置</strong></td>
+<td align="left">未显式配置，使用默认1MB</td>
+<td align="left">设置为至少5MB</td>
+<td align="left"><code class="notranslate">application.properties</code> 中设置 <code class="notranslate">spring.servlet.multipart.max-file-size=5MB</code> 和 <code class="notranslate">max-request-size=5MB</code></td>
+<td align="left">高</td>
+</tr>
+<tr>
+<td align="left"><strong>🪡 AOP切面检查</strong></td>
+<td align="left">已配置 (<code class="notranslate">@MaxFileSize(5 * 1024 * 1024)</code>)</td>
+<td align="left">保持现状</td>
+<td align="left">在Controller方法上使用 <code class="notranslate">@MaxFileSize</code> 注解</td>
+<td align="left">中</td>
+</tr>
+<tr>
+<td align="left"><strong>📦 外部服务器配置</strong></td>
+<td align="left">未知（如使用Nginx需检查）</td>
+<td align="left">确保大于你的文件大小限制（例如10MB）</td>
+<td align="left">在Nginx中配置 <code class="notranslate">client_max_body_size 10M;</code></td>
+<td align="left">高</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h3>🔧 排查和解决步骤</h3>
+<p>请按照以下步骤检查和修改你的配置：</p>
+<ol>
+<li>
+<p><strong>检查并设置全局Multipart配置 (Spring Boot)</strong><br>
+这是最可能的原因。在你的 <code class="notranslate">application.properties</code> 或 <code class="notranslate">application.yml</code> 文件中，<strong>必须</strong>添加或修改以下配置，将全局限制提高到至少5MB：</p>
+<div class="highlight highlight-source-ini"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> application.properties</span>
+<span class="pl-k">spring.servlet.multipart.max-file-size</span>=5MB
+<span class="pl-k">spring.servlet.multipart.max-request-size</span>=5MB</pre></div>
+<p>或者使用YAML格式：</p>
+<div class="highlight highlight-source-yaml"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> application.yml</span>
+<span class="pl-ent">spring</span>:
+  <span class="pl-ent">servlet</span>:
+    <span class="pl-ent">multipart</span>:
+      <span class="pl-ent">max-file-size</span>: <span class="pl-s">5MB</span>
+      <span class="pl-ent">max-request-size</span>: <span class="pl-s">5MB</span></pre></div>
+<p><strong>修改后务必重启应用</strong>。这是解决当前问题的关键步骤。</p>
+</li>
+<li>
+<p><strong>检查外部服务器配置 (如Nginx)</strong><br>
+如果你的应用前面有<strong>反向代理（如Nginx）</strong>，它也可能有请求体大小限制，并且会优先于你的Spring Boot应用拦截大请求。</p>
+<ul>
+<li><strong>检查Nginx配置</strong>：找到Nginx的配置文件（通常是 <code class="notranslate">nginx.conf</code>），确保包含了类似下面的配置，且值足够大（例如10M）：
+<div class="highlight highlight-source-nginx"><pre class="notranslate"><span class="pl-c1">http</span> <span class="pl-c1">{</span>
+<span class="pl-c">    # ...</span>
+    <span class="pl-c1">client_max_body_size</span> <span class="pl-c1">10M</span><span class="pl-c1">;</span>
+<span class="pl-c1">}</span></pre></div>
+</li>
+<li><strong>重启Nginx</strong>：修改配置后，需要重启Nginx使其生效：
+<div class="highlight highlight-source-shell"><pre class="notranslate">nginx -s reload</pre></div>
+</li>
+</ul>
+</li>
+<li>
+<p><strong>确认AOP切面配置</strong><br>
+你的AOP切面代码看起来是正确的，它会在<strong>全局限制放行后</strong>，<strong>Controller方法执行前</strong>进行拦截检查。确保切面类已被Spring扫描并管理（通常通过 <code class="notranslate">@Component</code> 注解，如你代码所示）。</p>
+</li>
+<li>
+<p><strong>异常处理（可选但推荐）</strong><br>
+添加一个全局异常处理器，可以更友好地返回错误信息：</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">web</span>.<span class="pl-s1">bind</span>.<span class="pl-s1">annotation</span>.<span class="pl-s1">ExceptionHandler</span>;
+<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">web</span>.<span class="pl-s1">bind</span>.<span class="pl-s1">annotation</span>.<span class="pl-s1">RestControllerAdvice</span>;
+<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">web</span>.<span class="pl-s1">multipart</span>.<span class="pl-s1">MaxUploadSizeExceededException</span>;
+<span class="pl-k">import</span> <span class="pl-s1">javax</span>.<span class="pl-s1">naming</span>.<span class="pl-s1">SizeLimitExceededException</span>;
+
+<span class="pl-c1">@</span><span class="pl-c1">RestControllerAdvice</span>
+<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">GlobalExceptionHandler</span> {
+    
+    <span class="pl-c">// 处理AOP切面中抛出的自定义大小超限异常</span>
+    <span class="pl-c1">@</span><span class="pl-c1">ExceptionHandler</span>(<span class="pl-smi">SizeLimitExceededException</span>.<span class="pl-k">class</span>)
+    <span class="pl-k">public</span> <span class="pl-smi">Result</span>&lt;<span class="pl-smi">String</span>&gt; <span class="pl-en">handleSizeLimitExceededException</span>(<span class="pl-smi">SizeLimitExceededException</span> <span class="pl-s1">e</span>) {
+        <span class="pl-k">return</span> <span class="pl-smi">Result</span>.<span class="pl-en">fail</span>(<span class="pl-c1">400</span>, <span class="pl-s">"文件大小超限: "</span> + <span class="pl-s1">e</span>.<span class="pl-en">getMessage</span>());
+    }
+    
+    <span class="pl-c">// 处理Spring全局配置抛出的文件大小超限异常</span>
+    <span class="pl-c1">@</span><span class="pl-c1">ExceptionHandler</span>(<span class="pl-smi">MaxUploadSizeExceededException</span>.<span class="pl-k">class</span>)
+    <span class="pl-k">public</span> <span class="pl-smi">Result</span>&lt;<span class="pl-smi">String</span>&gt; <span class="pl-en">handleMaxUploadSizeExceededException</span>(<span class="pl-smi">MaxUploadSizeExceededException</span> <span class="pl-s1">e</span>) {
+        <span class="pl-k">return</span> <span class="pl-smi">Result</span>.<span class="pl-en">fail</span>(<span class="pl-c1">400</span>, <span class="pl-s">"上传的文件大小超过了全局限制。"</span>);
+    }
+}</pre></div>
+</li>
+</ol>
+<h3>💡 工作原理与优先级</h3>
+<p>理解为什么你的AOP切面没生效很重要，这涉及到请求的处理流程和配置的优先级：</p>
+<ol>
+<li><strong>HTTP请求到达服务器</strong>（如内嵌Tomcat或经过Nginx）。</li>
+<li><strong>🔺 外部服务器限制检查 (最高优先级)</strong>：如果使用了Nginx等反向代理，它会首先根据 <code class="notranslate">client_max_body_size</code> 进行检查。若超出，请求在此处就会被拒绝，根本不会到达Spring Boot应用。</li>
+<li><strong>🔺 Spring Boot 全局Multipart解析 (次高优先级)</strong>：请求进入Spring Boot应用后，DispatcherServlet在调用Controller之前，会<strong>首先</strong>根据 <code class="notranslate">spring.servlet.multipart.max-file-size</code> 等全局配置解析Multipart请求。如果文件大小超出这里的全局设置，会立即抛出 <code class="notranslate">MaxUploadSizeExceededException</code>，<strong>请求不会继续传递到Controller方法</strong>，因此你的AOP切面也自然没有机会执行。</li>
+<li><strong>✅ AOP切面检查 (较低优先级)</strong>：只有当全局配置放行后，请求才会路由到对应的Controller方法。在调用Controller方法<strong>之前</strong>，你的AOP切面才会介入工作，执行 <code class="notranslate">@MaxFileSize</code> 注解的检查。如果此时检查不通过，则抛出 <code class="notranslate">SizeLimitExceededException</code>。</li>
+<li><strong>Controller方法执行 (最低优先级)</strong>：只有通过了所有上述检查，你的 <code class="notranslate">upload</code> 方法中的逻辑才会执行。</li>
+</ol>
+<p>你的情况正是在第3步就被拦截了。</p>
+<h3>✅ 总结</h3>
+<p>总而言之，<strong>全局配置是“大门卫”，AOP切面是“二门卫”</strong>。你的3.4MB图片被“大门卫”（Spring Boot全局默认的1MB限制）拦住了，根本没见到“二门卫”（你的AOP切面）。</p>
+<p><strong>解决方案</strong>：确保“大门卫”的权限（全局配置 <code class="notranslate">spring.servlet.multipart.max-file-size</code>）至少放大到和你AOP注解中设置的最大值一样大（5MB），并且检查一下“总大门卫”Nginx（如果有的话）的权限是否也足够。</p>
+<p>希望这能帮你解决问题！</p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://luminku.github.io">布谷博客</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","LuminKu/luminku.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
+
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
+
+</script>
+
+
+</html>
