@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/240149665?v=4"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="# 1. 
+
+好的，我们来全面解读一下您 CentOS 7 Docker 环境下的网络配置。">
+<meta property="og:title" content="CentOS 7 Docker 环境下的网络配置【30】">
+<meta property="og:description" content="# 1. 
+
+好的，我们来全面解读一下您 CentOS 7 Docker 环境下的网络配置。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://luminku.github.io/post/CentOS%207%20Docker%20-huan-jing-xia-de-wang-luo-pei-zhi-%E3%80%9030%E3%80%91.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
+<title>CentOS 7 Docker 环境下的网络配置【30】</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">CentOS 7 Docker 环境下的网络配置【30】</h1>
+<div class="title-right">
+    <a href="https://luminku.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/LuminKu/luminku.github.io/issues/30" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><h1>1.</h1>
+<p>好的，我们来全面解读一下您 CentOS 7 Docker 环境下的网络配置。这是一个非常典型的结构，包含了主机物理网络、虚拟化网络和容器网络。</p>
+<p>为了让您有一个全局的认识，下图清晰地展示了这些网络接口之间的关系和数据流向：</p>
+<div class="highlight highlight-source-mermaid"><pre class="notranslate"><span class="pl-k">flowchart</span> <span class="pl-c1">TD</span>
+<span class="pl-ent">A</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>物理网络&lt;<span class="pl-ent">br</span>&gt;192.168.25.0/24<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+<span class="pl-ent">B</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>宿主机 CentOS 7&lt;<span class="pl-ent">br</span>&gt;192.168.25.10<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+
+<span class="pl-k">subgraph</span> <span class="pl-en">B_Docker</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span> Docker 环境 <span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-k">direction</span> <span class="pl-c1">TB</span>
+    <span class="pl-ent">D0</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>docker0 网桥&lt;<span class="pl-ent">br</span>&gt;默认桥接网络&lt;<span class="pl-ent">br</span>&gt;172.17.0.1/16<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-ent">D1</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>br-9b99e6c2672a 网桥&lt;<span class="pl-ent">br</span>&gt;自定义网络 1&lt;<span class="pl-ent">br</span>&gt;172.18.0.1/16<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-ent">D2</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>br-c491813c4d05 网桥&lt;<span class="pl-ent">br</span>&gt;自定义网络 2&lt;<span class="pl-ent">br</span>&gt;172.22.0.1/16<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-ent">D3</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>br-6d94a7233e78 网桥&lt;<span class="pl-ent">br</span>&gt;自定义网络 3&lt;<span class="pl-ent">br</span>&gt;172.23.0.1/16<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    
+    <span class="pl-ent">D0</span> <span class="pl-k">--</span> <span class="pl-s">veth设备对</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">C0</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>容器<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-ent">D1</span> <span class="pl-k">--</span> <span class="pl-s">veth设备对</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">C1</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>容器<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-ent">D2</span> <span class="pl-k">--</span> <span class="pl-s">veth设备对</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">C2</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>容器<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-ent">D3</span> <span class="pl-k">--</span> <span class="pl-s">veth设备对 &amp; 状态UP</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">C3</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>容器<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+<span class="pl-k">end</span>
+
+<span class="pl-k">subgraph</span> <span class="pl-en">B_Libvirt</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span> Libvirt 虚拟化（未运行） <span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-ent">V0</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>virbr0 网桥&lt;<span class="pl-ent">br</span>&gt;虚拟化网络&lt;<span class="pl-ent">br</span>&gt;192.168.122.1/24<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+<span class="pl-k">end</span>
+
+<span class="pl-ent">B</span> <span class="pl-k">--</span> <span class="pl-s">物理网卡 ens33</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">A</span>
+<span class="pl-ent">B</span> <span class="pl-k">--</span> <span class="pl-s">iptables NAT规则</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">B_Docker</span>
+<span class="pl-ent">B</span> <span class="pl-k">--</span> <span class="pl-s">虚拟网卡</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">B_Libvirt</span></pre></div>
+<hr>
+<h3>🔍 各网络接口详细解读 (基于 <code class="notranslate">ip addr</code> 输出)</h3>
+<p>现在我们根据上图，对每个接口进行详细解读。</p>
+<h4><strong>1. <code class="notranslate">lo</code> - 回环接口 (Loopback Interface)</strong></h4>
+<ul>
+<li><strong>作用</strong>: 这是一个虚拟网络接口，用于<strong>本机内部通信</strong>。所有发送到 <code class="notranslate">127.0.0.1</code> 的数据包都会立刻被本机接收，不经过任何物理网络。用于测试网络协议栈是否正常工作，以及访问本机运行的网络服务（如数据库、Web服务器）。</li>
+<li><strong>地址</strong>: <code class="notranslate">127.0.0.1/8</code> (IPv4) 和 <code class="notranslate">::1/128</code> (IPv6)。<code class="notranslate">/8</code> 表示子网掩码为 <code class="notranslate">255.0.0.0</code>，整个 <code class="notranslate">127.x.x.x</code> 的地址都指向本机。</li>
+<li><strong>状态</strong>: <code class="notranslate">state UNKNOWN</code> (对于 <code class="notranslate">lo</code> 是正常状态)。</li>
+</ul>
+<h4><strong>2. <code class="notranslate">ens33</code> - 物理以太网接口</strong></h4>
+<ul>
+<li><strong>作用</strong>: 这是宿主机的<strong>物理网卡</strong>，连接外部真实网络（如你的路由器/交换机），是宿主机与外界通信的主要通道。</li>
+<li><strong>地址</strong>: <code class="notranslate">192.168.25.10/24</code>
+<ul>
+<li><strong>宿主机地址</strong>: 这就是你的 CentOS 系统的 IP 地址。</li>
+<li><strong>网段</strong>: <code class="notranslate">192.168.25.0/24</code></li>
+<li><strong>子网掩码</strong>: <code class="notranslate">/24</code> 对应 <code class="notranslate">255.255.255.0</code>，表示这个网络中最多可以有 254 个主机（从 <code class="notranslate">192.168.25.1</code> 到 <code class="notranslate">192.168.25.254</code>）。</li>
+<li><strong>广播地址</strong>: <code class="notranslate">192.168.25.255</code></li>
+</ul>
+</li>
+<li><strong>MAC 地址</strong>: <code class="notranslate">00:0c:29:cd:47:91</code> (物理硬件地址)。</li>
+</ul>
+<h4><strong>3. <code class="notranslate">virbr0</code> 和 <code class="notranslate">virbr0-nic</code> - Libvirt 虚拟化网桥</strong></h4>
+<ul>
+<li><strong>作用</strong>: 这是由 <code class="notranslate">libvirtd</code>（通常用于管理 KVM 虚拟机）<strong>自动创建的虚拟网桥</strong>，为虚拟机提供 NAT 网络功能。<code class="notranslate">virbr0-nic</code> 是一个虚拟网卡，作为 <code class="notranslate">virbr0</code> 的端口，通常可以忽略。</li>
+<li><strong>地址</strong>: <code class="notranslate">192.168.122.1/24</code>。Libvirt 会充当这个局域网的网关，并为启动的虚拟机分配 <code class="notranslate">192.168.122.x</code> 的 IP。</li>
+<li><strong>状态</strong>: <code class="notranslate">state DOWN</code> 和 <code class="notranslate">NO-CARRIER</code> 表明<strong>当前没有运行的虚拟机</strong>使用这个网络。</li>
+</ul>
+<h4><strong>4. <code class="notranslate">docker0</code> - Docker 默认网桥</strong></h4>
+<ul>
+<li><strong>作用</strong>: 这是 Docker <strong>默认创建的网桥</strong>。所有未指定自定义网络的 Docker 容器都会连接到这个网桥。它通过 <strong>NAT（网络地址转换）</strong> 的方式让容器访问外网，也通过 <strong>端口映射</strong> (<code class="notranslate">-p 80:80</code>) 让外界访问容器服务。</li>
+<li><strong>地址</strong>: <code class="notranslate">172.17.0.1/16</code>
+<ul>
+<li><strong>网关地址</strong>: 对于连接在 <code class="notranslate">docker0</code> 上的容器来说，这个 IP 就是它们的默认网关。</li>
+<li><strong>网段</strong>: <code class="notranslate">172.17.0.0/16</code>，子网掩码 <code class="notranslate">255.255.0.0</code>，理论上可容纳 65534 个容器（实际受 Docker 配置限制）。</li>
+</ul>
+</li>
+</ul>
+<h4><strong>5. <code class="notranslate">br-xxxxxx</code> - Docker 自定义网桥</strong></h4>
+<ul>
+<li><strong>作用</strong>: 当你使用 <code class="notranslate">docker network create</code> 或 Docker Compose 创建<strong>自定义网络</strong>时，Docker 就会生成一个这样的网桥（名称是随机哈希值）。每个自定义网络都是独立的，提供了更好的隔离性和DNS自动发现功能（容器间可以通过容器名通信）。</li>
+<li><strong>地址</strong>:
+<ul>
+<li><code class="notranslate">br-9b99e6c2672a</code>: <code class="notranslate">172.18.0.1/16</code></li>
+<li><code class="notranslate">br-c491813c4d05</code>: <code class="notranslate">172.22.0.1/16</code> (状态DOWN，未使用)</li>
+<li><code class="notranslate">br-6d94a7233e78</code>: <code class="notranslate">172.23.0.1/16</code> (状态UP，正在使用)</li>
+</ul>
+</li>
+<li><strong>状态</strong>: 只有 <code class="notranslate">br-6d94a7233e78</code> 是 <code class="notranslate">state UP</code>，说明<strong>当前有容器正在使用这个自定义网络</strong>。其他为 <code class="notranslate">DOWN</code> 的可能是因为没有容器运行在其中。</li>
+</ul>
+<h4><strong>6. <code class="notranslate">vethc2ea41c@if84</code> - 虚拟以太网设备对</strong></h4>
+<ul>
+<li><strong>作用</strong>: <strong>这是容器网络通信的关键！</strong> <code class="notranslate">veth</code> 设备总是成对出现，像一根虚拟的网线。
+<ul>
+<li>一端 (<code class="notranslate">vethc2ea41c</code>) 在<strong>宿主机</strong>的命名空间中，并连接在某个网桥（这里是 <code class="notranslate">br-6d94a7233e78</code>) 上，作为网桥的一个端口。</li>
+<li>另一端 (<code class="notranslate">if84</code>) 在<strong>容器</strong>的网络命名空间中，显示为容器内的 <code class="notranslate">eth0</code> 网卡。</li>
+</ul>
+</li>
+<li><strong>数据流</strong>: 容器 <code class="notranslate">eth0</code> &lt;-&gt; <code class="notranslate">veth</code> 设备对 &lt;-&gt; Docker 网桥 &lt;-&gt; 宿主机 <code class="notranslate">ens33</code> &lt;-&gt; 外网。</li>
+<li><strong>状态</strong>: <code class="notranslate">state UP</code> 表明链路通畅。</li>
+</ul>
+<hr>
+<h3>📊 核心概念与维度总结</h3>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th align="left">概念</th>
+<th align="left">解释</th>
+<th align="left">在示例中的体现</th>
+<th align="left">允许范围/用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>宿主机地址</strong></td>
+<td align="left">物理服务器在局域网中的IP</td>
+<td align="left"><code class="notranslate">192.168.25.10</code></td>
+<td align="left">由路由器DHCP分配或手动配置，是SSH管理的地址。</td>
+</tr>
+<tr>
+<td align="left"><strong>局部网络</strong></td>
+<td align="left">一个逻辑上的网络划分，通常是私有IP段</td>
+<td align="left"><code class="notranslate">192.168.25.0/24</code>, <code class="notranslate">172.17.0.0/16</code></td>
+<td align="left"><code class="notranslate">10.0.0.0/8</code>, <code class="notranslate">172.16.0.0/12</code>, <code class="notranslate">192.168.0.0/16</code></td>
+</tr>
+<tr>
+<td align="left"><strong>网桥</strong></td>
+<td align="left">虚拟网络交换机，用于连接多个网络段</td>
+<td align="left"><code class="notranslate">docker0</code>, <code class="notranslate">br-xxxxxx</code>, <code class="notranslate">virbr0</code></td>
+<td align="left">Docker自动创建或用户自定义，实现容器间及对外的通信。</td>
+</tr>
+<tr>
+<td align="left"><strong>网段</strong></td>
+<td align="left">一个网络的范围，由IP和子网掩码定义</td>
+<td align="left"><code class="notranslate">172.17.0.0/16</code></td>
+<td align="left">由网络管理员规划，避免IP冲突。Docker默认从<code class="notranslate">172.17.0.0/16</code>开始创建新网络。</td>
+</tr>
+<tr>
+<td align="left"><strong>子网掩码</strong></td>
+<td align="left">定义IP地址中哪些位是网络位，哪些是主机位</td>
+<td align="left"><code class="notranslate">/24</code> (<code class="notranslate">255.255.255.0</code>), <code class="notranslate">/16</code> (<code class="notranslate">255.255.0.0</code>)</td>
+<td align="left"><code class="notranslate">/&lt;1-32&gt;</code>，越小网络规模越大。<code class="notranslate">/24</code>有254主机，<code class="notranslate">/16</code>有65534主机。</td>
+</tr>
+<tr>
+<td align="left"><strong>网卡</strong></td>
+<td align="left">网络接口卡，物理或虚拟的网络接口</td>
+<td align="left"><code class="notranslate">ens33</code>(物理), <code class="notranslate">docker0</code>(虚拟), <code class="notranslate">vethxxx</code>(虚拟)</td>
+<td align="left">物理网卡数量有限，虚拟网卡由系统按需创建，数量可很多。</td>
+</tr>
+<tr>
+<td align="left"><strong>veth 设备对</strong></td>
+<td align="left">虚拟以太网电缆，连接命名空间和网桥</td>
+<td align="left"><code class="notranslate">vethc2ea41c@if84</code></td>
+<td align="left">每启动一个容器（使用桥接网络）就会创建一对，是容器流量的出入口。</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h3>💡 总结与用途</h3>
+<ul>
+<li><strong>宿主机</strong>通过 <code class="notranslate">ens33</code> 与你的局域网和互联网通信。</li>
+<li><strong>Docker 容器</strong>通过 <code class="notranslate">veth</code> pair连接到各种<strong>网桥</strong>（<code class="notranslate">docker0</code> 或 <code class="notranslate">br-xxx</code>）。</li>
+<li>网桥充当虚拟交换机，<strong>隔离了容器网络和主机物理网络</strong>。</li>
+<li>容器要访问外网时，数据包通过网桥送到宿主机，由宿主机通过 <strong>iptables NAT 规则</strong>进行源地址转换后，再从 <code class="notranslate">ens33</code> 发出。</li>
+<li>外部要访问容器时，需要通过 <code class="notranslate">-p</code> 参数做<strong>端口映射</strong>，Docker 也会通过 iptables 的 DNAT 规则将到达宿主机特定端口的流量转发到对应容器。</li>
+</ul>
+<p>这种架构使得容器可以获得一个私有IP，并与同一网桥下的其他容器直接通信，同时又能通过宿主机安全地访问外部世界，外部世界也能通过端口映射访问到容器内的服务。</p>
+<h1>2.</h1>
+<p>好的，我们来详细解读一下这个 Windows 系统的网络配置，并理清从公网到虚拟机 CentOS 7 的完整网络路径。</p>
+<p>为了让您对整个网络架构有一个全局的、直观的认识，我绘制了下面这张网络拓扑图，它清晰地展示了数据从公网到虚拟机的完整流向：</p>
+<div class="highlight highlight-source-mermaid"><pre class="notranslate"><span class="pl-k">flowchart</span> <span class="pl-c1">TD</span>
+<span class="pl-ent">A</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>互联网 Internet<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+<span class="pl-ent">R</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>无线路由器/网关&lt;<span class="pl-ent">br</span>&gt;WAN口: 运营商分配的公网IP&lt;<span class="pl-ent">br</span>&gt;LAN口: 192.168.0.1/24&lt;<span class="pl-ent">br</span>&gt;功能: NAT, DHCP, WiFi<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+
+<span class="pl-k">subgraph</span> <span class="pl-en">WinHost</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>Windows 宿主机<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-ent">WLAN</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>无线网卡 WLAN&lt;<span class="pl-ent">br</span>&gt;DHCP获取地址: 192.168.0.107<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    
+    <span class="pl-k">subgraph</span> <span class="pl-en">VMware</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>VMware 虚拟化平台<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+        <span class="pl-ent">VMNET1</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>虚拟网卡 VMnet1&lt;<span class="pl-ent">br</span>&gt;Host-Only 网关&lt;<span class="pl-ent">br</span>&gt;192.168.10.1/24<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+        <span class="pl-ent">VMNET8</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>虚拟网卡 VMnet8&lt;<span class="pl-ent">br</span>&gt;NAT 模式网关&lt;<span class="pl-ent">br</span>&gt;192.168.25.1/24<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-k">end</span>
+
+    <span class="pl-ent">CentOSVM</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>CentOS 7 虚拟机&lt;<span class="pl-ent">br</span>&gt;ens33: 192.168.25.128/24&lt;<span class="pl-ent">br</span>&gt;网关: 192.168.25.2(VMNET8)&lt;<span class="pl-ent">br</span>&gt;DNS: Windows Host<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+<span class="pl-k">end</span>
+
+<span class="pl-ent">A</span> <span class="pl-k">--</span> <span class="pl-s">光纤/网线</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">R</span>
+<span class="pl-ent">R</span> <span class="pl-k">--</span> <span class="pl-s">WiFi无线连接</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">WLAN</span>
+
+<span class="pl-ent">WLAN</span> <span class="pl-k">--</span> <span class="pl-s">物理连接</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">VMware</span>
+<span class="pl-ent">VMNET8</span> <span class="pl-k">--</span> <span class="pl-s">虚拟交换</span> <span class="pl-k">--o</span> <span class="pl-ent">CentOSVM</span></pre></div>
+<hr>
+<h3>🔍 各网络适配器详细解读 (基于 <code class="notranslate">ipconfig</code> 输出)</h3>
+<p>现在我们根据上图，对每个接口进行详细解读。</p>
+<h4><strong>1. 无线局域网适配器 WLAN</strong></h4>
+<ul>
+<li><strong>真实存在吗？</strong> <strong>是</strong>。这是你电脑内置的<strong>物理无线网卡</strong>。</li>
+<li><strong>作用</strong>: 负责通过 WiFi 连接到你所在局域网的<strong>无线路由器</strong>，是你电脑访问互联网的主要通道。</li>
+<li><strong>地址分配</strong>:
+<ul>
+<li><strong>IPv4 地址 . . . : 192.168.0.107</strong>: 这是你的 Windows 主机在当前局域网中的 <strong>私有IP地址</strong>。</li>
+<li><strong>子网掩码 . . . : 255.255.255.0</strong>: 表示局域网网段是 <code class="notranslate">192.168.0.0/24</code>，最多容纳 254 台设备。</li>
+<li><strong>默认网关 . . . : 192.168.0.1</strong>: 这就是你<strong>无线路由器的局域网IP地址</strong>。所有发往外网的数据包都先发到这里。</li>
+</ul>
+</li>
+<li><strong>分配方式</strong>: 通常由路由器的 <strong>DHCP 服务</strong>自动分配。你的电脑连上 WiFi 后，会广播一个 DHCP 请求，路由器收到后从其地址池（如 <code class="notranslate">192.168.0.2</code> ~ <code class="notranslate">192.168.0.254</code>）中选择一个空闲 IP 分配给它，并同时告知网关和 DNS 服务器地址。</li>
+<li><strong>用途</strong>: <strong>让 Windows 宿主机能够访问互联网和局域网其他设备。</strong></li>
+</ul>
+<h4><strong>2. 以太网适配器 VMware Network Adapter VMnet8</strong></h4>
+<ul>
+<li><strong>真实存在吗？</strong> <strong>是，但它是虚拟的</strong>。这是 VMware Workstation 或 Player 安装时创建的<strong>虚拟网卡</strong>。</li>
+<li><strong>作用</strong>: 这是 <strong>NAT 模式网络</strong> 的网关网卡。
+<ul>
+<li>它为使用 NAT 模式的虚拟机（如你的 CentOS 7）提供一个私有网络段 (<code class="notranslate">192.168.25.0/24</code>)。</li>
+<li>它自身充当这个私有网络的网关（通常是 <code class="notranslate">192.168.25.2</code>，但这里显示为 <code class="notranslate">.1</code>，VMware 可能会稍有调整）。</li>
+<li><strong>它负责将虚拟机的网络请求进行 NAT 转换后，通过主机的物理网卡（如 WLAN）发送出去，并将返回的数据包再转给相应的虚拟机。</strong> 这正是上图中“NAT转换”所描述的过程。</li>
+</ul>
+</li>
+<li><strong>地址</strong>: <code class="notranslate">192.168.25.1</code>。这个地址是固定的，由 VMware 软件设定。</li>
+<li><strong>用途</strong>: <strong>让虚拟机可以通过宿主机的网络连接上网（出公网），同时外界无法直接访问虚拟机，安全性较好。</strong> 这是最常用的模式。</li>
+</ul>
+<h4><strong>3. 以太网适配器 VMware Network Adapter VMnet1</strong></h4>
+<ul>
+<li><strong>真实存在吗？</strong> <strong>是，虚拟的</strong>。同样是 VMware 创建的虚拟网卡。</li>
+<li><strong>作用</strong>: 这是 <strong>Host-Only (仅主机) 模式网络</strong> 的网关网卡。
+<ul>
+<li>它创建了一个完全封闭的私有网络 (<code class="notranslate">192.168.10.0/24</code>)。</li>
+<li>这个网络<strong>只允许虚拟机和 Windows 宿主机之间相互通信</strong>，虚拟机<strong>无法通过它访问互联网</strong>。</li>
+</ul>
+</li>
+<li><strong>地址</strong>: <code class="notranslate">192.168.10.1</code>。</li>
+<li><strong>用途</strong>: <strong>用于构建一个隔离的测试环境，保证虚拟机只与宿主机通信，不与外部网络有任何接触。</strong></li>
+</ul>
+<h4><em><em>4. &amp; 5. 无线局域网适配器 本地连接</em> 3 和 <em>4 / 蓝牙网络连接</em></em></h4>
+<ul>
+<li><strong>真实存在吗？</strong> <strong>部分是虚拟的，部分是物理的</strong>。这些通常是系统或应用程序（如手机共享热点、VPN 客户端、虚拟串口等）创建的临时或虚拟适配器。</li>
+<li><strong>状态</strong>: <code class="notranslate">媒体已断开连接</code> 表示该网卡没有激活或没有插入网线。</li>
+<li><strong>其中一个活动 (<code class="notranslate">本地连接* 4</code>)</strong>:
+<ul>
+<li>地址 <code class="notranslate">192.168.137.1</code> 非常典型，这通常是 <strong>Windows 的“移动热点”功能</strong>开启后创建的虚拟网卡。当你将电脑的移动网络或 WiFi 共享出去时，Windows 会创建一个使用 <code class="notranslate">192.168.137.0/24</code> 网段的新网络，自己充当网关 (<code class="notranslate">192.168.137.1</code>)。</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h3>📊 核心概念与维度总结</h3>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th align="left">概念</th>
+<th align="left">解释</th>
+<th align="left">在示例中的体现</th>
+<th align="left">数量范围/用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>物理网卡</strong></td>
+<td align="left">硬件设备，如以太网卡、无线网卡</td>
+<td align="left"><code class="notranslate">WLAN</code>, <code class="notranslate">蓝牙网络连接</code></td>
+<td align="left">通常1-2个，是真实存在的硬件。</td>
+</tr>
+<tr>
+<td align="left"><strong>虚拟网卡</strong></td>
+<td align="left">由软件模拟的网卡</td>
+<td align="left"><code class="notranslate">VMnet1</code>, <code class="notranslate">VMnet8</code>, <code class="notranslate">本地连接* 3/4</code></td>
+<td align="left">由软件创建和管理，数量可很多。用于虚拟化、VPN、网络隧道等。</td>
+</tr>
+<tr>
+<td align="left"><strong>DHCP</strong></td>
+<td align="left">动态主机配置协议，自动分配IP</td>
+<td align="left">路由器给 <code class="notranslate">WLAN</code> 分配 <code class="notranslate">192.168.0.107</code></td>
+<td align="left">简化网络管理，避免手动配置IP的麻烦和冲突。</td>
+</tr>
+<tr>
+<td align="left"><strong>NAT</strong></td>
+<td align="left">网络地址转换</td>
+<td align="left"><code class="notranslate">VMnet8</code> 将虚拟机网络 <code class="notranslate">192.168.25.0/24</code> 转换后通过 <code class="notranslate">WLAN</code> 上网</td>
+<td align="left">让使用私有IP的设备可以共享一个公网IP访问互联网。是家用网络和虚拟机上网的核心。</td>
+</tr>
+<tr>
+<td align="left"><strong>网关</strong></td>
+<td align="left">网络出口的“大门”</td>
+<td align="left"><code class="notranslate">192.168.0.1</code> (路由器), <code class="notranslate">192.168.25.1</code> (<code class="notranslate">VMnet8</code>)</td>
+<td align="left">数据包要去往其他网络（如互联网），必须发送给网关设备。</td>
+</tr>
+<tr>
+<td align="left"><strong>子网掩码</strong></td>
+<td align="left">定义IP地址的网络部分和主机部分</td>
+<td align="left"><code class="notranslate">255.255.255.0</code> (/24)</td>
+<td align="left">用来判断目标IP是否在同一局域网内。</td>
+</tr>
+<tr>
+<td align="left"><strong>NAT 模式</strong></td>
+<td align="left">虚拟机网络模式之一</td>
+<td align="left"><code class="notranslate">VMnet8</code> 适配器</td>
+<td align="left"><strong>最佳上网模式</strong>。虚拟机可访问外网，外网不能直接访问虚拟机，安全方便。</td>
+</tr>
+<tr>
+<td align="left"><strong>Host-Only 模式</strong></td>
+<td align="left">虚拟机网络模式之一</td>
+<td align="left"><code class="notranslate">VMnet1</code> 适配器</td>
+<td align="left"><strong>完全隔离模式</strong>。虚拟机与宿主机组成一个封闭内网，不与外界通信，用于安全测试。</td>
+</tr>
+<tr>
+<td align="left"><strong>桥接模式</strong></td>
+<td align="left">虚拟机网络模式之一</td>
+<td align="left">在此输出中未体现</td>
+<td align="left">虚拟机会直接连接到物理网络，像一台<strong>独立的真实主机</strong>一样，从路由器DHCP获取和宿主机同网段的IP（如 <code class="notranslate">192.168.0.108</code>）。</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h3>💡 总结与数据流</h3>
+<p><strong>公网 → CentOS 7 虚拟机的完整路径：</strong></p>
+<ol>
+<li><strong>分配地址</strong>: 你的无线路由器通过 <strong>DHCP</strong> 为 Windows 主机的 <strong>物理网卡 (WLAN)</strong> 分配了地址 <code class="notranslate">192.168.0.107</code>。</li>
+<li><strong>创建虚拟网络</strong>: VMware 创建了 <strong>虚拟网卡 (VMnet8)</strong>，地址为 <code class="notranslate">192.168.25.1</code>，它定义了一个新的私有网段 (<code class="notranslate">192.168.25.0/24</code>)。</li>
+<li><strong>虚拟机获取地址</strong>: 当你启动 CentOS 7 虚拟机并将其网络模式设置为 <strong>NAT</strong> 时，VMware 内置的 DHCP 服务会为虚拟机的网卡分配一个地址，例如 <code class="notranslate">192.168.25.128</code>，并告知其网关是 <code class="notranslate">192.168.25.2</code> (或 <code class="notranslate">.1</code>)。</li>
+<li><strong>上网过程</strong>:
+<ul>
+<li>虚拟机要访问公网（如 <code class="notranslate">8.8.8.8</code>），数据包发送给网关 <code class="notranslate">192.168.25.2</code> (即 <code class="notranslate">VMnet8</code> 虚拟网卡)。</li>
+<li>VMware 的 <strong>NAT 服务</strong> 将数据包的源地址从 <code class="notranslate">192.168.25.128</code> <strong>转换</strong>为 Windows 主机的地址 <code class="notranslate">192.168.0.107</code>。</li>
+<li>转换后的数据包通过 <strong>物理网卡 (WLAN)</strong> 发送给路由器 (<code class="notranslate">192.168.0.1</code>)。</li>
+<li>路由器再次做 NAT，将源地址从 <code class="notranslate">192.168.0.107</code> 转换为<strong>公网IP</strong>，最终发往互联网。</li>
+<li>返回的数据包按相反路径一路 NAT 回去，最终到达虚拟机。</li>
+</ul>
+</li>
+</ol>
+<p>希望这个从物理到虚拟的完整解读能帮助你彻底理解整个网络结构！</p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://luminku.github.io">布谷博客</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","LuminKu/luminku.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
+
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
+
+</script>
+
+
+</html>
