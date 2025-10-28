@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/240149665?v=4"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="在Windows中，使用系统已有的命令为指定网址创建带有自定义图标的Google浏览器快捷方式，可以通过一些脚本工具实现。">
+<meta property="og:title" content="创建Chrome快捷方式及图标设置方法【26】">
+<meta property="og:description" content="在Windows中，使用系统已有的命令为指定网址创建带有自定义图标的Google浏览器快捷方式，可以通过一些脚本工具实现。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://luminku.github.io/post/chuang-jian-Chrome-kuai-jie-fang-shi-ji-tu-biao-she-zhi-fang-fa-%E3%80%9026%E3%80%91.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
+<title>创建Chrome快捷方式及图标设置方法【26】</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">创建Chrome快捷方式及图标设置方法【26】</h1>
+<div class="title-right">
+    <a href="https://luminku.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/LuminKu/luminku.github.io/issues/26" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><p>在Windows中，使用系统已有的命令为指定网址创建带有自定义图标的Google浏览器快捷方式，可以通过一些脚本工具实现。由于Windows没有直接一条命令完成所有步骤的内置工具，我们通常需要借助一些脚本方法。</p>
+<p>下面是一个主要使用VBScript的方案，以及一个使用第三方工具（虽非严格意义上的“已有命令”，但常被用于此类任务）的备选方案。我会先用一个表格总结主要信息，然后详细说明步骤。</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th align="left">方法类型</th>
+<th align="left">所需工具/命令</th>
+<th align="left">优点</th>
+<th align="left">缺点</th>
+<th align="left">图标设置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left"><strong>VBScript</strong></td>
+<td align="left"><code class="notranslate">WScript.Shell</code> COM对象</td>
+<td align="left">无需额外软件，系统原生支持</td>
+<td align="left">命令稍长，需注意参数格式</td>
+<td align="left">在脚本中指定，创建后即生效</td>
+</tr>
+<tr>
+<td align="left"><strong>第三方工具</strong></td>
+<td align="left"><code class="notranslate">shortcut.exe</code></td>
+<td align="left">功能强大，参数直观</td>
+<td align="left">需单独下载此工具</td>
+<td align="left">在命令中直接指定</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h3>🖥️ 方法一：使用VBScript（系统内置支持）</h3>
+<p>VBScript可以通过<code class="notranslate">WScript.Shell</code> COM对象来创建和配置快捷方式，这是Windows系统原生支持的。</p>
+<ol>
+<li>
+<p><strong>打开文本编辑器</strong>：<br>
+按下 <code class="notranslate">Win + R</code>，输入 <code class="notranslate">notepad</code> 并回车，打开记事本。</p>
+</li>
+<li>
+<p><strong>编写VBScript脚本</strong>：<br>
+将以下代码复制到记事本中。请务必将 <code class="notranslate">TargetPath</code> 和 <code class="notranslate">IconLocation</code> 中的路径替换为你自己电脑上Chrome浏览器的实际安装路径（如果不同的话），<code class="notranslate">IconLocation</code> 也可以指向你的 <code class="notranslate">c:\icon.ico</code> 文件。</p>
+<div class="highlight highlight-source-vbnet"><pre class="notranslate"><span class="pl-k">Set</span> <span class="pl-smi">WshShell</span> <span class="pl-smi">=</span> <span class="pl-smi">WScript.CreateObject(</span><span class="pl-s">"WScript.Shell"</span><span class="pl-smi">)</span>
+<span class="pl-smi">strDesktop</span> <span class="pl-smi">=</span> <span class="pl-smi">WshShell.SpecialFolders(</span><span class="pl-s">"Desktop"</span><span class="pl-smi">)</span>
+<span class="pl-k">Set</span> <span class="pl-smi">oShellLink</span> <span class="pl-smi">=</span> <span class="pl-smi">WshShell.CreateShortcut(strDesktop</span> <span class="pl-smi">&amp;</span> <span class="pl-s">"\RanTools Website.lnk"</span><span class="pl-smi">)</span>
+<span class="pl-smi">oShellLink.TargetPath</span> <span class="pl-smi">=</span> <span class="pl-s">"C:\Program Files\Google\Chrome\Application\chrome.exe"</span>
+<span class="pl-smi">oShellLink.Arguments</span> <span class="pl-smi">=</span> <span class="pl-s">"https://tools.ranblogs.com/"</span>
+<span class="pl-smi">oShellLink.WindowStyle</span> <span class="pl-smi">=</span> <span class="pl-s">3</span>
+<span class="pl-smi">oShellLink.IconLocation</span> <span class="pl-smi">=</span> <span class="pl-s">"c:\icon.ico, 0"</span>
+<span class="pl-smi">oShellLink.Description</span> <span class="pl-smi">=</span> <span class="pl-s">"Open RanTools Website in Chrome"</span>
+<span class="pl-smi">oShellLink.WorkingDirectory</span> <span class="pl-smi">=</span> <span class="pl-s">"C:\Program Files\Google\Chrome\Application"</span>
+<span class="pl-smi">oShellLink.Save</span>
+<span class="pl-smi">WScript.Echo</span> <span class="pl-s">"Shortcut created successfully!"</span></pre></div>
+<p><strong>参数解释</strong>：</p>
+<ul>
+<li><code class="notranslate">TargetPath</code>: 指定Google Chrome浏览器的可执行文件（<code class="notranslate">chrome.exe</code>）的完整路径。</li>
+<li><code class="notranslate">Arguments</code>: 指定要打开的网址，即 <code class="notranslate">https://tools.ranblogs.com/</code>。</li>
+<li><code class="notranslate">WindowStyle</code>: 设置窗口状态，<code class="notranslate">3</code> 表示最大化窗口。</li>
+<li><code class="notranslate">IconLocation</code>: 指定快捷方式图标的路径。这里的 <code class="notranslate">c:\icon.ico</code> 是你的图标文件，<code class="notranslate">, 0</code> 表示使用该文件中的第一个图标。</li>
+<li><code class="notranslate">WorkingDirectory</code>: 设置工作目录，通常是Chrome的安装目录。</li>
+</ul>
+</li>
+<li>
+<p><strong>保存并运行脚本</strong>：</p>
+<ul>
+<li>将文件保存到桌面，文件名可以设为 <code class="notranslate">create_shortcut.vbs</code>，确保保存类型为“所有文件”，编码为ANSI。</li>
+<li>双击保存好的 <code class="notranslate">.vbs</code> 文件运行它。如果一切正常，会弹出一个提示框告诉你快捷方式创建成功。此时，桌面上应该会出现一个名为“RanTools Website”的快捷方式。</li>
+</ul>
+</li>
+</ol>
+<h3>📥 方法二：使用第三方命令行工具Shortcut.exe</h3>
+<p><code class="notranslate">shortcut.exe</code> 是一个小巧的免费命令行工具，由OptimumX开发，它可以更方便地通过命令行创建快捷方式。<strong>注意：此工具非Windows自带，需单独下载</strong>。</p>
+<ol>
+<li>
+<p><strong>下载shortcut.exe</strong>：<br>
+你需要先从这个工具的主页（例如在OptimumX官网）下载它，并将其放置在一个合适的目录，或者和你的批处理脚本放在同一目录下。</p>
+</li>
+<li>
+<p><strong>编写批处理脚本</strong>：<br>
+创建一个新的文本文件，将以下命令复制进去。同样，请确保Chrome的路径和图标路径正确。</p>
+<div class="highlight highlight-source-batchfile"><pre class="notranslate">shortcut /F:<span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">%USERPROFILE%</span>\Desktop\RanTools Website.lnk<span class="pl-pds">"</span></span> /A:C /T:<span class="pl-s"><span class="pl-pds">"</span>C:\Program Files\Google\Chrome\Application\chrome.exe<span class="pl-pds">"</span></span> /P:<span class="pl-s"><span class="pl-pds">"</span>https://tools.ranblogs.com/<span class="pl-pds">"</span></span> /I:<span class="pl-s"><span class="pl-pds">"</span>c:\icon.ico<span class="pl-pds">"</span></span> /R:3 /D:<span class="pl-s"><span class="pl-pds">"</span>Open RanTools Website in Chrome<span class="pl-pds">"</span></span></pre></div>
+<p><strong>参数解释</strong>（参考自）：</p>
+<ul>
+<li><code class="notranslate">/F:</code>: 指定要创建的快捷方式文件的完整路径。</li>
+<li><code class="notranslate">/A:C</code>: 执行创建（Create）操作。</li>
+<li><code class="notranslate">/T:</code>: 指定目标程序路径。</li>
+<li><code class="notranslate">/P:</code>: 指定传递给目标程序的参数（即网址）。</li>
+<li><code class="notranslate">/I:</code>: 指定图标文件的位置。</li>
+<li><code class="notranslate">/R:3</code>: 设置运行方式为最大化窗口（3=Maximized）。</li>
+<li><code class="notranslate">/D:</code>: 设置快捷方式的描述信息。</li>
+</ul>
+</li>
+<li>
+<p><strong>保存并运行批处理文件</strong>：</p>
+<ul>
+<li>将文件保存为 <code class="notranslate">create_shortcut.bat</code>，保存类型为“所有文件”。</li>
+<li>双击运行这个批处理文件，它便会调用 <code class="notranslate">shortcut.exe</code> 在桌面创建指定的快捷方式。</li>
+</ul>
+</li>
+</ol>
+<h3><g-emoji class="g-emoji" alias="warning">⚠️</g-emoji> 图标设置注意事项</h3>
+<ul>
+<li><strong>图标格式</strong>：Windows 的快捷方式通常支持 <code class="notranslate">.ico</code> 格式的图标文件。如果你的图标是其他格式（如PNG、JPG），可能需要先转换为 <code class="notranslate">.ico</code> 格式。许多在线工具或简单的图像处理软件（如GIMP、GIMP）都可以完成这个转换。</li>
+<li><strong>图标未生效</strong>：如果创建完成后发现图标没有变化，可以尝试<strong>手动刷新桌面</strong>（按F5）或<strong>手动指定图标</strong>：
+<ul>
+<li>右键点击生成的快捷方式，选择“<strong>属性</strong>”。</li>
+<li>在“<strong>快捷方式</strong>”选项卡中，点击“<strong>更改图标...</strong>”按钮。</li>
+<li>在打开的窗口中，点击“<strong>浏览...</strong>”，然后找到并选择你的 <code class="notranslate">c:\icon.ico</code> 文件。</li>
+<li>点击“确定”保存更改。</li>
+</ul>
+</li>
+</ul>
+<h3>💎 总结</h3>
+<p>VBScript 脚本利用了系统内置的 COM 组件，是“借用”系统已有能力完成任务的方式。而 Shortcut.exe 是一个专门为此目的设计的强大第三方命令行工具，使用起来更直接。</p>
+<p>希望这些方法能帮你成功创建需要的快捷方式。如果在尝试过程中遇到问题，或者图标显示不正常，不妨尝试一下手动更改图标的方法。</p>
+<h1>问题排除</h1>
+<p>你遇到的这个“System.IO.DirectoryNotFoundException”错误，通常是因为 PowerShell 无法在指定的路径中找到<strong>父目录</strong>（也就是快捷方式文件想要保存的那个文件夹），或者你没有足够的权限在该位置写入文件。</p>
+<p>虽然你定义的 <code class="notranslate">$shortcutPath</code> 是桌面路径，但系统依然报错目录找不到。我们可以一步步排查问题。</p>
+<h3>🔍 排查步骤</h3>
+<p>首先，让我们检查最可能出问题的环节。下面是一个流程图，帮助你快速理解和定位问题：</p>
+<div class="highlight highlight-source-mermaid"><pre class="notranslate"><span class="pl-k">flowchart</span> <span class="pl-c1">TD</span>
+    <span class="pl-ent">A</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>运行快捷方式创建脚本报错<span class="pl-pds"><span class="pl-sg">]</span></span></span> <span class="pl-k">--&gt;</span> <span class="pl-ent">B</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">{</span></span>检查桌面路径是否存在<span class="pl-pds"><span class="pl-sg">}</span></span></span>
+    <span class="pl-ent">B</span> <span class="pl-k">--</span> <span class="pl-s">不存在</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">C</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>修复桌面路径或指定有效目录<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-ent">B</span> <span class="pl-k">--</span> <span class="pl-s">存在</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">D</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">{</span></span>检查图标文件是否存在<span class="pl-pds"><span class="pl-sg">}</span></span></span>
+    <span class="pl-ent">D</span> <span class="pl-k">--</span> <span class="pl-s">不存在</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">E</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>提供图标文件或移除图标设置<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-ent">D</span> <span class="pl-k">--</span> <span class="pl-s">存在</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">F</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">{</span></span>以管理员身份运行 PowerShell<span class="pl-pds"><span class="pl-sg">}</span></span></span>
+    <span class="pl-ent">F</span> <span class="pl-k">--</span> <span class="pl-s">仍未解决</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">G</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>尝试在脚本中添加路径验证<span class="pl-pds"><span class="pl-sg">]</span></span></span></pre></div>
+<h4>1. 检查桌面路径是否存在</h4>
+<p>首先，<strong>手动验证</strong>你的桌面路径是否真的存在。在PowerShell中逐行运行以下命令：</p>
+<div class="highlight highlight-source-powershell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 检查桌面路径是否可用</span>
+<span class="pl-c1">Test-Path</span> <span class="pl-k">-</span>Path <span class="pl-smi">$<span class="pl-c1">env:</span>USERPROFILE</span>\Desktop</pre></div>
+<p>如果返回 <code class="notranslate">False</code>，说明你的系统可能修改了桌面路径（例如，通过组策略或重定向），或者当前用户配置文件有问题。你可以通过 <code class="notranslate">echo $env:USERPROFILE</code> 查看用户主目录具体路径，并使用 <code class="notranslate">[Environment]::GetFolderPath("Desktop")</code> 这个.NET方法获取系统认可的桌面路径，这个方法通常更可靠。</p>
+<div class="highlight highlight-source-powershell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 使用 .NET 方法获取准确的桌面路径</span>
+<span class="pl-smi">$desktopPath</span> <span class="pl-k">=</span> [<span class="pl-k">Environment</span>]::GetFolderPath(<span class="pl-s"><span class="pl-pds">"</span>Desktop<span class="pl-pds">"</span></span>)
+<span class="pl-smi">$shortcutPath</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$desktopPath</span>\RanblogsTool.lnk<span class="pl-pds">"</span></span>
+<span class="pl-c1">Write-Host</span> <span class="pl-s"><span class="pl-pds">"</span>桌面路径确定为: <span class="pl-smi">$desktopPath</span><span class="pl-pds">"</span></span></pre></div>
+<h4>2. 检查图标文件是否存在</h4>
+<p>错误虽然提示的是目录未找到，但如果 <code class="notranslate">$iconPath</code>（<code class="notranslate">C:\icon.ico</code>）指定的图标文件不存在，在某些情况下也可能引发问题。请确认这个文件是否真实存在于C盘根目录下。</p>
+<div class="highlight highlight-source-powershell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 检查图标文件是否存在</span>
+<span class="pl-k">if</span> (<span class="pl-c1">Test-Path</span> <span class="pl-k">-</span>Path <span class="pl-smi">$iconPath</span>) {
+    <span class="pl-c1">Write-Host</span> <span class="pl-s"><span class="pl-pds">"</span>图标文件找到啦。<span class="pl-pds">"</span></span>
+} <span class="pl-k">else</span> {
+    <span class="pl-c1">Write-Host</span> <span class="pl-s"><span class="pl-pds">"</span>警告：在 <span class="pl-smi">$iconPath</span> 未找到图标文件。这可能会是问题之一。<span class="pl-pds">"</span></span>
+}</pre></div>
+<p>如果文件不存在，你需要提供一个有效的 <code class="notranslate">.ico</code> 文件，或者暂时注释掉设置图标的那行代码（<code class="notranslate">$Shortcut.IconLocation = ...</code>）来测试是否是图标导致的问题。</p>
+<h4>3. 以管理员身份运行 PowerShell</h4>
+<p>尽管是向用户桌面创建快捷方式，但如果你在<strong>系统受保护的目录</strong>（如 <code class="notranslate">C:\Windows\System32</code>）下运行脚本，或者系统权限设置非常严格，可能会遇到写入限制。<strong>以管理员身份运行PowerShell</strong>可以消除权限不足的疑虑。</p>
+<p>具体操作方法是：</p>
+<ol>
+<li>在开始菜单或搜索栏中查找“PowerShell”。</li>
+<li>右键单击“Windows PowerShell”。</li>
+<li>选择“<strong>以管理员身份运行</strong>”。</li>
+<li>然后在打开的新窗口中再次运行你的脚本。</li>
+</ol>
+<h4>4. 在脚本中添加路径验证</h4>
+<p>在尝试保存快捷方式之前，先确认其父目录是否存在，如果不存在则创建它。这是一个良好的编程习惯，能避免很多问题。</p>
+<div class="highlight highlight-source-powershell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 提取快捷方式文件的父目录（例如 C:\Users\Lenovo\Desktop）</span>
+<span class="pl-smi">$shortcutDirectory</span> <span class="pl-k">=</span> <span class="pl-c1">Split-Path</span> <span class="pl-k">-</span>Path <span class="pl-smi">$shortcutPath</span> <span class="pl-k">-</span>Parent
+
+<span class="pl-c"><span class="pl-c">#</span> 检查该目录是否存在，如果不存在则创建它</span>
+<span class="pl-k">if</span> (<span class="pl-k">-not</span> (<span class="pl-c1">Test-Path</span> <span class="pl-k">-</span>Path <span class="pl-smi">$shortcutDirectory</span>)) {
+    <span class="pl-c1">Write-Host</span> <span class="pl-s"><span class="pl-pds">"</span>目录 <span class="pl-smi">$shortcutDirectory</span> 不存在，现在创建它。<span class="pl-pds">"</span></span>
+    <span class="pl-c1">New-Item</span> <span class="pl-k">-</span>ItemType Directory <span class="pl-k">-</span>Path <span class="pl-smi">$shortcutDirectory</span> <span class="pl-k">-</span>Force
+} <span class="pl-k">else</span> {
+    <span class="pl-c1">Write-Host</span> <span class="pl-s"><span class="pl-pds">"</span>目录 <span class="pl-smi">$shortcutDirectory</span> 已存在。<span class="pl-pds">"</span></span>
+}</pre></div>
+<p>将这段代码添加到你的原始脚本中 <code class="notranslate">$Shortcut.Save()</code> 之前。</p>
+<h3>✅ 修正后的脚本参考</h3>
+<p>结合以上排查点，这是一个修正后的、更健壮的脚本范例：</p>
+<div class="highlight highlight-source-powershell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 定义路径变量（请按实际修改）</span>
+<span class="pl-smi">$chromePath</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>C:\Program Files\Google\Chrome\Application\chrome.exe<span class="pl-pds">"</span></span> <span class="pl-c"><span class="pl-c">#</span> 注意默认通常是Program Files</span>
+<span class="pl-smi">$url</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>https://tools.ranblogs.com/<span class="pl-pds">"</span></span>
+<span class="pl-smi">$iconPath</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>C:\icon.ico<span class="pl-pds">"</span></span>
+
+<span class="pl-c"><span class="pl-c">#</span> 使用 .NET 方法可靠地获取桌面路径</span>
+<span class="pl-smi">$desktopPath</span> <span class="pl-k">=</span> [<span class="pl-k">Environment</span>]::GetFolderPath(<span class="pl-s"><span class="pl-pds">"</span>Desktop<span class="pl-pds">"</span></span>)
+<span class="pl-smi">$shortcutPath</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$desktopPath</span>\RanblogsTool.lnk<span class="pl-pds">"</span></span>
+
+<span class="pl-c"><span class="pl-c">#</span> 确保快捷方式所在目录存在</span>
+<span class="pl-smi">$shortcutDirectory</span> <span class="pl-k">=</span> <span class="pl-c1">Split-Path</span> <span class="pl-k">-</span>Path <span class="pl-smi">$shortcutPath</span> <span class="pl-k">-</span>Parent
+<span class="pl-k">if</span> (<span class="pl-k">-not</span> (<span class="pl-c1">Test-Path</span> <span class="pl-k">-</span>Path <span class="pl-smi">$shortcutDirectory</span>)) {
+    <span class="pl-c1">New-Item</span> <span class="pl-k">-</span>ItemType Directory <span class="pl-k">-</span>Path <span class="pl-smi">$shortcutDirectory</span> <span class="pl-k">-</span>Force
+}
+
+<span class="pl-c"><span class="pl-c">#</span> 检查Chrome路径是否存在（可选但推荐）</span>
+<span class="pl-k">if</span> (<span class="pl-k">-not</span> (<span class="pl-c1">Test-Path</span> <span class="pl-k">-</span>Path <span class="pl-smi">$chromePath</span>)) {
+    <span class="pl-c1">Write-Warning</span> <span class="pl-s"><span class="pl-pds">"</span>在 <span class="pl-smi">$chromePath</span> 未找到Chrome浏览器，请检查路径是否正确。<span class="pl-pds">"</span></span>
+}
+
+<span class="pl-c"><span class="pl-c">#</span> 创建快捷方式对象</span>
+<span class="pl-smi">$WshShell</span> <span class="pl-k">=</span> <span class="pl-c1">New-Object</span> <span class="pl-k">-</span>ComObject WScript.Shell
+<span class="pl-smi">$Shortcut</span> <span class="pl-k">=</span> <span class="pl-smi">$WshShell<span class="pl-smi">.CreateShortcut</span></span>(<span class="pl-smi">$shortcutPath</span>)
+<span class="pl-smi">$Shortcut<span class="pl-smi">.TargetPath</span></span> <span class="pl-k">=</span> <span class="pl-smi">$chromePath</span>
+<span class="pl-smi">$Shortcut<span class="pl-smi">.Arguments</span></span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>--new-window <span class="pl-cce">`"</span><span class="pl-smi">$url</span><span class="pl-cce">`"</span><span class="pl-pds">"</span></span> <span class="pl-c"><span class="pl-c">#</span> 强制新窗口打开</span>
+
+<span class="pl-c"><span class="pl-c">#</span> 只有图标文件存在时才设置图标</span>
+<span class="pl-k">if</span> (<span class="pl-c1">Test-Path</span> <span class="pl-k">-</span>Path <span class="pl-smi">$iconPath</span>) {
+    <span class="pl-smi">$Shortcut<span class="pl-smi">.IconLocation</span></span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$iconPath</span>, 0<span class="pl-pds">"</span></span>
+} <span class="pl-k">else</span> {
+    <span class="pl-c1">Write-Warning</span> <span class="pl-s"><span class="pl-pds">"</span>图标文件 <span class="pl-smi">$iconPath</span> 不存在，快捷方式将使用默认图标。<span class="pl-pds">"</span></span>
+}
+
+<span class="pl-c"><span class="pl-c">#</span> 尝试保存快捷方式</span>
+<span class="pl-k">try</span> {
+    <span class="pl-smi">$Shortcut<span class="pl-smi">.Save</span></span>()
+    <span class="pl-c1">Write-Host</span> <span class="pl-s"><span class="pl-pds">"</span>快捷方式创建成功: <span class="pl-smi">$shortcutPath</span><span class="pl-pds">"</span></span>
+} <span class="pl-k">catch</span> {
+    <span class="pl-c1">Write-Error</span> <span class="pl-s"><span class="pl-pds">"</span>保存快捷方式时出错: <span class="pl-k"><span class="pl-pse">$</span></span><span class="pl-pse">(</span><span class="pl-c1">$_<span class="pl-smi">.Exception.Message</span></span><span class="pl-pse">)</span><span class="pl-pds">"</span></span>
+}</pre></div>
+<h3>💎 如果问题依旧</h3>
+<p>如果尝试了所有方法后问题仍然存在，可以考虑：</p>
+<ul>
+<li>暂时<strong>禁用杀毒软件或实时防护</strong>（有时它们会阻止脚本创建可执行文件的快捷方式），但完成后请记得重新开启。</li>
+<li>在<strong>另一个位置</strong>（如你的用户文档文件夹）创建快捷方式，测试是否是桌面本身的问题。
+<div class="highlight highlight-source-powershell"><pre class="notranslate"><span class="pl-smi">$shortcutPath</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$<span class="pl-c1">env:</span>USERPROFILE</span>\Documents\RanblogsTool.lnk<span class="pl-pds">"</span></span></pre></div>
+</li>
+</ul>
+<p>希望这些步骤能帮你解决问题。如果仍然报错，请提供更多关于你的系统环境的信息，例如是否使用了特殊的用户权限管理或文件夹重定向策略。</p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://luminku.github.io">布谷博客</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","LuminKu/luminku.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
+
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
+
+</script>
+
+
+</html>
