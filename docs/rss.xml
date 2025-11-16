@@ -1,5 +1,17 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>布谷博客</title><link>https://luminku.github.io</link><description>一个分享有趣技术DIY的科技类博主</description><copyright>布谷博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/240149665?v=4</url><title>avatar</title><link>https://luminku.github.io</link></image><lastBuildDate>Sat, 15 Nov 2025 16:16:42 +0000</lastBuildDate><managingEditor>布谷博客</managingEditor><ttl>60</ttl><webMaster>布谷博客</webMaster><item><title>IntelliJ IDEA Maven 项目显示 Gradle 图标的解决方法【46】</title><link>https://luminku.github.io/post/IntelliJ%20IDEA%20Maven%20-xiang-mu-xian-shi-%20Gradle%20-tu-biao-de-jie-jue-fang-fa-%E3%80%9046%E3%80%91.html</link><description>## IntelliJ IDEA Maven 项目显示 Gradle 图标的解决方法
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>布谷博客</title><link>https://luminku.github.io</link><description>一个分享有趣技术DIY的科技类博主</description><copyright>布谷博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/240149665?v=4</url><title>avatar</title><link>https://luminku.github.io</link></image><lastBuildDate>Sun, 16 Nov 2025 09:18:03 +0000</lastBuildDate><managingEditor>布谷博客</managingEditor><ttl>60</ttl><webMaster>布谷博客</webMaster><item><title>Docker拉取进行失败解决方法【47】</title><link>https://luminku.github.io/post/Docker-la-qu-jin-xing-shi-bai-jie-jue-fang-fa-%E3%80%9047%E3%80%91.html</link><description>题目：
+
+```运行下面命令为什么不行
+运行下面命令为什么不行
+[root@localhost mysql]# docker pull mysql:8.0.34
+
+Error response from daemon: Get 'https://registry-1.docker.io/v2/ ': net/http: request canceled while waiting for connection (Client.Timeout exceeded while awaiting headers)
+```
+
+思考: 
+
+```palin text
+用户在问为什么运行 `docker pull mysql:8.0.34` 命令时会失败，错误信息显示连接超时，无法连接到 Docker Hub 的注册表。</description><guid isPermaLink="true">https://luminku.github.io/post/Docker-la-qu-jin-xing-shi-bai-jie-jue-fang-fa-%E3%80%9047%E3%80%91.html</guid><pubDate>Sun, 16 Nov 2025 09:16:57 +0000</pubDate></item><item><title>IntelliJ IDEA Maven 项目显示 Gradle 图标的解决方法【46】</title><link>https://luminku.github.io/post/IntelliJ%20IDEA%20Maven%20-xiang-mu-xian-shi-%20Gradle%20-tu-biao-de-jie-jue-fang-fa-%E3%80%9046%E3%80%91.html</link><description>## IntelliJ IDEA Maven 项目显示 Gradle 图标的解决方法
 
 在 IntelliJ IDEA 中，如果 Maven 项目意外显示 Gradle 图标，可能是由于项目配置文件或模块设置的问题导致的。</description><guid isPermaLink="true">https://luminku.github.io/post/IntelliJ%20IDEA%20Maven%20-xiang-mu-xian-shi-%20Gradle%20-tu-biao-de-jie-jue-fang-fa-%E3%80%9046%E3%80%91.html</guid><pubDate>Sat, 15 Nov 2025 16:16:09 +0000</pubDate></item><item><title>Redis 后台运行【45】</title><link>https://luminku.github.io/post/Redis%20-hou-tai-yun-xing-%E3%80%9045%E3%80%91.html</link><description>## Redis 后台运行
 
