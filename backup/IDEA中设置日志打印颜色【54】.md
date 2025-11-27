@@ -1,5 +1,7 @@
 ## DEA中设置日志打印颜色
 
+<img width="2494" height="347" alt="Image" src="https://github.com/user-attachments/assets/76229652-03a0-4bbd-b1af-815fda5c6106" />
+
 在 **IntelliJ IDEA** 中为控制台日志设置颜色，可以提高日志的可读性和开发效率。以下是实现方法的详细步骤。
 
 ### 方法一：使用 GrepConsole 插件
