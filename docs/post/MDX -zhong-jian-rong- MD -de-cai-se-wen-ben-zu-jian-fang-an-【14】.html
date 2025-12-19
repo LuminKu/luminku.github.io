@@ -19,7 +19,7 @@
 <meta property="og:url" content="https://luminku.github.io/post/MDX%20-zhong-jian-rong-%20MD%20-de-cai-se-wen-ben-zu-jian-fang-an-%E3%80%9014%E3%80%91.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
 <title>MDX 中兼容 MD 的彩色文本组件方案【14】</title>
-
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
 
 
 </head>
@@ -225,265 +225,260 @@ export function SPAN({ color, variant, children }) {
 <h1>MDX 中兼容 MD 的彩色文本组件方案</h1>
 <p>你提出了一个很好的需求：在 MDX 中定义彩色文本组件，同时兼容普通 Markdown。我来为你提供几种实现方案：</p>
 <h2>🎯 方案一：灵活 RGB 色彩方案</h2>
-<pre lang="mdx" class="notranslate"><code class="notranslate">export function SPAN({ color, children, ...props }) {
-  // 在 MDX 中显示颜色，在纯 MD 中回退为普通文本
-  if (typeof window !== 'undefined' &amp;&amp; window.__MDX_CONTEXT__) {
-    return &lt;span style={{ color }}&gt;{children}&lt;/span&gt;;
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-k">export</span> <span class="pl-k">function</span> SPAN({ <span class="pl-v">color</span>, <span class="pl-v">children</span>, <span class="pl-k">...</span><span class="pl-v">props</span> }) {
+  <span class="pl-c"><span class="pl-c">//</span> 在 MDX 中显示颜色，在纯 MD 中回退为普通文本</span>
+  <span class="pl-k">if</span> (<span class="pl-k">typeof</span> <span class="pl-c1">window</span> <span class="pl-k">!==</span> <span class="pl-s"><span class="pl-pds">'</span>undefined<span class="pl-pds">'</span></span> <span class="pl-k">&amp;&amp;</span> <span class="pl-c1">window</span>.<span class="pl-smi">__MDX_CONTEXT__</span>) {
+    <span class="pl-k">return</span> &lt;<span class="pl-ent">span</span> <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{ <span class="pl-smi">color</span> }<span class="pl-pse">}</span>&gt;<span class="pl-pse">{</span><span class="pl-smi">children</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">span</span>&gt;;
   }
-  return children;
+  <span class="pl-k">return</span> <span class="pl-smi">children</span>;
 }
 
 // 使用示例
-这是&lt;SPAN color="#ff6b6b"&gt;红色文本&lt;/SPAN&gt;，这是&lt;SPAN color="#4ecdc4"&gt;青色文本&lt;/SPAN&gt;。
-这是&lt;SPAN color="rgb(255, 107, 107)"&gt;RGB 红色&lt;/SPAN&gt;。
-这是&lt;SPAN color="hsl(210, 50%, 60%)"&gt;HSL 蓝色&lt;/SPAN&gt;。
-</code></pre>
+这是&lt;<span class="pl-c1">SPAN</span> <span class="pl-e">color</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>#ff6b6b<span class="pl-pds">"</span></span>&gt;红色文本&lt;/<span class="pl-c1">SPAN</span>&gt;，这是&lt;<span class="pl-c1">SPAN</span> <span class="pl-e">color</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>#4ecdc4<span class="pl-pds">"</span></span>&gt;青色文本&lt;/<span class="pl-c1">SPAN</span>&gt;。
+这是&lt;<span class="pl-c1">SPAN</span> <span class="pl-e">color</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>rgb(255, 107, 107)<span class="pl-pds">"</span></span>&gt;RGB 红色&lt;/<span class="pl-c1">SPAN</span>&gt;。
+这是&lt;<span class="pl-c1">SPAN</span> <span class="pl-e">color</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>hsl(210, 50%, 60%)<span class="pl-pds">"</span></span>&gt;HSL 蓝色&lt;/<span class="pl-c1">SPAN</span>&gt;。</pre></div>
 <h2>🎨 方案二：预定义颜色方案（推荐）</h2>
-<pre lang="mdx" class="notranslate"><code class="notranslate">// 预定义颜色系统（类似 Excalidraw）
-const colorPalette = {
-  // 红色系
-  'red-1': '#ffebee',
-  'red-2': '#ffcdd2', 
-  'red-3': '#ef9a9a',
-  'red-4': '#e57373',
-  'red-5': '#ef5350',
-  'red-6': '#f44336',
+<div class="highlight highlight-source-mdx"><pre class="notranslate">// 预定义颜色系统（类似 Excalidraw）
+const colorPalette = <span class="pl-s">{</span>
+  <span class="pl-c"><span class="pl-c">//</span> 红色系</span>
+  <span class="pl-s"><span class="pl-pds">'</span>red-1<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ffebee<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>red-2<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ffcdd2<span class="pl-pds">'</span></span>, 
+  <span class="pl-s"><span class="pl-pds">'</span>red-3<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ef9a9a<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>red-4<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#e57373<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>red-5<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ef5350<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>red-6<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#f44336<span class="pl-pds">'</span></span>,
   
-  // 蓝色系
-  'blue-1': '#e3f2fd',
-  'blue-2': '#bbdefb',
-  'blue-3': '#90caf9',
-  'blue-4': '#64b5f6',
-  'blue-5': '#42a5f5',
-  'blue-6': '#2196f3',
+  <span class="pl-c"><span class="pl-c">//</span> 蓝色系</span>
+  <span class="pl-s"><span class="pl-pds">'</span>blue-1<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#e3f2fd<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>blue-2<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#bbdefb<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>blue-3<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#90caf9<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>blue-4<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#64b5f6<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>blue-5<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#42a5f5<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>blue-6<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#2196f3<span class="pl-pds">'</span></span>,
   
-  // 绿色系
-  'green-1': '#e8f5e8',
-  'green-2': '#c8e6c9',
-  'green-3': '#a5d6a7',
-  'green-4': '#81c784',
-  'green-5': '#66bb6a',
-  'green-6': '#4caf50',
+  <span class="pl-c"><span class="pl-c">//</span> 绿色系</span>
+  <span class="pl-s"><span class="pl-pds">'</span>green-1<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#e8f5e8<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>green-2<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#c8e6c9<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>green-3<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#a5d6a7<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>green-4<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#81c784<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>green-5<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#66bb6a<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>green-6<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#4caf50<span class="pl-pds">'</span></span>,
   
-  // 紫色系
-  'purple-1': '#f3e5f5',
-  'purple-2': '#e1bee7',
-  'purple-3': '#ce93d8',
-  'purple-4': '#ba68c8',
-  'purple-5': '#ab47bc',
-  'purple-6': '#9c27b0',
+  <span class="pl-c"><span class="pl-c">//</span> 紫色系</span>
+  <span class="pl-s"><span class="pl-pds">'</span>purple-1<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#f3e5f5<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>purple-2<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#e1bee7<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>purple-3<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ce93d8<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>purple-4<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ba68c8<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>purple-5<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ab47bc<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>purple-6<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#9c27b0<span class="pl-pds">'</span></span>,
   
-  // 橙色系
-  'orange-1': '#fff3e0',
-  'orange-2': '#ffe0b2',
-  'orange-3': '#ffcc80',
-  'orange-4': '#ffb74d',
-  'orange-5': '#ffa726',
-  'orange-6': '#ff9800',
+  <span class="pl-c"><span class="pl-c">//</span> 橙色系</span>
+  <span class="pl-s"><span class="pl-pds">'</span>orange-1<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#fff3e0<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>orange-2<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ffe0b2<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>orange-3<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ffcc80<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>orange-4<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ffb74d<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>orange-5<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ffa726<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>orange-6<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ff9800<span class="pl-pds">'</span></span>,
   
-  // 灰色系
-  'gray-1': '#fafafa',
-  'gray-2': '#f5f5f5',
-  'gray-3': '#eeeeee',
-  'gray-4': '#e0e0e0',
-  'gray-5': '#bdbdbd',
-  'gray-6': '#9e9e9e'
-};
+  <span class="pl-c"><span class="pl-c">//</span> 灰色系</span>
+  <span class="pl-s"><span class="pl-pds">'</span>gray-1<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#fafafa<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>gray-2<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#f5f5f5<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>gray-3<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#eeeeee<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>gray-4<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#e0e0e0<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>gray-5<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#bdbdbd<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>gray-6<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#9e9e9e<span class="pl-pds">'</span></span>
+<span class="pl-s">}</span>;
 
-export function SPAN({ children, ...colorProps }) {
-  // 查找颜色属性
-  const colorKeys = Object.keys(colorProps);
-  let color = null;
+<span class="pl-k">export</span> <span class="pl-k">function</span> SPAN({ <span class="pl-v">children</span>, <span class="pl-k">...</span><span class="pl-v">colorProps</span> }) {
+  <span class="pl-c"><span class="pl-c">//</span> 查找颜色属性</span>
+  <span class="pl-k"><span class="pl-k">const</span></span> colorKeys <span class="pl-k">=</span> <span class="pl-c1">Object</span>.<span class="pl-c1">keys</span>(<span class="pl-smi">colorProps</span>);
+  <span class="pl-k">let</span> color <span class="pl-k">=</span> <span class="pl-c1">null</span>;
   
-  // 检查是否有预定义颜色
-  for (const key of colorKeys) {
-    if (colorPalette[key]) {
-      color = colorPalette[key];
-      break;
+  <span class="pl-c"><span class="pl-c">//</span> 检查是否有预定义颜色</span>
+  <span class="pl-k">for</span> (<span class="pl-k"><span class="pl-k">const</span></span> key <span class="pl-k">of</span> <span class="pl-smi">colorKeys</span>) {
+    <span class="pl-k">if</span> (<span class="pl-smi">colorPalette</span>[<span class="pl-smi">key</span>]) {
+      <span class="pl-smi">color</span> <span class="pl-k">=</span> <span class="pl-smi">colorPalette</span>[<span class="pl-smi">key</span>];
+      <span class="pl-k">break</span>;
     }
   }
   
-  // 在 MDX 环境中应用颜色
-  if (color &amp;&amp; typeof window !== 'undefined' &amp;&amp; window.__MDX_CONTEXT__) {
-    return &lt;span style={{ color }}&gt;{children}&lt;/span&gt;;
+  <span class="pl-c"><span class="pl-c">//</span> 在 MDX 环境中应用颜色</span>
+  <span class="pl-k">if</span> (<span class="pl-smi">color</span> <span class="pl-k">&amp;&amp;</span> <span class="pl-k">typeof</span> <span class="pl-c1">window</span> <span class="pl-k">!==</span> <span class="pl-s"><span class="pl-pds">'</span>undefined<span class="pl-pds">'</span></span> <span class="pl-k">&amp;&amp;</span> <span class="pl-c1">window</span>.<span class="pl-smi">__MDX_CONTEXT__</span>) {
+    <span class="pl-k">return</span> &lt;<span class="pl-ent">span</span> <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{ <span class="pl-smi">color</span> }<span class="pl-pse">}</span>&gt;<span class="pl-pse">{</span><span class="pl-smi">children</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">span</span>&gt;;
   }
   
-  // 在纯 Markdown 中返回原始文本
-  return children;
+  <span class="pl-c"><span class="pl-c">//</span> 在纯 Markdown 中返回原始文本</span>
+  <span class="pl-k">return</span> <span class="pl-smi">children</span>;
 }
 
 // 使用示例
-这是&lt;SPAN red-3&gt;浅红色文本&lt;/SPAN&gt;。
-这是&lt;SPAN blue-5&gt;中等蓝色文本&lt;/SPAN&gt;。
-这是&lt;SPAN green-6&gt;深绿色文本&lt;/SPAN&gt;。
-这是&lt;SPAN purple-4&gt;紫色强调&lt;/SPAN&gt;文本。
-</code></pre>
+这是&lt;<span class="pl-c1">SPAN</span> <span class="pl-e">red-3</span>&gt;浅红色文本&lt;/<span class="pl-c1">SPAN</span>&gt;。
+这是&lt;<span class="pl-c1">SPAN</span> <span class="pl-e">blue-5</span>&gt;中等蓝色文本&lt;/<span class="pl-c1">SPAN</span>&gt;。
+这是&lt;<span class="pl-c1">SPAN</span> <span class="pl-e">green-6</span>&gt;深绿色文本&lt;/<span class="pl-c1">SPAN</span>&gt;。
+这是&lt;<span class="pl-c1">SPAN</span> <span class="pl-e">purple-4</span>&gt;紫色强调&lt;/<span class="pl-c1">SPAN</span>&gt;文本。</pre></div>
 <h2>🔧 方案三：智能组件（最佳方案）</h2>
-<pre lang="mdx" class="notranslate"><code class="notranslate">import React from 'react';
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-k">import</span> <span class="pl-smi">React</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>react<span class="pl-pds">'</span></span>;
 
 // 智能颜色映射
-const COLOR_SYSTEM = {
-  // 基础色
-  'red': '#f44336',
-  'blue': '#2196f3', 
-  'green': '#4caf50',
-  'yellow': '#ffeb3b',
-  'orange': '#ff9800',
-  'purple': '#9c27b0',
-  'pink': '#e91e63',
-  'cyan': '#00bcd4',
+const COLOR_SYSTEM = <span class="pl-s">{</span>
+  <span class="pl-c"><span class="pl-c">//</span> 基础色</span>
+  <span class="pl-s"><span class="pl-pds">'</span>red<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#f44336<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>blue<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#2196f3<span class="pl-pds">'</span></span>, 
+  <span class="pl-s"><span class="pl-pds">'</span>green<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#4caf50<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>yellow<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ffeb3b<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>orange<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ff9800<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>purple<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#9c27b0<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>pink<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#e91e63<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>cyan<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#00bcd4<span class="pl-pds">'</span></span>,
   
-  // 数字后缀色系
-  'red-1': '#ffebee', 'red-2': '#ffcdd2', 'red-3': '#ef9a9a', 'red-4': '#e57373', 'red-5': '#ef5350', 'red-6': '#f44336',
-  'blue-1': '#e3f2fd', 'blue-2': '#bbdefb', 'blue-3': '#90caf9', 'blue-4': '#64b5f6', 'blue-5': '#42a5f5', 'blue-6': '#2196f3',
-  'green-1': '#e8f5e8', 'green-2': '#c8e6c9', 'green-3': '#a5d6a7', 'green-4': '#81c784', 'green-5': '#66bb6a', 'green-6': '#4caf50',
-  'purple-1': '#f3e5f5', 'purple-2': '#e1bee7', 'purple-3': '#ce93d8', 'purple-4': '#ba68c8', 'purple-5': '#ab47bc', 'purple-6': '#9c27b0',
+  <span class="pl-c"><span class="pl-c">//</span> 数字后缀色系</span>
+  <span class="pl-s"><span class="pl-pds">'</span>red-1<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ffebee<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>red-2<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ffcdd2<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>red-3<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ef9a9a<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>red-4<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#e57373<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>red-5<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ef5350<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>red-6<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#f44336<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>blue-1<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#e3f2fd<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>blue-2<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#bbdefb<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>blue-3<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#90caf9<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>blue-4<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#64b5f6<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>blue-5<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#42a5f5<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>blue-6<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#2196f3<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>green-1<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#e8f5e8<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>green-2<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#c8e6c9<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>green-3<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#a5d6a7<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>green-4<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#81c784<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>green-5<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#66bb6a<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>green-6<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#4caf50<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>purple-1<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#f3e5f5<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>purple-2<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#e1bee7<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>purple-3<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ce93d8<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>purple-4<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ba68c8<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>purple-5<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ab47bc<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>purple-6<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#9c27b0<span class="pl-pds">'</span></span>,
   
-  // 语义色
-  'success': '#4caf50',
-  'warning': '#ff9800', 
-  'error': '#f44336',
-  'info': '#2196f3',
-  'highlight': '#fff176'
-};
+  <span class="pl-c"><span class="pl-c">//</span> 语义色</span>
+  <span class="pl-s"><span class="pl-pds">'</span>success<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#4caf50<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>warning<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#ff9800<span class="pl-pds">'</span></span>, 
+  <span class="pl-s"><span class="pl-pds">'</span>error<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#f44336<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>info<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#2196f3<span class="pl-pds">'</span></span>,
+  <span class="pl-s"><span class="pl-pds">'</span>highlight<span class="pl-pds">'</span></span>: <span class="pl-s"><span class="pl-pds">'</span>#fff176<span class="pl-pds">'</span></span>
+<span class="pl-s">}</span>;
 
 // 智能颜色组件
-export function ColorSpan({ children, color, ...variantProps }) {
-  let finalColor = color;
+<span class="pl-k">export</span> <span class="pl-k">function</span> ColorSpan({ <span class="pl-v">children</span>, <span class="pl-v">color</span>, <span class="pl-k">...</span><span class="pl-v">variantProps</span> }) {
+  <span class="pl-k">let</span> finalColor <span class="pl-k">=</span> <span class="pl-smi">color</span>;
   
-  // 如果没有直接指定 color，查找变体属性
-  if (!finalColor) {
-    const variantKeys = Object.keys(variantProps);
-    for (const key of variantKeys) {
-      if (COLOR_SYSTEM[key]) {
-        finalColor = COLOR_SYSTEM[key];
-        break;
+  <span class="pl-c"><span class="pl-c">//</span> 如果没有直接指定 color，查找变体属性</span>
+  <span class="pl-k">if</span> (<span class="pl-k">!</span><span class="pl-smi">finalColor</span>) {
+    <span class="pl-k"><span class="pl-k">const</span></span> variantKeys <span class="pl-k">=</span> <span class="pl-c1">Object</span>.<span class="pl-c1">keys</span>(<span class="pl-smi">variantProps</span>);
+    <span class="pl-k">for</span> (<span class="pl-k"><span class="pl-k">const</span></span> key <span class="pl-k">of</span> <span class="pl-smi">variantKeys</span>) {
+      <span class="pl-k">if</span> (<span class="pl-c1">COLOR_SYSTEM</span>[<span class="pl-smi">key</span>]) {
+        <span class="pl-smi">finalColor</span> <span class="pl-k">=</span> <span class="pl-c1">COLOR_SYSTEM</span>[<span class="pl-smi">key</span>];
+        <span class="pl-k">break</span>;
       }
     }
   }
   
-  // 检测环境：MDX 还是纯 Markdown
-  const isMDXEnvironment = typeof React !== 'undefined' &amp;&amp; React.createElement;
+  <span class="pl-c"><span class="pl-c">//</span> 检测环境：MDX 还是纯 Markdown</span>
+  <span class="pl-k"><span class="pl-k">const</span></span> isMDXEnvironment <span class="pl-k">=</span> <span class="pl-k">typeof</span> <span class="pl-smi">React</span> <span class="pl-k">!==</span> <span class="pl-s"><span class="pl-pds">'</span>undefined<span class="pl-pds">'</span></span> <span class="pl-k">&amp;&amp;</span> <span class="pl-smi">React</span>.<span class="pl-smi">createElement</span>;
   
-  if (finalColor &amp;&amp; isMDXEnvironment) {
-    return (
-      &lt;span 
-        style={{ 
-          color: finalColor,
-          // 添加一些智能样式
-          fontWeight: finalColor.includes('6') || !finalColor.includes('-') ? '600' : '400',
-          padding: '0 2px'
-        }}
+  <span class="pl-k">if</span> (<span class="pl-smi">finalColor</span> <span class="pl-k">&amp;&amp;</span> <span class="pl-smi">isMDXEnvironment</span>) {
+    <span class="pl-k">return</span> (
+      &lt;<span class="pl-ent">span</span> 
+        <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{ 
+          color: <span class="pl-smi">finalColor</span>,
+          <span class="pl-c"><span class="pl-c">//</span> 添加一些智能样式</span>
+          fontWeight: <span class="pl-smi">finalColor</span>.<span class="pl-en">includes</span>(<span class="pl-s"><span class="pl-pds">'</span>6<span class="pl-pds">'</span></span>) <span class="pl-k">||</span> <span class="pl-k">!</span><span class="pl-smi">finalColor</span>.<span class="pl-en">includes</span>(<span class="pl-s"><span class="pl-pds">'</span>-<span class="pl-pds">'</span></span>) <span class="pl-k">?</span> <span class="pl-s"><span class="pl-pds">'</span>600<span class="pl-pds">'</span></span> <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>400<span class="pl-pds">'</span></span>,
+          padding: <span class="pl-s"><span class="pl-pds">'</span>0 2px<span class="pl-pds">'</span></span>
+        }<span class="pl-pse">}</span>
       &gt;
-        {children}
-      &lt;/span&gt;
+        <span class="pl-pse">{</span><span class="pl-smi">children</span><span class="pl-pse">}</span>
+      &lt;/<span class="pl-ent">span</span>&gt;
     );
   }
   
-  // 纯 Markdown 环境：返回原始文本
-  return children;
+  <span class="pl-c"><span class="pl-c">//</span> 纯 Markdown 环境：返回原始文本</span>
+  <span class="pl-k">return</span> <span class="pl-smi">children</span>;
 }
 
 // 快捷别名
-export const Red = (props) =&gt; &lt;ColorSpan red-6 {...props} /&gt;;
-export const Blue = (props) =&gt; &lt;ColorSpan blue-6 {...props} /&gt;;
-export const Green = (props) &lt;ColorSpan green-6 {...props} /&gt;;
-export const Purple = (props) =&gt; &lt;ColorSpan purple-6 {...props} /&gt;;
-export const Orange = (props) =&gt; &lt;ColorSpan orange {...props} /&gt;;
-export const Yellow = (props) =&gt; &lt;ColorSpan yellow {...props} /&gt;;
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Red <span class="pl-k">=</span> (<span class="pl-v">props</span>) <span class="pl-k">=&gt;</span> &lt;<span class="pl-ent"><span class="pl-c1">ColorSpan</span></span> <span class="pl-e">red-6</span> <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span> /&gt;;
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Blue <span class="pl-k">=</span> (<span class="pl-v">props</span>) <span class="pl-k">=&gt;</span> &lt;<span class="pl-ent"><span class="pl-c1">ColorSpan</span></span> <span class="pl-e">blue-6</span> <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span> /&gt;;
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Green <span class="pl-k">=</span> (<span class="pl-smi">props</span>) <span class="pl-k">&lt;</span><span class="pl-smi">ColorSpan</span> <span class="pl-smi">green</span><span class="pl-k">-</span><span class="pl-c1">6</span> {<span class="pl-k">...</span><span class="pl-smi">props</span>} <span class="pl-k">/</span><span class="pl-k">&gt;</span>;
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Purple <span class="pl-k">=</span> (<span class="pl-v">props</span>) <span class="pl-k">=&gt;</span> &lt;<span class="pl-ent"><span class="pl-c1">ColorSpan</span></span> <span class="pl-e">purple-6</span> <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span> /&gt;;
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Orange <span class="pl-k">=</span> (<span class="pl-v">props</span>) <span class="pl-k">=&gt;</span> &lt;<span class="pl-ent"><span class="pl-c1">ColorSpan</span></span> <span class="pl-e">orange</span> <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span> /&gt;;
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Yellow <span class="pl-k">=</span> (<span class="pl-v">props</span>) <span class="pl-k">=&gt;</span> &lt;<span class="pl-ent"><span class="pl-c1">ColorSpan</span></span> <span class="pl-e">yellow</span> <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span> /&gt;;
 
 // 语义别名
-export const Success = (props) =&gt; &lt;ColorSpan success {...props} /&gt;;
-export const Warning = (props) =&gt; &lt;ColorSpan warning {...props} /&gt;;
-export const Error = (props) =&gt; &lt;ColorSpan error {...props} /&gt;;
-export const Info = (props) =&gt; &lt;ColorSpan info {...props} /&gt;;
-export const Highlight = (props) =&gt; &lt;ColorSpan highlight {...props} /&gt;;
-</code></pre>
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Success <span class="pl-k">=</span> (<span class="pl-v">props</span>) <span class="pl-k">=&gt;</span> &lt;<span class="pl-ent"><span class="pl-c1">ColorSpan</span></span> <span class="pl-e">success</span> <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span> /&gt;;
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Warning <span class="pl-k">=</span> (<span class="pl-v">props</span>) <span class="pl-k">=&gt;</span> &lt;<span class="pl-ent"><span class="pl-c1">ColorSpan</span></span> <span class="pl-e">warning</span> <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span> /&gt;;
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Error <span class="pl-k">=</span> (<span class="pl-v">props</span>) <span class="pl-k">=&gt;</span> &lt;<span class="pl-ent"><span class="pl-c1">ColorSpan</span></span> <span class="pl-e">error</span> <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span> /&gt;;
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Info <span class="pl-k">=</span> (<span class="pl-v">props</span>) <span class="pl-k">=&gt;</span> &lt;<span class="pl-ent"><span class="pl-c1">ColorSpan</span></span> <span class="pl-e">info</span> <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span> /&gt;;
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Highlight <span class="pl-k">=</span> (<span class="pl-v">props</span>) <span class="pl-k">=&gt;</span> &lt;<span class="pl-ent"><span class="pl-c1">ColorSpan</span></span> <span class="pl-e">highlight</span> <span class="pl-pse">{</span><span class="pl-k">...</span><span class="pl-smi">props</span><span class="pl-pse">}</span> /&gt;;</pre></div>
 <h2>📝 使用示例</h2>
-<pre lang="mdx" class="notranslate"><code class="notranslate">// 引入颜色组件
-import { ColorSpan, Red, Blue, Green, Success, Warning, Error } from './color-components';
+<div class="highlight highlight-source-mdx"><pre class="notranslate">// 引入颜色组件
+<span class="pl-k">import</span> { <span class="pl-smi">ColorSpan</span>, <span class="pl-smi">Red</span>, <span class="pl-smi">Blue</span>, <span class="pl-smi">Green</span>, <span class="pl-smi">Success</span>, <span class="pl-smi">Warning</span>, <span class="pl-smi">Error</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>./color-components<span class="pl-pds">'</span></span>;
 
-# 颜色文本示例
+<span class="pl-mh"># <span class="pl-en">颜色文本示例</span></span>
 
-## 方案一：RGB 自定义颜色
+<span class="pl-mh">## <span class="pl-en">方案一：RGB 自定义颜色</span></span>
 
-这是&lt;ColorSpan color="#ff6b6b"&gt;自定义红色&lt;/ColorSpan&gt;文本。
-这是&lt;ColorSpan color="rgb(77, 208, 225)"&gt;自定义蓝色&lt;/ColorSpan&gt;文本。
+这是&lt;<span class="pl-c1">ColorSpan</span> <span class="pl-e">color</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>#ff6b6b<span class="pl-pds">"</span></span>&gt;自定义红色&lt;/<span class="pl-c1">ColorSpan</span>&gt;文本。
+这是&lt;<span class="pl-c1">ColorSpan</span> <span class="pl-e">color</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>rgb(77, 208, 225)<span class="pl-pds">"</span></span>&gt;自定义蓝色&lt;/<span class="pl-c1">ColorSpan</span>&gt;文本。
 
-## 方案二：预定义颜色系统
+<span class="pl-mh">## <span class="pl-en">方案二：预定义颜色系统</span></span>
 
-这是&lt;ColorSpan red-3&gt;浅红色&lt;/ColorSpan&gt;文本。
-这是&lt;ColorSpan blue-5&gt;中等蓝色&lt;/ColorSpan&gt;文本。
-这是&lt;ColorSpan green-6&gt;深绿色&lt;/ColorSpan&gt;文本。
-这是&lt;ColorSpan purple-4&gt;紫色文本&lt;/ColorSpan&gt;。
+这是&lt;<span class="pl-c1">ColorSpan</span> <span class="pl-e">red-3</span>&gt;浅红色&lt;/<span class="pl-c1">ColorSpan</span>&gt;文本。
+这是&lt;<span class="pl-c1">ColorSpan</span> <span class="pl-e">blue-5</span>&gt;中等蓝色&lt;/<span class="pl-c1">ColorSpan</span>&gt;文本。
+这是&lt;<span class="pl-c1">ColorSpan</span> <span class="pl-e">green-6</span>&gt;深绿色&lt;/<span class="pl-c1">ColorSpan</span>&gt;文本。
+这是&lt;<span class="pl-c1">ColorSpan</span> <span class="pl-e">purple-4</span>&gt;紫色文本&lt;/<span class="pl-c1">ColorSpan</span>&gt;。
 
-## 方案三：快捷别名
+<span class="pl-mh">## <span class="pl-en">方案三：快捷别名</span></span>
 
-&lt;Red&gt;这是红色文本&lt;/Red&gt;
-&lt;Blue&gt;这是蓝色文本&lt;/Blue&gt; 
-&lt;Green&gt;这是绿色文本&lt;/Green&gt;
-&lt;Purple&gt;这是紫色文本&lt;/Purple&gt;
+&lt;<span class="pl-c1">Red</span>&gt;这是红色文本&lt;/<span class="pl-c1">Red</span>&gt;
+&lt;<span class="pl-c1">Blue</span>&gt;这是蓝色文本&lt;/<span class="pl-c1">Blue</span>&gt; 
+&lt;<span class="pl-c1">Green</span>&gt;这是绿色文本&lt;/<span class="pl-c1">Green</span>&gt;
+&lt;<span class="pl-c1">Purple</span>&gt;这是紫色文本&lt;/<span class="pl-c1">Purple</span>&gt;
 
-## 语义化颜色
+<span class="pl-mh">## <span class="pl-en">语义化颜色</span></span>
 
-&lt;Success&gt;操作成功&lt;/Success&gt;
-&lt;Warning&gt;请注意警告&lt;/Warning&gt;
-&lt;Error&gt;发生错误&lt;/Error&gt;
-&lt;Info&gt;提示信息&lt;/Info&gt;
-&lt;Highlight&gt;重点内容&lt;/Highlight&gt;
+&lt;<span class="pl-c1">Success</span>&gt;操作成功&lt;/<span class="pl-c1">Success</span>&gt;
+&lt;<span class="pl-c1">Warning</span>&gt;请注意警告&lt;/<span class="pl-c1">Warning</span>&gt;
+&lt;<span class="pl-c1">Error</span>&gt;发生错误&lt;/<span class="pl-c1">Error</span>&gt;
+&lt;<span class="pl-c1">Info</span>&gt;提示信息&lt;/<span class="pl-c1">Info</span>&gt;
+&lt;<span class="pl-c1">Highlight</span>&gt;重点内容&lt;/<span class="pl-c1">Highlight</span>&gt;
 
-## 混合使用
+<span class="pl-mh">## <span class="pl-en">混合使用</span></span>
 
-这是&lt;Red&gt;红色强调&lt;/Red&gt;和&lt;Blue&gt;蓝色说明&lt;/Blue&gt;的混合&lt;Green&gt;绿色文本&lt;/Green&gt;。
-</code></pre>
+这是&lt;<span class="pl-c1">Red</span>&gt;红色强调&lt;/<span class="pl-c1">Red</span>&gt;和&lt;<span class="pl-c1">Blue</span>&gt;蓝色说明&lt;/<span class="pl-c1">Blue</span>&gt;的混合&lt;<span class="pl-c1">Green</span>&gt;绿色文本&lt;/<span class="pl-c1">Green</span>&gt;。</pre></div>
 <h2>🛠️ 环境检测改进方案</h2>
 <p>如果环境检测不准确，可以使用更可靠的方法：</p>
-<pre lang="mdx" class="notranslate"><code class="notranslate">// 更可靠的环境检测
-export function createColorComponent(name, defaultColor) {
-  return function ColorComponent({ children, color = defaultColor, ...props }) {
-    // 尝试检测 MDX 环境
-    const canRenderJSX = () =&gt; {
-      try {
-        // 检查是否在 MDX 处理环境中
-        if (typeof React !== 'undefined' &amp;&amp; React.createElement) {
-          return true;
+<div class="highlight highlight-source-mdx"><pre class="notranslate">// 更可靠的环境检测
+<span class="pl-k">export</span> <span class="pl-k">function</span> createColorComponent(<span class="pl-v">name</span>, <span class="pl-v">defaultColor</span>) {
+  <span class="pl-k">return</span> <span class="pl-k">function</span> ColorComponent({ <span class="pl-v">children</span>, <span class="pl-v">color</span> <span class="pl-k">=</span> <span class="pl-smi">defaultColor</span>, <span class="pl-k">...</span><span class="pl-v">props</span> }) {
+    <span class="pl-c"><span class="pl-c">//</span> 尝试检测 MDX 环境</span>
+    <span class="pl-k"><span class="pl-k">const</span></span> canRenderJSX <span class="pl-k">=</span> () <span class="pl-k">=&gt;</span> {
+      <span class="pl-k">try</span> {
+        <span class="pl-c"><span class="pl-c">//</span> 检查是否在 MDX 处理环境中</span>
+        <span class="pl-k">if</span> (<span class="pl-k">typeof</span> <span class="pl-smi">React</span> <span class="pl-k">!==</span> <span class="pl-s"><span class="pl-pds">'</span>undefined<span class="pl-pds">'</span></span> <span class="pl-k">&amp;&amp;</span> <span class="pl-smi">React</span>.<span class="pl-smi">createElement</span>) {
+          <span class="pl-k">return</span> <span class="pl-c1">true</span>;
         }
-        // 检查全局变量
-        if (typeof window !== 'undefined' &amp;&amp; (window.__MDX_DEV__ || window.__MDX_CONTEXT__)) {
-          return true;
+        <span class="pl-c"><span class="pl-c">//</span> 检查全局变量</span>
+        <span class="pl-k">if</span> (<span class="pl-k">typeof</span> <span class="pl-c1">window</span> <span class="pl-k">!==</span> <span class="pl-s"><span class="pl-pds">'</span>undefined<span class="pl-pds">'</span></span> <span class="pl-k">&amp;&amp;</span> (<span class="pl-c1">window</span>.<span class="pl-smi">__MDX_DEV__</span> <span class="pl-k">||</span> <span class="pl-c1">window</span>.<span class="pl-smi">__MDX_CONTEXT__</span>)) {
+          <span class="pl-k">return</span> <span class="pl-c1">true</span>;
         }
-        return false;
-      } catch {
-        return false;
+        <span class="pl-k">return</span> <span class="pl-c1">false</span>;
+      } <span class="pl-k">catch</span> {
+        <span class="pl-k">return</span> <span class="pl-c1">false</span>;
       }
     };
     
-    if (canRenderJSX() &amp;&amp; color) {
-      return (
-        &lt;span 
-          style={{ 
-            color,
-            fontWeight: props.bold ? 'bold' : 'normal',
-            fontStyle: props.italic ? 'italic' : 'normal'
-          }}
-          className={props.className}
+    <span class="pl-k">if</span> (<span class="pl-en">canRenderJSX</span>() <span class="pl-k">&amp;&amp;</span> <span class="pl-smi">color</span>) {
+      <span class="pl-k">return</span> (
+        &lt;<span class="pl-ent">span</span> 
+          <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{ 
+            <span class="pl-smi">color</span>,
+            fontWeight: <span class="pl-smi">props</span>.<span class="pl-smi">bold</span> <span class="pl-k">?</span> <span class="pl-s"><span class="pl-pds">'</span>bold<span class="pl-pds">'</span></span> <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>normal<span class="pl-pds">'</span></span>,
+            fontStyle: <span class="pl-smi">props</span>.<span class="pl-smi">italic</span> <span class="pl-k">?</span> <span class="pl-s"><span class="pl-pds">'</span>italic<span class="pl-pds">'</span></span> <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>normal<span class="pl-pds">'</span></span>
+          }<span class="pl-pse">}</span>
+          <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">props</span>.<span class="pl-c1">className</span><span class="pl-pse">}</span>
         &gt;
-          {children}
-        &lt;/span&gt;
+          <span class="pl-pse">{</span><span class="pl-smi">children</span><span class="pl-pse">}</span>
+        &lt;/<span class="pl-ent">span</span>&gt;
       );
     }
     
-    // 纯 Markdown 环境
-    return children;
+    <span class="pl-c"><span class="pl-c">//</span> 纯 Markdown 环境</span>
+    <span class="pl-k">return</span> <span class="pl-smi">children</span>;
   };
 }
 
 // 使用工厂函数创建颜色组件
-export const SPAN = createColorComponent('SPAN', null);
-export const Red = createColorComponent('Red', '#f44336');
-export const Blue = createColorComponent('Blue', '#2196f3');
-export const Green = createColorComponent('Green', '#4caf50');
-</code></pre>
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> SPAN <span class="pl-k">=</span> <span class="pl-en">createColorComponent</span>(<span class="pl-s"><span class="pl-pds">'</span>SPAN<span class="pl-pds">'</span></span>, <span class="pl-c1">null</span>);
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Red <span class="pl-k">=</span> <span class="pl-en">createColorComponent</span>(<span class="pl-s"><span class="pl-pds">'</span>Red<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>#f44336<span class="pl-pds">'</span></span>);
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Blue <span class="pl-k">=</span> <span class="pl-en">createColorComponent</span>(<span class="pl-s"><span class="pl-pds">'</span>Blue<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>#2196f3<span class="pl-pds">'</span></span>);
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Green <span class="pl-k">=</span> <span class="pl-en">createColorComponent</span>(<span class="pl-s"><span class="pl-pds">'</span>Green<span class="pl-pds">'</span></span>, <span class="pl-s"><span class="pl-pds">'</span>#4caf50<span class="pl-pds">'</span></span>);</pre></div>
 <h2>💡 最佳实践建议</h2>
 <ol>
 <li><strong>使用方案三</strong>（智能组件）作为主要方案</li>
@@ -491,24 +486,23 @@ export const Green = createColorComponent('Green', '#4caf50');
 <li><strong>提供语义化别名</strong>提高可读性</li>
 <li><strong>添加 TypeScript 类型</strong>（如果使用 TS）</li>
 </ol>
-<pre lang="mdx" class="notranslate"><code class="notranslate">// colors.js - 颜色常量
-export const COLORS = {
+<div class="highlight highlight-source-mdx"><pre class="notranslate">// colors.js - 颜色常量
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> COLORS <span class="pl-k">=</span> {
   BRAND: {
-    PRIMARY: '#1976d2',
-    SECONDARY: '#dc004e',
+    PRIMARY: <span class="pl-s"><span class="pl-pds">'</span>#1976d2<span class="pl-pds">'</span></span>,
+    SECONDARY: <span class="pl-s"><span class="pl-pds">'</span>#dc004e<span class="pl-pds">'</span></span>,
   },
   SEMANTIC: {
-    SUCCESS: '#4caf50',
-    WARNING: '#ff9800',
-    ERROR: '#f44336',
+    SUCCESS: <span class="pl-s"><span class="pl-pds">'</span>#4caf50<span class="pl-pds">'</span></span>,
+    WARNING: <span class="pl-s"><span class="pl-pds">'</span>#ff9800<span class="pl-pds">'</span></span>,
+    ERROR: <span class="pl-s"><span class="pl-pds">'</span>#f44336<span class="pl-pds">'</span></span>,
   },
-  // ... 其他颜色
+  <span class="pl-c"><span class="pl-c">//</span> ... 其他颜色</span>
 };
 
 // 在组件中使用
-import { COLORS } from './colors';
-&lt;ColorSpan color={COLORS.BRAND.PRIMARY}&gt;品牌主色&lt;/ColorSpan&gt;
-</code></pre>
+<span class="pl-k">import</span> { <span class="pl-smi">COLORS</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>./colors<span class="pl-pds">'</span></span>;
+&lt;<span class="pl-c1">ColorSpan</span> <span class="pl-e">color</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-c1">COLORS</span>.<span class="pl-c1">BRAND</span>.<span class="pl-c1">PRIMARY</span><span class="pl-pse">}</span>&gt;品牌主色&lt;/<span class="pl-c1">ColorSpan</span>&gt;</pre></div>
 <p>这样你就可以在 MDX 中享受丰富的颜色功能，同时在纯 Markdown 中保持兼容性了！</p></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
