@@ -19,7 +19,7 @@
 <meta property="og:url" content="https://luminku.github.io/post/HTTP-qing-qiu-wan-zheng-sheng-ming-zhou-qi-%EF%BC%9A-cong-dian-ji-dao-xiang-ying-de-shen-du-pou-xi.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
 <title>HTTP请求完整生命周期：从点击到响应的深度剖析</title>
-<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
 
 
 </head>
@@ -265,32 +265,34 @@ TLS握手（如果是HTTPS）
 </blockquote>
 <h1>🌐 HTTP请求完整生命周期：从点击到响应的深度剖析</h1>
 <h2>🎯 整体架构概览</h2>
-<div class="highlight highlight-source-mermaid"><pre class="notranslate"><span class="pl-k">graph</span> <span class="pl-c1">TB</span>
-    <span class="pl-ent">A</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>用户点击<span class="pl-pds"><span class="pl-sg">]</span></span></span> <span class="pl-k">--&gt;</span> <span class="pl-ent">B</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>浏览器UI进程<span class="pl-pds"><span class="pl-sg">]</span></span></span>
-    <span class="pl-ent">B</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">C</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>渲染进程处理<span class="pl-pds"><span class="pl-sg">]</span></span></span>
-    <span class="pl-ent">C</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">D</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>网络进程<span class="pl-pds"><span class="pl-sg">]</span></span></span>
-    <span class="pl-ent">D</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">E</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>操作系统协议栈<span class="pl-pds"><span class="pl-sg">]</span></span></span>
-    <span class="pl-ent">E</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">F</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>网络硬件<span class="pl-pds"><span class="pl-sg">]</span></span></span>
-    <span class="pl-ent">F</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">G</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>服务器接收<span class="pl-pds"><span class="pl-sg">]</span></span></span>
-    <span class="pl-ent">G</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">H</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>SpringBoot处理<span class="pl-pds"><span class="pl-sg">]</span></span></span>
-    <span class="pl-ent">H</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">I</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>数据库/服务<span class="pl-pds"><span class="pl-sg">]</span></span></span>
-    <span class="pl-ent">I</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">H</span>
-    <span class="pl-ent">H</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">G</span>
-    <span class="pl-ent">G</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">F</span>
-    <span class="pl-ent">F</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">E</span>
-    <span class="pl-ent">E</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">D</span>
-    <span class="pl-ent">D</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">C</span>
-    <span class="pl-ent">C</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">B</span>
-    <span class="pl-ent">B</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">A</span></pre></div>
+<pre lang="mermaid" class="notranslate"><code class="notranslate">graph TB
+    A[用户点击] --&gt; B[浏览器UI进程]
+    B --&gt; C[渲染进程处理]
+    C --&gt; D[网络进程]
+    D --&gt; E[操作系统协议栈]
+    E --&gt; F[网络硬件]
+    F --&gt; G[服务器接收]
+    G --&gt; H[SpringBoot处理]
+    H --&gt; I[数据库/服务]
+    I --&gt; H
+    H --&gt; G
+    G --&gt; F
+    F --&gt; E
+    E --&gt; D
+    D --&gt; C
+    C --&gt; B
+    B --&gt; A
+</code></pre>
 <h2>1. 🖱️ 用户交互阶段</h2>
 <h3>1.1 点击事件产生</h3>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c">// 用户点击提交按钮的完整链条</span>
-<span class="pl-s1">button</span><span class="pl-kos">.</span><span class="pl-en">addEventListener</span><span class="pl-kos">(</span><span class="pl-s">'click'</span><span class="pl-kos">,</span> <span class="pl-kos">(</span><span class="pl-s1">event</span><span class="pl-kos">)</span> <span class="pl-c1">=&gt;</span> <span class="pl-kos">{</span>
-    <span class="pl-c">// 1. 硬件中断</span>
-    <span class="pl-c">// 2. 操作系统事件处理</span>
-    <span class="pl-c">// 3. 浏览器事件分发</span>
-    <span class="pl-en">handleSubmit</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-<span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-kos">;</span></pre></div>
+<pre lang="javascript" class="notranslate"><code class="notranslate">// 用户点击提交按钮的完整链条
+button.addEventListener('click', (event) =&gt; {
+    // 1. 硬件中断
+    // 2. 操作系统事件处理
+    // 3. 浏览器事件分发
+    handleSubmit();
+});
+</code></pre>
 <p><strong>硬件层面</strong>：</p>
 <ul>
 <li><strong>鼠标硬件</strong>：光电传感器/机械开关产生电信号</li>
@@ -299,22 +301,23 @@ TLS握手（如果是HTTPS）
 <li><strong>DMA传输</strong>：直接内存访问，避免CPU频繁参与</li>
 </ul>
 <p><strong>操作系统层面</strong>：</p>
-<div class="highlight highlight-source-c"><pre class="notranslate"><span class="pl-c">// 简化版Linux输入事件处理</span>
-<span class="pl-k">static</span> <span class="pl-smi">irqreturn_t</span> <span class="pl-en">mouse_interrupt</span>(<span class="pl-smi">int</span> <span class="pl-s1">irq</span>, <span class="pl-smi">void</span> <span class="pl-c1">*</span><span class="pl-s1">dev_id</span>) {
-    <span class="pl-smi">unsigned <span class="pl-smi">char</span></span> <span class="pl-s1">packet</span>[<span class="pl-c1">4</span>];
-    <span class="pl-s1">packet</span>[<span class="pl-c1">0</span>] <span class="pl-c1">=</span> <span class="pl-en">inb</span>(<span class="pl-c1">MOUSE_PORT</span>);
-    <span class="pl-s1">packet</span>[<span class="pl-c1">1</span>] <span class="pl-c1">=</span> <span class="pl-en">inb</span>(<span class="pl-c1">MOUSE_PORT</span> <span class="pl-c1">+</span> <span class="pl-c1">1</span>);
-    <span class="pl-s1">packet</span>[<span class="pl-c1">2</span>] <span class="pl-c1">=</span> <span class="pl-en">inb</span>(<span class="pl-c1">MOUSE_PORT</span> <span class="pl-c1">+</span> <span class="pl-c1">2</span>);
+<pre lang="c" class="notranslate"><code class="notranslate">// 简化版Linux输入事件处理
+static irqreturn_t mouse_interrupt(int irq, void *dev_id) {
+    unsigned char packet[4];
+    packet[0] = inb(MOUSE_PORT);
+    packet[1] = inb(MOUSE_PORT + 1);
+    packet[2] = inb(MOUSE_PORT + 2);
     
-    <span class="pl-c">// 解析鼠标数据包</span>
-    <span class="pl-smi">int</span> <span class="pl-s1">dx</span> <span class="pl-c1">=</span> (<span class="pl-smi">int</span>)((<span class="pl-s1">packet</span>[<span class="pl-c1">1</span>] <span class="pl-c1">&amp;</span> <span class="pl-c1">0x0F</span>) &lt;&lt; <span class="pl-c1">8</span>) | <span class="pl-s1">packet</span>[<span class="pl-c1">2</span>];
-    <span class="pl-smi">int</span> <span class="pl-s1">dy</span> <span class="pl-c1">=</span> (<span class="pl-smi">int</span>)((<span class="pl-s1">packet</span>[<span class="pl-c1">2</span>] <span class="pl-c1">&amp;</span> <span class="pl-c1">0x0F</span>) &lt;&lt; <span class="pl-c1">8</span>) | <span class="pl-s1">packet</span>[<span class="pl-c1">3</span>];
+    // 解析鼠标数据包
+    int dx = (int)((packet[1] &amp; 0x0F) &lt;&lt; 8) | packet[2];
+    int dy = (int)((packet[2] &amp; 0x0F) &lt;&lt; 8) | packet[3];
     
-    <span class="pl-c">// 写入输入设备缓冲区</span>
-    <span class="pl-en">input_report_rel</span>(<span class="pl-s1">mouse_dev</span>, <span class="pl-c1">REL_X</span>, <span class="pl-s1">dx</span>);
-    <span class="pl-en">input_report_rel</span>(<span class="pl-s1">mouse_dev</span>, <span class="pl-c1">REL_Y</span>, <span class="pl-s1">dy</span>);
-    <span class="pl-en">input_sync</span>(<span class="pl-s1">mouse_dev</span>);
-}</pre></div>
+    // 写入输入设备缓冲区
+    input_report_rel(mouse_dev, REL_X, dx);
+    input_report_rel(mouse_dev, REL_Y, dy);
+    input_sync(mouse_dev);
+}
+</code></pre>
 <h3>1.2 浏览器事件处理</h3>
 <p><strong>浏览器多进程架构</strong>：</p>
 <pre class="notranslate"><code class="notranslate">Browser Process (浏览器主进程)
@@ -330,58 +333,60 @@ Network Process (网络进程)
 </code></pre>
 <h2>2. 🔄 Axios请求发起阶段</h2>
 <h3>2.1 Axios内部实现</h3>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c">// Axios核心请求流程</span>
-<span class="pl-k">class</span> <span class="pl-v">Axios</span> <span class="pl-kos">{</span>
-    <span class="pl-en">request</span><span class="pl-kos">(</span><span class="pl-s1">config</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
-        <span class="pl-c">// 1. 合并配置</span>
-        <span class="pl-k">const</span> <span class="pl-s1">mergedConfig</span> <span class="pl-c1">=</span> <span class="pl-en">mergeConfig</span><span class="pl-kos">(</span><span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">defaults</span><span class="pl-kos">,</span> <span class="pl-s1">config</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<pre lang="javascript" class="notranslate"><code class="notranslate">// Axios核心请求流程
+class Axios {
+    request(config) {
+        // 1. 合并配置
+        const mergedConfig = mergeConfig(this.defaults, config);
         
-        <span class="pl-c">// 2. 拦截器处理</span>
-        <span class="pl-k">const</span> <span class="pl-s1">chain</span> <span class="pl-c1">=</span> <span class="pl-kos">[</span><span class="pl-kos">]</span><span class="pl-kos">;</span>
-        <span class="pl-s1">chain</span><span class="pl-kos">.</span><span class="pl-en">unshift</span><span class="pl-kos">(</span>...<span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">interceptors</span><span class="pl-kos">.</span><span class="pl-c1">request</span><span class="pl-kos">.</span><span class="pl-c1">handlers</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-        <span class="pl-s1">chain</span><span class="pl-kos">.</span><span class="pl-en">push</span><span class="pl-kos">(</span><span class="pl-s1">dispatchRequest</span><span class="pl-kos">,</span> <span class="pl-c1">undefined</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-        <span class="pl-s1">chain</span><span class="pl-kos">.</span><span class="pl-en">push</span><span class="pl-kos">(</span>...<span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">interceptors</span><span class="pl-kos">.</span><span class="pl-c1">response</span><span class="pl-kos">.</span><span class="pl-c1">handlers</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+        // 2. 拦截器处理
+        const chain = [];
+        chain.unshift(...this.interceptors.request.handlers);
+        chain.push(dispatchRequest, undefined);
+        chain.push(...this.interceptors.response.handlers);
         
-        <span class="pl-c">// 3. 执行链式调用</span>
-        <span class="pl-k">let</span> <span class="pl-s1">promise</span> <span class="pl-c1">=</span> <span class="pl-v">Promise</span><span class="pl-kos">.</span><span class="pl-en">resolve</span><span class="pl-kos">(</span><span class="pl-s1">mergedConfig</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-        <span class="pl-k">while</span> <span class="pl-kos">(</span><span class="pl-s1">chain</span><span class="pl-kos">.</span><span class="pl-c1">length</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
-            <span class="pl-s1">promise</span> <span class="pl-c1">=</span> <span class="pl-s1">promise</span><span class="pl-kos">.</span><span class="pl-en">then</span><span class="pl-kos">(</span><span class="pl-s1">chain</span><span class="pl-kos">.</span><span class="pl-en">shift</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">,</span> <span class="pl-s1">chain</span><span class="pl-kos">.</span><span class="pl-en">shift</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-        <span class="pl-kos">}</span>
-        <span class="pl-k">return</span> <span class="pl-s1">promise</span><span class="pl-kos">;</span>
-    <span class="pl-kos">}</span>
-<span class="pl-kos">}</span>
+        // 3. 执行链式调用
+        let promise = Promise.resolve(mergedConfig);
+        while (chain.length) {
+            promise = promise.then(chain.shift(), chain.shift());
+        }
+        return promise;
+    }
+}
 
-<span class="pl-c">// 实际请求分发</span>
-<span class="pl-k">function</span> <span class="pl-en">dispatchRequest</span><span class="pl-kos">(</span><span class="pl-s1">config</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
-    <span class="pl-c">// 适配器模式：浏览器环境使用XMLHttpRequest</span>
-    <span class="pl-k">const</span> <span class="pl-s1">adapter</span> <span class="pl-c1">=</span> <span class="pl-s1">config</span><span class="pl-kos">.</span><span class="pl-c1">adapter</span> <span class="pl-c1">||</span> <span class="pl-s1">defaults</span><span class="pl-kos">.</span><span class="pl-c1">adapter</span><span class="pl-kos">;</span>
-    <span class="pl-k">return</span> <span class="pl-s1">adapter</span><span class="pl-kos">(</span><span class="pl-s1">config</span><span class="pl-kos">)</span><span class="pl-kos">.</span><span class="pl-en">then</span><span class="pl-kos">(</span>
-        <span class="pl-s1">response</span> <span class="pl-c1">=&gt;</span> <span class="pl-en">transformResponseData</span><span class="pl-kos">(</span><span class="pl-s1">response</span><span class="pl-kos">)</span><span class="pl-kos">,</span>
-        <span class="pl-s1">error</span> <span class="pl-c1">=&gt;</span> <span class="pl-en">transformError</span><span class="pl-kos">(</span><span class="pl-s1">error</span><span class="pl-kos">)</span>
-    <span class="pl-kos">)</span><span class="pl-kos">;</span>
-<span class="pl-kos">}</span></pre></div>
+// 实际请求分发
+function dispatchRequest(config) {
+    // 适配器模式：浏览器环境使用XMLHttpRequest
+    const adapter = config.adapter || defaults.adapter;
+    return adapter(config).then(
+        response =&gt; transformResponseData(response),
+        error =&gt; transformError(error)
+    );
+}
+</code></pre>
 <h3>2.2 浏览器网络API调用</h3>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c">// XMLHttpRequest底层实现</span>
-<span class="pl-k">class</span> <span class="pl-v">XMLHttpRequest</span> <span class="pl-kos">{</span>
-    <span class="pl-en">open</span><span class="pl-kos">(</span><span class="pl-s1">method</span><span class="pl-kos">,</span> <span class="pl-s1">url</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
-        <span class="pl-c">// 调用C++实现的浏览器网络栈</span>
-        <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">_nativeXHR</span><span class="pl-kos">.</span><span class="pl-en">open</span><span class="pl-kos">(</span><span class="pl-s1">method</span><span class="pl-kos">,</span> <span class="pl-s1">url</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-    <span class="pl-kos">}</span>
+<pre lang="javascript" class="notranslate"><code class="notranslate">// XMLHttpRequest底层实现
+class XMLHttpRequest {
+    open(method, url) {
+        // 调用C++实现的浏览器网络栈
+        this._nativeXHR.open(method, url);
+    }
     
-    <span class="pl-en">send</span><span class="pl-kos">(</span><span class="pl-s1">data</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
-        <span class="pl-c">// 1. 参数验证和预处理</span>
-        <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-en">_validateSendParameters</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+    send(data) {
+        // 1. 参数验证和预处理
+        this._validateSendParameters();
         
-        <span class="pl-c">// 2. 调用底层网络接口</span>
-        <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">_nativeXHR</span><span class="pl-kos">.</span><span class="pl-en">send</span><span class="pl-kos">(</span>
-            <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-en">_processData</span><span class="pl-kos">(</span><span class="pl-s1">data</span><span class="pl-kos">)</span><span class="pl-kos">,</span>
-            <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-en">_getRequestHeaders</span><span class="pl-kos">(</span><span class="pl-kos">)</span>
-        <span class="pl-kos">)</span><span class="pl-kos">;</span>
+        // 2. 调用底层网络接口
+        this._nativeXHR.send(
+            this._processData(data),
+            this._getRequestHeaders()
+        );
         
-        <span class="pl-c">// 3. 注册事件监听</span>
-        <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-en">_setupEventListeners</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-    <span class="pl-kos">}</span>
-<span class="pl-kos">}</span></pre></div>
+        // 3. 注册事件监听
+        this._setupEventListeners();
+    }
+}
+</code></pre>
 <h2>3. 🌐 浏览器网络栈处理</h2>
 <h3>3.1 网络进程处理流程</h3>
 <pre class="notranslate"><code class="notranslate">渲染进程 (Renderer Process)
@@ -393,74 +398,76 @@ Network Process (网络进程)
 网络接口卡 (NIC)
 </code></pre>
 <h3>3.2 浏览器网络栈详细流程</h3>
-<div class="highlight highlight-source-c++"><pre class="notranslate"><span class="pl-c"><span class="pl-c">//</span> 简化版Chromium网络栈处理</span>
-<span class="pl-k">class</span> <span class="pl-en">NetworkService</span> {
-    <span class="pl-k">void</span> <span class="pl-en">StartRequest</span>(<span class="pl-k">const</span> URLRequest&amp; request) {
-        <span class="pl-c"><span class="pl-c">//</span> 1. 缓存检查</span>
-        <span class="pl-k">if</span> (<span class="pl-c1">CheckCache</span>(request)) {
-            <span class="pl-k">return</span> <span class="pl-c1">ServeFromCache</span>(request);
+<pre lang="cpp" class="notranslate"><code class="notranslate">// 简化版Chromium网络栈处理
+class NetworkService {
+    void StartRequest(const URLRequest&amp; request) {
+        // 1. 缓存检查
+        if (CheckCache(request)) {
+            return ServeFromCache(request);
         }
         
-        <span class="pl-c"><span class="pl-c">//</span> 2. Cookie处理</span>
-        <span class="pl-k">auto</span> cookies = cookie_store_-&gt;<span class="pl-c1">GetAllCookiesForURL</span>(request.<span class="pl-smi">url</span>);
+        // 2. Cookie处理
+        auto cookies = cookie_store_-&gt;GetAllCookiesForURL(request.url);
         
-        <span class="pl-c"><span class="pl-c">//</span> 3. DNS预解析</span>
-        <span class="pl-c1">HostResolver::ResolveHost</span>(
-            request.<span class="pl-smi">url</span>.<span class="pl-c1">host</span>(),
-            [<span class="pl-c1">this</span>, request](IPAddress address) {
-                <span class="pl-c"><span class="pl-c">//</span> 4. 建立连接</span>
-                <span class="pl-c1">CreateTransportSocket</span>(address, request);
+        // 3. DNS预解析
+        HostResolver::ResolveHost(
+            request.url.host(),
+            [this, request](IPAddress address) {
+                // 4. 建立连接
+                CreateTransportSocket(address, request);
             }
         );
     }
     
-    <span class="pl-k">void</span> <span class="pl-en">CreateTransportSocket</span>(IPAddress address, <span class="pl-k">const</span> URLRequest&amp; request) {
-        <span class="pl-c"><span class="pl-c">//</span> 5. Socket创建</span>
-        <span class="pl-k">auto</span> socket = socket_factory_-&gt;<span class="pl-c1">CreateTCPSocket</span>();
+    void CreateTransportSocket(IPAddress address, const URLRequest&amp; request) {
+        // 5. Socket创建
+        auto socket = socket_factory_-&gt;CreateTCPSocket();
         
-        <span class="pl-c"><span class="pl-c">//</span> 6. TLS/SSL握手（HTTPS）</span>
-        <span class="pl-k">if</span> (request.<span class="pl-smi">url</span>.<span class="pl-c1">scheme</span>() == <span class="pl-s"><span class="pl-pds">"</span>https<span class="pl-pds">"</span></span>) {
-            <span class="pl-c1">SSLClientSocket::Connect</span>(socket, request);
-        } <span class="pl-k">else</span> {
-            <span class="pl-c"><span class="pl-c">//</span> 7. TCP连接建立</span>
-            socket-&gt;<span class="pl-c1">Connect</span>(address, request.<span class="pl-smi">url</span>.<span class="pl-c1">EffectiveIntPort</span>());
+        // 6. TLS/SSL握手（HTTPS）
+        if (request.url.scheme() == "https") {
+            SSLClientSocket::Connect(socket, request);
+        } else {
+            // 7. TCP连接建立
+            socket-&gt;Connect(address, request.url.EffectiveIntPort());
         }
         
-        <span class="pl-c"><span class="pl-c">//</span> 8. HTTP请求发送</span>
-        <span class="pl-c1">SendHTTPRequest</span>(socket, request);
+        // 8. HTTP请求发送
+        SendHTTPRequest(socket, request);
     }
-}<span class="pl-ii"></span></pre></div>
+}
+</code></pre>
 <h2>4. 💻 操作系统网络协议栈</h2>
 <h3>4.1 TCP/IP协议栈处理</h3>
-<div class="highlight highlight-source-c"><pre class="notranslate"><span class="pl-c">// Linux内核TCP/IP处理简化流程</span>
-<span class="pl-c">// net/ipv4/tcp_ipv4.c</span>
+<pre lang="c" class="notranslate"><code class="notranslate">// Linux内核TCP/IP处理简化流程
+// net/ipv4/tcp_ipv4.c
 
-<span class="pl-c">// TCP连接建立</span>
-<span class="pl-smi">int</span> <span class="pl-en">tcp_v4_connect</span>(<span class="pl-k">struct</span> <span class="pl-smi">sock</span> <span class="pl-c1">*</span><span class="pl-s1">sk</span>, <span class="pl-k">struct</span> <span class="pl-smi">sockaddr</span> <span class="pl-c1">*</span><span class="pl-s1">uaddr</span>, <span class="pl-smi">int</span> <span class="pl-s1">addr_len</span>) {
-    <span class="pl-c">// 1. 路由查找</span>
-    <span class="pl-k">struct</span> <span class="pl-smi">rtable</span> <span class="pl-c1">*</span><span class="pl-s1">rt</span> <span class="pl-c1">=</span> <span class="pl-en">ip_route_connect</span>(...);
+// TCP连接建立
+int tcp_v4_connect(struct sock *sk, struct sockaddr *uaddr, int addr_len) {
+    // 1. 路由查找
+    struct rtable *rt = ip_route_connect(...);
     
-    <span class="pl-c">// 2. TCP三次握手</span>
-    <span class="pl-en">tcp_connect</span>(<span class="pl-s1">sk</span>);
+    // 2. TCP三次握手
+    tcp_connect(sk);
     
-    <span class="pl-c">// 3. 添加到连接表</span>
-    <span class="pl-en">inet_hash_connect</span>(<span class="pl-c1">&amp;</span><span class="pl-s1">tcp_hashinfo</span>, <span class="pl-s1">sk</span>);
+    // 3. 添加到连接表
+    inet_hash_connect(&amp;tcp_hashinfo, sk);
 }
 
-<span class="pl-c">// 数据发送</span>
-<span class="pl-smi">int</span> <span class="pl-en">tcp_sendmsg</span>(<span class="pl-k">struct</span> <span class="pl-smi">sock</span> <span class="pl-c1">*</span><span class="pl-s1">sk</span>, <span class="pl-k">struct</span> <span class="pl-smi">msghdr</span> <span class="pl-c1">*</span><span class="pl-s1">msg</span>, <span class="pl-smi">size_t</span> <span class="pl-s1">size</span>) {
-    <span class="pl-c">// 1. 数据分段</span>
-    <span class="pl-k">struct</span> <span class="pl-smi">sk_buff</span> <span class="pl-c1">*</span><span class="pl-s1">skb</span> <span class="pl-c1">=</span> <span class="pl-en">alloc_skb_with_frags</span>(...);
+// 数据发送
+int tcp_sendmsg(struct sock *sk, struct msghdr *msg, size_t size) {
+    // 1. 数据分段
+    struct sk_buff *skb = alloc_skb_with_frags(...);
     
-    <span class="pl-c">// 2. TCP头部封装</span>
-    <span class="pl-en">tcp_build_and_update_options</span>(<span class="pl-s1">skb</span>);
+    // 2. TCP头部封装
+    tcp_build_and_update_options(skb);
     
-    <span class="pl-c">// 3. 拥塞控制</span>
-    <span class="pl-en">tcp_cwnd_test</span>(<span class="pl-s1">sk</span>, <span class="pl-s1">skb</span>);
+    // 3. 拥塞控制
+    tcp_cwnd_test(sk, skb);
     
-    <span class="pl-c">// 4. 交给IP层</span>
-    <span class="pl-k">return</span> <span class="pl-en">ip_queue_xmit</span>(<span class="pl-s1">sk</span>, <span class="pl-s1">skb</span>, <span class="pl-c1">&amp;</span><span class="pl-s1">fl</span>);
-}</pre></div>
+    // 4. 交给IP层
+    return ip_queue_xmit(sk, skb, &amp;fl);
+}
+</code></pre>
 <h3>4.2 数据包封装流程</h3>
 <pre class="notranslate"><code class="notranslate">应用层数据 (HTTP请求)
     ↓ 添加TCP头部
@@ -474,25 +481,26 @@ IP数据包 (Packet)
 </code></pre>
 <h2>5. 🔌 网络硬件传输</h2>
 <h3>5.1 网卡工作原理</h3>
-<div class="highlight highlight-source-c"><pre class="notranslate"><span class="pl-c">// 网卡驱动数据发送</span>
-<span class="pl-k">struct</span> <span class="pl-smi">net_device_ops</span> {
-    <span class="pl-smi">int</span> (<span class="pl-c1">*</span><span class="pl-c1">ndo_start_xmit</span>)(<span class="pl-k">struct</span> <span class="pl-smi">sk_buff</span> <span class="pl-c1">*</span><span class="pl-s1">skb</span>, <span class="pl-k">struct</span> <span class="pl-smi">net_device</span> <span class="pl-c1">*</span><span class="pl-s1">dev</span>);
+<pre lang="c" class="notranslate"><code class="notranslate">// 网卡驱动数据发送
+struct net_device_ops {
+    int (*ndo_start_xmit)(struct sk_buff *skb, struct net_device *dev);
 };
 
-<span class="pl-c">// 数据发送函数</span>
-<span class="pl-smi">int</span> <span class="pl-en">netdev_start_xmit</span>(<span class="pl-k">struct</span> <span class="pl-smi">sk_buff</span> <span class="pl-c1">*</span><span class="pl-s1">skb</span>, <span class="pl-k">struct</span> <span class="pl-smi">net_device</span> <span class="pl-c1">*</span><span class="pl-s1">dev</span>) {
-    <span class="pl-c">// 1. DMA描述符设置</span>
-    <span class="pl-k">struct</span> <span class="pl-smi">dma_desc</span> <span class="pl-c1">*</span><span class="pl-s1">desc</span> <span class="pl-c1">=</span> <span class="pl-en">get_tx_desc</span>(<span class="pl-s1">dev</span>);
+// 数据发送函数
+int netdev_start_xmit(struct sk_buff *skb, struct net_device *dev) {
+    // 1. DMA描述符设置
+    struct dma_desc *desc = get_tx_desc(dev);
     
-    <span class="pl-c">// 2. 内存映射</span>
-    <span class="pl-en">dma_map_single</span>(<span class="pl-s1">dev</span><span class="pl-c1">-&gt;</span><span class="pl-c1">dev</span>, <span class="pl-s1">skb</span><span class="pl-c1">-&gt;</span><span class="pl-c1">data</span>, <span class="pl-s1">skb</span><span class="pl-c1">-&gt;</span><span class="pl-c1">len</span>, <span class="pl-c1">DMA_TO_DEVICE</span>);
+    // 2. 内存映射
+    dma_map_single(dev-&gt;dev, skb-&gt;data, skb-&gt;len, DMA_TO_DEVICE);
     
-    <span class="pl-c">// 3. 触发发送</span>
-    <span class="pl-en">writel</span>(<span class="pl-s1">desc</span><span class="pl-c1">-&gt;</span><span class="pl-c1">addr</span>, <span class="pl-s1">dev</span><span class="pl-c1">-&gt;</span><span class="pl-c1">base_addr</span> <span class="pl-c1">+</span> <span class="pl-c1">TX_REG</span>);
+    // 3. 触发发送
+    writel(desc-&gt;addr, dev-&gt;base_addr + TX_REG);
     
-    <span class="pl-c">// 4. 中断处理完成</span>
-    <span class="pl-en">request_irq</span>(<span class="pl-s1">dev</span><span class="pl-c1">-&gt;</span><span class="pl-c1">irq</span>, <span class="pl-s1">netdev_interrupt</span>, <span class="pl-c1">IRQF_SHARED</span>, <span class="pl-s1">dev</span><span class="pl-c1">-&gt;</span><span class="pl-c1">name</span>, <span class="pl-s1">dev</span>);
-}</pre></div>
+    // 4. 中断处理完成
+    request_irq(dev-&gt;irq, netdev_interrupt, IRQF_SHARED, dev-&gt;name, dev);
+}
+</code></pre>
 <h3>5.2 物理层传输</h3>
 <ul>
 <li><strong>电信号传输</strong>（网线）：电压变化表示0/1</li>
@@ -501,336 +509,345 @@ IP数据包 (Packet)
 </ul>
 <h2>6. 🖥️ 服务器端处理</h2>
 <h3>6.1 服务器网络栈接收</h3>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// SpringBoot内嵌Tomcat接收请求</span>
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">TomcatEmbeddedServletContainer</span> {
+<pre lang="java" class="notranslate"><code class="notranslate">// SpringBoot内嵌Tomcat接收请求
+public class TomcatEmbeddedServletContainer {
     
-    <span class="pl-c">// NIO端点接收连接</span>
-    <span class="pl-k">protected</span> <span class="pl-k">class</span> <span class="pl-smi">Acceptor</span> <span class="pl-k">implements</span> <span class="pl-smi">Runnable</span> {
-        <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">run</span>() {
-            <span class="pl-k">while</span> (<span class="pl-s1">running</span>) {
-                <span class="pl-c">// 1. 接受连接</span>
-                <span class="pl-smi">SocketChannel</span> <span class="pl-s1">socket</span> = <span class="pl-s1">serverSock</span>.<span class="pl-en">accept</span>();
+    // NIO端点接收连接
+    protected class Acceptor implements Runnable {
+        public void run() {
+            while (running) {
+                // 1. 接受连接
+                SocketChannel socket = serverSock.accept();
                 
-                <span class="pl-c">// 2. 注册到Poller</span>
-                <span class="pl-en">getPoller</span>().<span class="pl-en">register</span>(<span class="pl-s1">socket</span>);
+                // 2. 注册到Poller
+                getPoller().register(socket);
             }
         }
     }
     
-    <span class="pl-c">// Poller处理IO事件</span>
-    <span class="pl-k">protected</span> <span class="pl-k">class</span> <span class="pl-smi">Poller</span> <span class="pl-k">implements</span> <span class="pl-smi">Runnable</span> {
-        <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">run</span>() {
-            <span class="pl-k">while</span> (<span class="pl-c1">true</span>) {
-                <span class="pl-c">// 3. 选择就绪的通道</span>
-                <span class="pl-smi">int</span> <span class="pl-s1">keyCount</span> = <span class="pl-s1">selector</span>.<span class="pl-en">select</span>();
+    // Poller处理IO事件
+    protected class Poller implements Runnable {
+        public void run() {
+            while (true) {
+                // 3. 选择就绪的通道
+                int keyCount = selector.select();
                 
-                <span class="pl-c">// 4. 处理IO事件</span>
-                <span class="pl-k">for</span> (<span class="pl-smi">SelectionKey</span> <span class="pl-s1">key</span> : <span class="pl-s1">selector</span>.<span class="pl-en">selectedKeys</span>()) {
-                    <span class="pl-k">if</span> (<span class="pl-s1">key</span>.<span class="pl-en">isReadable</span>()) {
-                        <span class="pl-c">// 5. 读取HTTP请求</span>
-                        <span class="pl-en">processSocket</span>(<span class="pl-s1">socket</span>, <span class="pl-smi">SocketStatus</span>.<span class="pl-c1">OPEN_READ</span>);
+                // 4. 处理IO事件
+                for (SelectionKey key : selector.selectedKeys()) {
+                    if (key.isReadable()) {
+                        // 5. 读取HTTP请求
+                        processSocket(socket, SocketStatus.OPEN_READ);
                     }
                 }
             }
         }
     }
-}</pre></div>
+}
+</code></pre>
 <h3>6.2 SpringBoot请求处理</h3>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// DispatcherServlet请求分发</span>
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">DispatcherServlet</span> <span class="pl-k">extends</span> <span class="pl-smi">FrameworkServlet</span> {
+<pre lang="java" class="notranslate"><code class="notranslate">// DispatcherServlet请求分发
+public class DispatcherServlet extends FrameworkServlet {
     
-    <span class="pl-k">protected</span> <span class="pl-smi">void</span> <span class="pl-en">doDispatch</span>(<span class="pl-smi">HttpServletRequest</span> <span class="pl-s1">request</span>, 
-                             <span class="pl-smi">HttpServletResponse</span> <span class="pl-s1">response</span>) <span class="pl-k">throws</span> <span class="pl-smi">Exception</span> {
-        <span class="pl-c">// 1. 获取HandlerMapping</span>
-        <span class="pl-smi">HandlerExecutionChain</span> <span class="pl-s1">mappedHandler</span> = <span class="pl-en">getHandler</span>(<span class="pl-s1">request</span>);
+    protected void doDispatch(HttpServletRequest request, 
+                             HttpServletResponse response) throws Exception {
+        // 1. 获取HandlerMapping
+        HandlerExecutionChain mappedHandler = getHandler(request);
         
-        <span class="pl-c">// 2. 获取HandlerAdapter</span>
-        <span class="pl-smi">HandlerAdapter</span> <span class="pl-s1">ha</span> = <span class="pl-en">getHandlerAdapter</span>(<span class="pl-s1">mappedHandler</span>.<span class="pl-en">getHandler</span>());
+        // 2. 获取HandlerAdapter
+        HandlerAdapter ha = getHandlerAdapter(mappedHandler.getHandler());
         
-        <span class="pl-c">// 3. 执行拦截器前置处理</span>
-        <span class="pl-k">if</span> (!<span class="pl-s1">mappedHandler</span>.<span class="pl-en">applyPreHandle</span>(<span class="pl-s1">request</span>, <span class="pl-s1">response</span>)) <span class="pl-k">return</span>;
+        // 3. 执行拦截器前置处理
+        if (!mappedHandler.applyPreHandle(request, response)) return;
         
-        <span class="pl-c">// 4. 实际调用Controller方法</span>
-        <span class="pl-smi">ModelAndView</span> <span class="pl-s1">mv</span> = <span class="pl-s1">ha</span>.<span class="pl-en">handle</span>(<span class="pl-s1">request</span>, <span class="pl-s1">response</span>, <span class="pl-s1">mappedHandler</span>.<span class="pl-en">getHandler</span>());
+        // 4. 实际调用Controller方法
+        ModelAndView mv = ha.handle(request, response, mappedHandler.getHandler());
         
-        <span class="pl-c">// 5. 执行拦截器后置处理</span>
-        <span class="pl-s1">mappedHandler</span>.<span class="pl-en">applyPostHandle</span>(<span class="pl-s1">request</span>, <span class="pl-s1">response</span>, <span class="pl-s1">mv</span>);
+        // 5. 执行拦截器后置处理
+        mappedHandler.applyPostHandle(request, response, mv);
         
-        <span class="pl-c">// 6. 渲染视图/返回JSON</span>
-        <span class="pl-en">processDispatchResult</span>(<span class="pl-s1">request</span>, <span class="pl-s1">response</span>, <span class="pl-s1">mappedHandler</span>, <span class="pl-s1">mv</span>, <span class="pl-c1">null</span>);
+        // 6. 渲染视图/返回JSON
+        processDispatchResult(request, response, mappedHandler, mv, null);
     }
 }
 
-<span class="pl-c">// 参数解析器工作流程</span>
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">RequestParamMethodArgumentResolver</span> <span class="pl-k">implements</span> <span class="pl-smi">HandlerMethodArgumentResolver</span> {
+// 参数解析器工作流程
+public class RequestParamMethodArgumentResolver implements HandlerMethodArgumentResolver {
     
-    <span class="pl-k">public</span> <span class="pl-smi">Object</span> <span class="pl-en">resolveArgument</span>(<span class="pl-smi">MethodParameter</span> <span class="pl-s1">parameter</span>, 
-                                 <span class="pl-smi">ModelAndViewContainer</span> <span class="pl-s1">mavContainer</span>,
-                                 <span class="pl-smi">NativeWebRequest</span> <span class="pl-s1">webRequest</span>, 
-                                 <span class="pl-smi">WebDataBinderFactory</span> <span class="pl-s1">binderFactory</span>) <span class="pl-k">throws</span> <span class="pl-smi">Exception</span> {
+    public Object resolveArgument(MethodParameter parameter, 
+                                 ModelAndViewContainer mavContainer,
+                                 NativeWebRequest webRequest, 
+                                 WebDataBinderFactory binderFactory) throws Exception {
         
-        <span class="pl-c">// 1. 获取参数名称</span>
-        <span class="pl-smi">String</span> <span class="pl-s1">name</span> = <span class="pl-en">getParameterName</span>(<span class="pl-s1">parameter</span>);
+        // 1. 获取参数名称
+        String name = getParameterName(parameter);
         
-        <span class="pl-c">// 2. 从不同位置解析参数</span>
-        <span class="pl-smi">Object</span> <span class="pl-s1">arg</span>;
-        <span class="pl-k">if</span> (<span class="pl-s1">parameter</span>.<span class="pl-en">hasParameterAnnotation</span>(<span class="pl-smi">PathVariable</span>.<span class="pl-k">class</span>)) {
-            <span class="pl-c">// 路径参数</span>
-            <span class="pl-s1">arg</span> = <span class="pl-en">resolvePathVariable</span>(<span class="pl-s1">name</span>, <span class="pl-s1">parameter</span>, <span class="pl-s1">webRequest</span>);
-        } <span class="pl-k">else</span> <span class="pl-k">if</span> (<span class="pl-s1">parameter</span>.<span class="pl-en">hasParameterAnnotation</span>(<span class="pl-smi">RequestParam</span>.<span class="pl-k">class</span>)) {
-            <span class="pl-c">// 查询参数</span>
-            <span class="pl-s1">arg</span> = <span class="pl-en">resolveRequestParam</span>(<span class="pl-s1">name</span>, <span class="pl-s1">parameter</span>, <span class="pl-s1">webRequest</span>);
-        } <span class="pl-k">else</span> <span class="pl-k">if</span> (<span class="pl-s1">parameter</span>.<span class="pl-en">hasParameterAnnotation</span>(<span class="pl-smi">RequestBody</span>.<span class="pl-k">class</span>)) {
-            <span class="pl-c">// 请求体</span>
-            <span class="pl-s1">arg</span> = <span class="pl-en">resolveRequestBody</span>(<span class="pl-s1">parameter</span>, <span class="pl-s1">webRequest</span>);
-        } <span class="pl-k">else</span> {
-            <span class="pl-c">// 其他参数解析</span>
-            <span class="pl-s1">arg</span> = <span class="pl-en">resolveDefaultValue</span>(<span class="pl-s1">name</span>, <span class="pl-s1">parameter</span>, <span class="pl-s1">webRequest</span>);
+        // 2. 从不同位置解析参数
+        Object arg;
+        if (parameter.hasParameterAnnotation(PathVariable.class)) {
+            // 路径参数
+            arg = resolvePathVariable(name, parameter, webRequest);
+        } else if (parameter.hasParameterAnnotation(RequestParam.class)) {
+            // 查询参数
+            arg = resolveRequestParam(name, parameter, webRequest);
+        } else if (parameter.hasParameterAnnotation(RequestBody.class)) {
+            // 请求体
+            arg = resolveRequestBody(parameter, webRequest);
+        } else {
+            // 其他参数解析
+            arg = resolveDefaultValue(name, parameter, webRequest);
         }
         
-        <span class="pl-c">// 3. 数据绑定和验证</span>
-        <span class="pl-k">if</span> (<span class="pl-s1">binderFactory</span> != <span class="pl-c1">null</span>) {
-            <span class="pl-smi">WebDataBinder</span> <span class="pl-s1">binder</span> = <span class="pl-s1">binderFactory</span>.<span class="pl-en">createBinder</span>(<span class="pl-s1">webRequest</span>, <span class="pl-c1">null</span>, <span class="pl-s1">name</span>);
-            <span class="pl-s1">arg</span> = <span class="pl-s1">binder</span>.<span class="pl-en">convertIfNecessary</span>(<span class="pl-s1">arg</span>, <span class="pl-s1">parameter</span>.<span class="pl-en">getParameterType</span>(), <span class="pl-s1">parameter</span>);
+        // 3. 数据绑定和验证
+        if (binderFactory != null) {
+            WebDataBinder binder = binderFactory.createBinder(webRequest, null, name);
+            arg = binder.convertIfNecessary(arg, parameter.getParameterType(), parameter);
         }
         
-        <span class="pl-k">return</span> <span class="pl-s1">arg</span>;
+        return arg;
     }
-}</pre></div>
+}
+</code></pre>
 <h2>7. 📊 数据库交互</h2>
 <h3>7.1 数据库连接处理</h3>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// Spring Data JPA数据库交互</span>
-<span class="pl-c1">@</span><span class="pl-c1">Repository</span>
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">UserRepositoryImpl</span> <span class="pl-k">implements</span> <span class="pl-smi">UserRepository</span> {
+<pre lang="java" class="notranslate"><code class="notranslate">// Spring Data JPA数据库交互
+@Repository
+public class UserRepositoryImpl implements UserRepository {
     
-    <span class="pl-c1">@</span><span class="pl-c1">PersistenceContext</span>
-    <span class="pl-k">private</span> <span class="pl-smi">EntityManager</span> <span class="pl-s1">entityManager</span>;
+    @PersistenceContext
+    private EntityManager entityManager;
     
-    <span class="pl-c1">@</span><span class="pl-c1">Transactional</span>
-    <span class="pl-k">public</span> <span class="pl-smi">User</span> <span class="pl-en">save</span>(<span class="pl-smi">User</span> <span class="pl-s1">user</span>) {
-        <span class="pl-c">// 1. 获取数据库连接</span>
-        <span class="pl-smi">Connection</span> <span class="pl-s1">conn</span> = <span class="pl-en">getConnectionFromPool</span>();
+    @Transactional
+    public User save(User user) {
+        // 1. 获取数据库连接
+        Connection conn = getConnectionFromPool();
         
-        <span class="pl-k">try</span> {
-            <span class="pl-c">// 2. 创建PreparedStatement</span>
-            <span class="pl-smi">PreparedStatement</span> <span class="pl-s1">stmt</span> = <span class="pl-s1">conn</span>.<span class="pl-en">prepareStatement</span>(
-                <span class="pl-s">"INSERT INTO users (username, email) VALUES (?, ?)"</span>,
-                <span class="pl-smi">Statement</span>.<span class="pl-c1">RETURN_GENERATED_KEYS</span>
+        try {
+            // 2. 创建PreparedStatement
+            PreparedStatement stmt = conn.prepareStatement(
+                "INSERT INTO users (username, email) VALUES (?, ?)",
+                Statement.RETURN_GENERATED_KEYS
             );
             
-            <span class="pl-c">// 3. 参数绑定</span>
-            <span class="pl-s1">stmt</span>.<span class="pl-en">setString</span>(<span class="pl-c1">1</span>, <span class="pl-s1">user</span>.<span class="pl-en">getUsername</span>());
-            <span class="pl-s1">stmt</span>.<span class="pl-en">setString</span>(<span class="pl-c1">2</span>, <span class="pl-s1">user</span>.<span class="pl-en">getEmail</span>());
+            // 3. 参数绑定
+            stmt.setString(1, user.getUsername());
+            stmt.setString(2, user.getEmail());
             
-            <span class="pl-c">// 4. 执行SQL</span>
-            <span class="pl-smi">int</span> <span class="pl-s1">affectedRows</span> = <span class="pl-s1">stmt</span>.<span class="pl-en">executeUpdate</span>();
+            // 4. 执行SQL
+            int affectedRows = stmt.executeUpdate();
             
-            <span class="pl-c">// 5. 处理结果</span>
-            <span class="pl-k">if</span> (<span class="pl-s1">affectedRows</span> &gt; <span class="pl-c1">0</span>) {
-                <span class="pl-smi">ResultSet</span> <span class="pl-s1">rs</span> = <span class="pl-s1">stmt</span>.<span class="pl-en">getGeneratedKeys</span>();
-                <span class="pl-k">if</span> (<span class="pl-s1">rs</span>.<span class="pl-en">next</span>()) {
-                    <span class="pl-s1">user</span>.<span class="pl-en">setId</span>(<span class="pl-s1">rs</span>.<span class="pl-en">getLong</span>(<span class="pl-c1">1</span>));
+            // 5. 处理结果
+            if (affectedRows &gt; 0) {
+                ResultSet rs = stmt.getGeneratedKeys();
+                if (rs.next()) {
+                    user.setId(rs.getLong(1));
                 }
             }
             
-            <span class="pl-k">return</span> <span class="pl-s1">user</span>;
-        } <span class="pl-k">finally</span> {
-            <span class="pl-c">// 6. 释放连接回连接池</span>
-            <span class="pl-en">releaseConnection</span>(<span class="pl-s1">conn</span>);
+            return user;
+        } finally {
+            // 6. 释放连接回连接池
+            releaseConnection(conn);
         }
     }
-}</pre></div>
+}
+</code></pre>
 <h2>8. 🔄 响应返回流程</h2>
 <h3>8.1 响应数据流</h3>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// SpringBoot响应处理</span>
-<span class="pl-c1">@</span><span class="pl-c1">RestController</span>
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">UserController</span> {
+<pre lang="java" class="notranslate"><code class="notranslate">// SpringBoot响应处理
+@RestController
+public class UserController {
     
-    <span class="pl-c1">@</span><span class="pl-c1">PostMapping</span>(<span class="pl-s">"/users"</span>)
-    <span class="pl-k">public</span> <span class="pl-smi">ResponseEntity</span>&lt;<span class="pl-smi">UserDTO</span>&gt; <span class="pl-en">createUser</span>(<span class="pl-c1">@</span><span class="pl-c1">RequestBody</span> <span class="pl-c1">@</span><span class="pl-c1">Valid</span> <span class="pl-smi">UserCreateRequest</span> <span class="pl-s1">request</span>) {
-        <span class="pl-c">// 1. 业务处理</span>
-        <span class="pl-smi">User</span> <span class="pl-s1">user</span> = <span class="pl-s1">userService</span>.<span class="pl-en">createUser</span>(<span class="pl-s1">request</span>);
+    @PostMapping("/users")
+    public ResponseEntity&lt;UserDTO&gt; createUser(@RequestBody @Valid UserCreateRequest request) {
+        // 1. 业务处理
+        User user = userService.createUser(request);
         
-        <span class="pl-c">// 2. 转换为DTO</span>
-        <span class="pl-smi">UserDTO</span> <span class="pl-s1">userDTO</span> = <span class="pl-s1">userMapper</span>.<span class="pl-en">toDTO</span>(<span class="pl-s1">user</span>);
+        // 2. 转换为DTO
+        UserDTO userDTO = userMapper.toDTO(user);
         
-        <span class="pl-c">// 3. 构建响应</span>
-        <span class="pl-k">return</span> <span class="pl-smi">ResponseEntity</span>.<span class="pl-en">status</span>(<span class="pl-smi">HttpStatus</span>.<span class="pl-c1">CREATED</span>)
-               .<span class="pl-en">header</span>(<span class="pl-s">"Location"</span>, <span class="pl-s">"/users/"</span> + <span class="pl-s1">user</span>.<span class="pl-en">getId</span>())
-               .<span class="pl-en">body</span>(<span class="pl-s1">userDTO</span>);
+        // 3. 构建响应
+        return ResponseEntity.status(HttpStatus.CREATED)
+               .header("Location", "/users/" + user.getId())
+               .body(userDTO);
     }
 }
 
-<span class="pl-c">// HttpMessageConverter响应转换</span>
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">MappingJackson2HttpMessageConverter</span> <span class="pl-k">implements</span> <span class="pl-smi">HttpMessageConverter</span>&lt;<span class="pl-smi">Object</span>&gt; {
+// HttpMessageConverter响应转换
+public class MappingJackson2HttpMessageConverter implements HttpMessageConverter&lt;Object&gt; {
     
-    <span class="pl-k">protected</span> <span class="pl-smi">void</span> <span class="pl-en">writeInternal</span>(<span class="pl-smi">Object</span> <span class="pl-s1">object</span>, 
-                                <span class="pl-smi">Type</span> <span class="pl-s1">type</span>, 
-                                <span class="pl-smi">HttpOutputMessage</span> <span class="pl-s1">outputMessage</span>) <span class="pl-k">throws</span> <span class="pl-smi">Exception</span> {
+    protected void writeInternal(Object object, 
+                                Type type, 
+                                HttpOutputMessage outputMessage) throws Exception {
         
-        <span class="pl-c">// 1. 获取输出流</span>
-        <span class="pl-smi">OutputStream</span> <span class="pl-s1">outputStream</span> = <span class="pl-s1">outputMessage</span>.<span class="pl-en">getBody</span>();
+        // 1. 获取输出流
+        OutputStream outputStream = outputMessage.getBody();
         
-        <span class="pl-c">// 2. JSON序列化</span>
-        <span class="pl-smi">ObjectMapper</span> <span class="pl-s1">mapper</span> = <span class="pl-en">getObjectMapper</span>();
-        <span class="pl-s1">mapper</span>.<span class="pl-en">writeValue</span>(<span class="pl-s1">outputStream</span>, <span class="pl-s1">object</span>);
+        // 2. JSON序列化
+        ObjectMapper mapper = getObjectMapper();
+        mapper.writeValue(outputStream, object);
         
-        <span class="pl-c">// 3. 刷新缓冲区</span>
-        <span class="pl-s1">outputStream</span>.<span class="pl-en">flush</span>();
+        // 3. 刷新缓冲区
+        outputStream.flush();
     }
-}</pre></div>
+}
+</code></pre>
 <h3>8.2 Tomcat响应发送</h3>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// Tomcat响应输出</span>
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">Response</span> <span class="pl-k">implements</span> <span class="pl-smi">HttpServletResponse</span> {
+<pre lang="java" class="notranslate"><code class="notranslate">// Tomcat响应输出
+public class Response implements HttpServletResponse {
     
-    <span class="pl-k">public</span> <span class="pl-smi">ServletOutputStream</span> <span class="pl-en">getOutputStream</span>() {
-        <span class="pl-c">// 返回包装了Socket的输出流</span>
-        <span class="pl-k">return</span> <span class="pl-k">new</span> <span class="pl-smi">CoyoteOutputStream</span>(<span class="pl-s1">outputBuffer</span>);
+    public ServletOutputStream getOutputStream() {
+        // 返回包装了Socket的输出流
+        return new CoyoteOutputStream(outputBuffer);
     }
     
-    <span class="pl-k">protected</span> <span class="pl-smi">void</span> <span class="pl-en">doWrite</span>(<span class="pl-smi">ByteBuffer</span> <span class="pl-s1">chunk</span>) <span class="pl-k">throws</span> <span class="pl-smi">IOException</span> {
-        <span class="pl-c">// 通过SocketChannel发送数据</span>
-        <span class="pl-s1">socketWrapper</span>.<span class="pl-en">write</span>(<span class="pl-en">isBlocking</span>(), <span class="pl-s1">chunk</span>);
+    protected void doWrite(ByteBuffer chunk) throws IOException {
+        // 通过SocketChannel发送数据
+        socketWrapper.write(isBlocking(), chunk);
     }
 }
 
-<span class="pl-c">// 底层Socket写入</span>
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">NioChannel</span> {
-    <span class="pl-k">public</span> <span class="pl-smi">int</span> <span class="pl-en">write</span>(<span class="pl-smi">ByteBuffer</span> <span class="pl-s1">buf</span>) <span class="pl-k">throws</span> <span class="pl-smi">IOException</span> {
-        <span class="pl-c">// 调用Java NIO</span>
-        <span class="pl-k">return</span> <span class="pl-s1">socketChannel</span>.<span class="pl-en">write</span>(<span class="pl-s1">buf</span>);
+// 底层Socket写入
+public class NioChannel {
+    public int write(ByteBuffer buf) throws IOException {
+        // 调用Java NIO
+        return socketChannel.write(buf);
     }
-}</pre></div>
+}
+</code></pre>
 <h2>9. 📨 浏览器响应处理</h2>
 <h3>9.1 网络进程响应解析</h3>
-<div class="highlight highlight-source-c++"><pre class="notranslate"><span class="pl-c"><span class="pl-c">//</span> Chromium网络响应处理</span>
-<span class="pl-k">class</span> <span class="pl-en">URLRequest</span> {
-    <span class="pl-k">void</span> <span class="pl-en">OnResponseStarted</span>(...) {
-        <span class="pl-c"><span class="pl-c">//</span> 1. 解析HTTP响应头</span>
-        <span class="pl-c1">ParseResponseHeaders</span>(response_info_-&gt;<span class="pl-smi">headers</span>);
+<pre lang="cpp" class="notranslate"><code class="notranslate">// Chromium网络响应处理
+class URLRequest {
+    void OnResponseStarted(...) {
+        // 1. 解析HTTP响应头
+        ParseResponseHeaders(response_info_-&gt;headers);
         
-        <span class="pl-c"><span class="pl-c">//</span> 2. 处理重定向</span>
-        <span class="pl-k">if</span> (<span class="pl-c1">IsRedirectResponse</span>()) {
-            <span class="pl-c1">StartRedirect</span>();
-            <span class="pl-k">return</span>;
+        // 2. 处理重定向
+        if (IsRedirectResponse()) {
+            StartRedirect();
+            return;
         }
         
-        <span class="pl-c"><span class="pl-c">//</span> 3. 通知渲染进程</span>
-        delegate_-&gt;<span class="pl-c1">OnResponseStarted</span>(<span class="pl-c1">this</span>);
+        // 3. 通知渲染进程
+        delegate_-&gt;OnResponseStarted(this);
     }
     
-    <span class="pl-k">void</span> <span class="pl-en">ReadData</span>() {
-        <span class="pl-c"><span class="pl-c">//</span> 4. 读取响应体</span>
-        <span class="pl-k">int</span> bytes_read = <span class="pl-c1">ReadDataToBuffer</span>();
+    void ReadData() {
+        // 4. 读取响应体
+        int bytes_read = ReadDataToBuffer();
         
-        <span class="pl-c"><span class="pl-c">//</span> 5. 数据解码（gzip等）</span>
-        <span class="pl-k">if</span> (need_decompression_) {
-            bytes_read = filter_-&gt;<span class="pl-c1">ReadData</span>(filtered_buffer);
+        // 5. 数据解码（gzip等）
+        if (need_decompression_) {
+            bytes_read = filter_-&gt;ReadData(filtered_buffer);
         }
         
-        <span class="pl-c"><span class="pl-c">//</span> 6. 传递给渲染进程</span>
-        delegate_-&gt;<span class="pl-c1">OnReadCompleted</span>(<span class="pl-c1">this</span>, bytes_read);
+        // 6. 传递给渲染进程
+        delegate_-&gt;OnReadCompleted(this, bytes_read);
     }
-}<span class="pl-ii"></span></pre></div>
+}
+</code></pre>
 <h3>9.2 渲染进程处理响应</h3>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c">// XMLHttpRequest响应处理</span>
-<span class="pl-k">class</span> <span class="pl-v">XMLHttpRequest</span> <span class="pl-kos">{</span>
-    <span class="pl-en">_onNetworkResponse</span><span class="pl-kos">(</span><span class="pl-s1">response</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
-        <span class="pl-c">// 1. 更新readyState</span>
-        <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">readyState</span> <span class="pl-c1">=</span> <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">HEADERS_RECEIVED</span><span class="pl-kos">;</span>
-        <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-en">dispatchEvent</span><span class="pl-kos">(</span><span class="pl-k">new</span> <span class="pl-v">Event</span><span class="pl-kos">(</span><span class="pl-s">'readystatechange'</span><span class="pl-kos">)</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+<pre lang="javascript" class="notranslate"><code class="notranslate">// XMLHttpRequest响应处理
+class XMLHttpRequest {
+    _onNetworkResponse(response) {
+        // 1. 更新readyState
+        this.readyState = this.HEADERS_RECEIVED;
+        this.dispatchEvent(new Event('readystatechange'));
         
-        <span class="pl-c">// 2. 检查状态码</span>
-        <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">status</span> <span class="pl-c1">&gt;=</span> <span class="pl-c1">200</span> <span class="pl-c1">&amp;&amp;</span> <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">status</span> <span class="pl-c1">&lt;</span> <span class="pl-c1">300</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
-            <span class="pl-c">// 3. 读取响应数据</span>
-            <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-en">_readResponseBody</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-        <span class="pl-kos">}</span> <span class="pl-k">else</span> <span class="pl-kos">{</span>
-            <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-en">_handleError</span><span class="pl-kos">(</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-        <span class="pl-kos">}</span>
-    <span class="pl-kos">}</span>
+        // 2. 检查状态码
+        if (this.status &gt;= 200 &amp;&amp; this.status &lt; 300) {
+            // 3. 读取响应数据
+            this._readResponseBody();
+        } else {
+            this._handleError();
+        }
+    }
     
-    <span class="pl-en">_readResponseBody</span><span class="pl-kos">(</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
-        <span class="pl-c">// 4. 根据responseType处理数据</span>
-        <span class="pl-k">switch</span> <span class="pl-kos">(</span><span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">responseType</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
-            <span class="pl-k">case</span> <span class="pl-s">''</span>:
-            <span class="pl-k">case</span> <span class="pl-s">'text'</span>:
-                <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">responseText</span> <span class="pl-c1">=</span> <span class="pl-en">decodeText</span><span class="pl-kos">(</span><span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">_rawData</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-                <span class="pl-k">break</span><span class="pl-kos">;</span>
-            <span class="pl-k">case</span> <span class="pl-s">'json'</span>:
-                <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">response</span> <span class="pl-c1">=</span> <span class="pl-c1">JSON</span><span class="pl-kos">.</span><span class="pl-en">parse</span><span class="pl-kos">(</span><span class="pl-en">decodeText</span><span class="pl-kos">(</span><span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">_rawData</span><span class="pl-kos">)</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-                <span class="pl-k">break</span><span class="pl-kos">;</span>
-            <span class="pl-k">case</span> <span class="pl-s">'arraybuffer'</span>:
-                <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">response</span> <span class="pl-c1">=</span> <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">_rawData</span><span class="pl-kos">;</span>
-                <span class="pl-k">break</span><span class="pl-kos">;</span>
-        <span class="pl-kos">}</span>
+    _readResponseBody() {
+        // 4. 根据responseType处理数据
+        switch (this.responseType) {
+            case '':
+            case 'text':
+                this.responseText = decodeText(this._rawData);
+                break;
+            case 'json':
+                this.response = JSON.parse(decodeText(this._rawData));
+                break;
+            case 'arraybuffer':
+                this.response = this._rawData;
+                break;
+        }
         
-        <span class="pl-c">// 5. 触发load事件</span>
-        <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">readyState</span> <span class="pl-c1">=</span> <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-c1">DONE</span><span class="pl-kos">;</span>
-        <span class="pl-smi">this</span><span class="pl-kos">.</span><span class="pl-en">dispatchEvent</span><span class="pl-kos">(</span><span class="pl-k">new</span> <span class="pl-v">Event</span><span class="pl-kos">(</span><span class="pl-s">'load'</span><span class="pl-kos">)</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-    <span class="pl-kos">}</span>
-<span class="pl-kos">}</span></pre></div>
+        // 5. 触发load事件
+        this.readyState = this.DONE;
+        this.dispatchEvent(new Event('load'));
+    }
+}
+</code></pre>
 <h2>10. 🎯 Axios Promise解析</h2>
 <h3>10.1 响应数据转换</h3>
-<div class="highlight highlight-source-js"><pre class="notranslate"><span class="pl-c">// Axios响应处理链</span>
-<span class="pl-k">function</span> <span class="pl-en">transformResponseData</span><span class="pl-kos">(</span><span class="pl-s1">response</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
-    <span class="pl-c">// 1. 数据转换</span>
-    <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">response</span><span class="pl-kos">.</span><span class="pl-c1">config</span><span class="pl-kos">.</span><span class="pl-c1">transformResponse</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
-        <span class="pl-s1">response</span><span class="pl-kos">.</span><span class="pl-c1">data</span> <span class="pl-c1">=</span> <span class="pl-en">transformData</span><span class="pl-kos">(</span>
-            <span class="pl-s1">response</span><span class="pl-kos">.</span><span class="pl-c1">data</span><span class="pl-kos">,</span>
-            <span class="pl-s1">response</span><span class="pl-kos">.</span><span class="pl-c1">headers</span><span class="pl-kos">,</span>
-            <span class="pl-s1">response</span><span class="pl-kos">.</span><span class="pl-c1">config</span><span class="pl-kos">.</span><span class="pl-c1">transformResponse</span>
-        <span class="pl-kos">)</span><span class="pl-kos">;</span>
-    <span class="pl-kos">}</span>
+<pre lang="javascript" class="notranslate"><code class="notranslate">// Axios响应处理链
+function transformResponseData(response) {
+    // 1. 数据转换
+    if (response.config.transformResponse) {
+        response.data = transformData(
+            response.data,
+            response.headers,
+            response.config.transformResponse
+        );
+    }
     
-    <span class="pl-c">// 2. 适配器特定处理</span>
-    <span class="pl-k">if</span> <span class="pl-kos">(</span><span class="pl-s1">response</span><span class="pl-kos">.</span><span class="pl-c1">config</span><span class="pl-kos">.</span><span class="pl-c1">adapter</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
-        <span class="pl-s1">response</span><span class="pl-kos">.</span><span class="pl-c1">data</span> <span class="pl-c1">=</span> <span class="pl-s1">response</span><span class="pl-kos">.</span><span class="pl-c1">config</span><span class="pl-kos">.</span><span class="pl-c1">adapter</span><span class="pl-kos">.</span><span class="pl-c1">defaults</span><span class="pl-kos">.</span><span class="pl-c1">transformResponse</span><span class="pl-kos">[</span><span class="pl-c1">0</span><span class="pl-kos">]</span><span class="pl-kos">(</span>
-            <span class="pl-s1">response</span><span class="pl-kos">.</span><span class="pl-c1">data</span>
-        <span class="pl-kos">)</span><span class="pl-kos">;</span>
-    <span class="pl-kos">}</span>
+    // 2. 适配器特定处理
+    if (response.config.adapter) {
+        response.data = response.config.adapter.defaults.transformResponse[0](
+            response.data
+        );
+    }
     
-    <span class="pl-c">// 3. 返回最终数据</span>
-    <span class="pl-k">return</span> <span class="pl-s1">response</span><span class="pl-kos">;</span>
-<span class="pl-kos">}</span>
+    // 3. 返回最终数据
+    return response;
+}
 
-<span class="pl-c">// 拦截器后置处理</span>
-<span class="pl-k">function</span> <span class="pl-en">onFulfilled</span><span class="pl-kos">(</span><span class="pl-s1">response</span><span class="pl-kos">)</span> <span class="pl-kos">{</span>
-    <span class="pl-c">// 执行响应拦截器</span>
-    <span class="pl-s1">responseInterceptorChain</span><span class="pl-kos">.</span><span class="pl-en">forEach</span><span class="pl-kos">(</span><span class="pl-s1">interceptor</span> <span class="pl-c1">=&gt;</span> <span class="pl-kos">{</span>
-        <span class="pl-s1">response</span> <span class="pl-c1">=</span> <span class="pl-s1">interceptor</span><span class="pl-kos">.</span><span class="pl-en">fulfilled</span><span class="pl-kos">(</span><span class="pl-s1">response</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-    <span class="pl-kos">}</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
+// 拦截器后置处理
+function onFulfilled(response) {
+    // 执行响应拦截器
+    responseInterceptorChain.forEach(interceptor =&gt; {
+        response = interceptor.fulfilled(response);
+    });
     
-    <span class="pl-c">// 解析Promise</span>
-    <span class="pl-k">return</span> <span class="pl-v">Promise</span><span class="pl-kos">.</span><span class="pl-en">resolve</span><span class="pl-kos">(</span><span class="pl-s1">response</span><span class="pl-kos">)</span><span class="pl-kos">;</span>
-<span class="pl-kos">}</span></pre></div>
+    // 解析Promise
+    return Promise.resolve(response);
+}
+</code></pre>
 <h2>📊 完整流程时序图</h2>
-<div class="highlight highlight-source-mermaid"><pre class="notranslate"><span class="pl-k">sequenceDiagram</span>
-    <span class="pl-k">participant</span> <span class="pl-ent">U</span> <span class="pl-k">as</span> <span class="pl-ent">用户</span>
-    <span class="pl-k">participant</span> <span class="pl-ent">B</span> <span class="pl-k">as</span> <span class="pl-ent">浏览器UI</span>
-    <span class="pl-k">participant</span> <span class="pl-ent">R</span> <span class="pl-k">as</span> <span class="pl-ent">渲染进程</span>
-    <span class="pl-k">participant</span> <span class="pl-ent">N</span> <span class="pl-k">as</span> <span class="pl-ent">网络进程</span>
-    <span class="pl-k">participant</span> <span class="pl-ent">OS</span> <span class="pl-k">as</span> <span class="pl-ent">操作系统</span>
-    <span class="pl-k">participant</span> <span class="pl-ent">HW</span> <span class="pl-k">as</span> <span class="pl-ent">网络硬件</span>
-    <span class="pl-k">participant</span> <span class="pl-ent">S</span> <span class="pl-k">as</span> <span class="pl-ent">服务器</span>
-    <span class="pl-k">participant</span> <span class="pl-ent">DB</span> <span class="pl-k">as</span> <span class="pl-ent">数据库</span>
+<pre lang="mermaid" class="notranslate"><code class="notranslate">sequenceDiagram
+    participant U as 用户
+    participant B as 浏览器UI
+    participant R as 渲染进程
+    participant N as 网络进程
+    participant OS as 操作系统
+    participant HW as 网络硬件
+    participant S as 服务器
+    participant DB as 数据库
 
-    <span class="pl-ent">U</span><span class="pl-k">-&gt;&gt;</span><span class="pl-ent">B</span><span class="pl-k">:</span> <span class="pl-s">点击提交按钮</span>
-    <span class="pl-ent">B</span><span class="pl-k">-&gt;&gt;</span><span class="pl-ent">R</span><span class="pl-k">:</span> <span class="pl-s">IPC事件传递</span>
-    <span class="pl-ent">R</span><span class="pl-k">-&gt;&gt;</span><span class="pl-ent">R</span><span class="pl-k">:</span> <span class="pl-s">JavaScript执行(Axios)</span>
-    <span class="pl-ent">R</span><span class="pl-k">-&gt;&gt;</span><span class="pl-ent">N</span><span class="pl-k">:</span> <span class="pl-s">IPC网络请求</span>
-    <span class="pl-ent">N</span><span class="pl-k">-&gt;&gt;</span><span class="pl-ent">OS</span><span class="pl-k">:</span> <span class="pl-s">系统调用(socket)</span>
-    <span class="pl-ent">OS</span><span class="pl-k">-&gt;&gt;</span><span class="pl-ent">HW</span><span class="pl-k">:</span> <span class="pl-s">驱动调用</span>
-    <span class="pl-ent">HW</span><span class="pl-k">-&gt;&gt;</span><span class="pl-ent">S</span><span class="pl-k">:</span> <span class="pl-s">网络传输</span>
-    <span class="pl-ent">S</span><span class="pl-k">-&gt;&gt;</span><span class="pl-ent">S</span><span class="pl-k">:</span> <span class="pl-s">SpringBoot处理</span>
-    <span class="pl-ent">S</span><span class="pl-k">-&gt;&gt;</span><span class="pl-ent">DB</span><span class="pl-k">:</span> <span class="pl-s">数据库操作</span>
-    <span class="pl-ent">DB</span><span class="pl-k">-&gt;&gt;</span><span class="pl-ent">S</span><span class="pl-k">:</span> <span class="pl-s">返回数据</span>
-    <span class="pl-ent">S</span><span class="pl-k">-&gt;&gt;</span><span class="pl-ent">HW</span><span class="pl-k">:</span> <span class="pl-s">响应返回</span>
-    <span class="pl-ent">HW</span><span class="pl-k">-&gt;&gt;</span><span class="pl-ent">OS</span><span class="pl-k">:</span> <span class="pl-s">硬件中断</span>
-    <span class="pl-ent">OS</span><span class="pl-k">-&gt;&gt;</span><span class="pl-ent">N</span><span class="pl-k">:</span> <span class="pl-s">数据就绪</span>
-    <span class="pl-ent">N</span><span class="pl-k">-&gt;&gt;</span><span class="pl-ent">R</span><span class="pl-k">:</span> <span class="pl-s">IPC响应数据</span>
-    <span class="pl-ent">R</span><span class="pl-k">-&gt;&gt;</span><span class="pl-ent">R</span><span class="pl-k">:</span> <span class="pl-s">Promise解析</span>
-    <span class="pl-ent">R</span><span class="pl-k">-&gt;&gt;</span><span class="pl-ent">B</span><span class="pl-k">:</span> <span class="pl-s">更新UI</span>
-    <span class="pl-ent">B</span><span class="pl-k">-&gt;&gt;</span><span class="pl-ent">U</span><span class="pl-k">:</span> <span class="pl-s">显示结果</span></pre></div>
+    U-&gt;&gt;B: 点击提交按钮
+    B-&gt;&gt;R: IPC事件传递
+    R-&gt;&gt;R: JavaScript执行(Axios)
+    R-&gt;&gt;N: IPC网络请求
+    N-&gt;&gt;OS: 系统调用(socket)
+    OS-&gt;&gt;HW: 驱动调用
+    HW-&gt;&gt;S: 网络传输
+    S-&gt;&gt;S: SpringBoot处理
+    S-&gt;&gt;DB: 数据库操作
+    DB-&gt;&gt;S: 返回数据
+    S-&gt;&gt;HW: 响应返回
+    HW-&gt;&gt;OS: 硬件中断
+    OS-&gt;&gt;N: 数据就绪
+    N-&gt;&gt;R: IPC响应数据
+    R-&gt;&gt;R: Promise解析
+    R-&gt;&gt;B: 更新UI
+    B-&gt;&gt;U: 显示结果
+</code></pre>
 <h2>🔧 性能优化关键点</h2>
 <h3>网络层面优化</h3>
 <ol>
