@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/240149665?v=4"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="#01 Java中HashMap中hash()方法的作用
+
+> HashMap中hash()方法的作用，以及为什么用到了算术右移而不是逻辑右移
+>     static final int hash(Object key) {
+>         int h;
+>         return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+>     }
+
+`hash()` 方法的作用是：**扰动函数（perturbation function）**，目的是让 `hashCode()` 的高 16 位也参与索引计算，减少哈希冲突。">
+<meta property="og:title" content="Java中HashMap中hash()方法的作用【65】">
+<meta property="og:description" content="#01 Java中HashMap中hash()方法的作用
+
+> HashMap中hash()方法的作用，以及为什么用到了算术右移而不是逻辑右移
+>     static final int hash(Object key) {
+>         int h;
+>         return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);
+>     }
+
+`hash()` 方法的作用是：**扰动函数（perturbation function）**，目的是让 `hashCode()` 的高 16 位也参与索引计算，减少哈希冲突。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://luminku.github.io/post/Java-zhong-HashMap-zhong-hash%28%29-fang-fa-de-zuo-yong-%E3%80%9065%E3%80%91.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
+<title>Java中HashMap中hash()方法的作用【65】</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">Java中HashMap中hash()方法的作用【65】</h1>
+<div class="title-right">
+    <a href="https://luminku.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/LuminKu/luminku.github.io/issues/66" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><p>#01 Java中HashMap中hash()方法的作用</p>
+<blockquote>
+<p>HashMap中hash()方法的作用，以及为什么用到了算术右移而不是逻辑右移<br>
+static final int hash(Object key) {<br>
+int h;<br>
+return (key == null) ? 0 : (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);<br>
+}</p>
+</blockquote>
+<p><code class="notranslate">hash()</code> 方法的作用是：<strong>扰动函数（perturbation function）</strong>，目的是让 <code class="notranslate">hashCode()</code> 的高 16 位也参与索引计算，减少哈希冲突。</p>
+<p>但首先需要澄清一个概念：<strong>代码中使用的是逻辑右移（无符号右移 <code class="notranslate">&gt;&gt;&gt;</code>），而非算术右移（<code class="notranslate">&gt;&gt;</code>）</strong>。</p>
+<hr>
+<h2>1. hash() 方法的作用</h2>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-en">hash</span>(<span class="pl-smi">Object</span> <span class="pl-s1">key</span>) {
+    <span class="pl-smi">int</span> <span class="pl-s1">h</span>;
+    <span class="pl-k">return</span> (<span class="pl-s1">key</span> == <span class="pl-c1">null</span>) ? <span class="pl-c1">0</span> : (<span class="pl-s1">h</span> = <span class="pl-s1">key</span>.<span class="pl-en">hashCode</span>()) ^ (<span class="pl-s1">h</span> &gt;&gt;&gt; <span class="pl-c1">16</span>);
+}</pre></div>
+<h3>功能拆解：</h3>
+<ol>
+<li><strong>处理 null key</strong>：返回 0，对应数组索引 0 的位置</li>
+<li><strong>扰动计算</strong>：<code class="notranslate">(h = key.hashCode()) ^ (h &gt;&gt;&gt; 16)</code>
+<ul>
+<li>将 32 位 hashCode 的高 16 位与低 16 位进行<strong>异或</strong>运算</li>
+<li>让高位的信息"扩散"到低位，参与最终的索引定位</li>
+</ul>
+</li>
+</ol>
+<h3>为什么需要扰动？</h3>
+<p>HashMap 通过 <code class="notranslate">(n - 1) &amp; hash</code> 计算索引（n 是数组长度，为 2 的幂）。</p>
+<ul>
+<li>如果 n 较小（如默认 16），<code class="notranslate">(n-1)</code> 是 <code class="notranslate">0x0000_000F</code>，只有低 4 位有效</li>
+<li>如果不扰动，高位信息完全被忽略，容易导致冲突（如多个 key 只有高位不同，低位相同）</li>
+</ul>
+<hr>
+<h2>2. 为什么用逻辑右移 <code class="notranslate">&gt;&gt;&gt;</code> 而非算术右移 <code class="notranslate">&gt;&gt;</code>？</h2>
+<h3>概念澄清：</h3>
+<ul>
+<li><strong><code class="notranslate">&gt;&gt;&gt;</code>（逻辑右移/无符号右移）</strong>：高位补 <strong>0</strong></li>
+<li><strong><code class="notranslate">&gt;&gt;</code>（算术右移）</strong>：高位补<strong>符号位</strong>（正数补 0，负数补 1）</li>
+</ul>
+<h3>关键原因：<strong>避免负数时符号位扩展破坏高位信息</strong></h3>
+<p>hashCode() 返回的是 <code class="notranslate">int</code>，<strong>可能是负数</strong>（最高位为 1）。</p>
+<h4>反例：如果用算术右移 <code class="notranslate">&gt;&gt;</code></h4>
+<p>假设 <code class="notranslate">hashCode = 0x8000_1234</code>（负数，最高位为 1）：</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-s1">h</span> &gt;&gt; <span class="pl-c1">16</span>    <span class="pl-c">// 算术右移：符号位是1，高位补1</span>
+<span class="pl-c">// 结果：0xFFFF_8000（高16位全变成1）</span>
+
+<span class="pl-s1">h</span> ^ (<span class="pl-s1">h</span> &gt;&gt; <span class="pl-c1">16</span>)  
+<span class="pl-c">// 0x8000_1234 ^ 0xFFFF_8000 = 0x7FFF_9234</span>
+<span class="pl-c">// 问题：高16位信息（0x8000）被破坏了！</span></pre></div>
+<h4>正例：使用逻辑右移 <code class="notranslate">&gt;&gt;&gt;</code></h4>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-s1">h</span> &gt;&gt;&gt; <span class="pl-c1">16</span>   <span class="pl-c">// 逻辑右移：高位补0</span>
+<span class="pl-c">// 结果：0x0000_8000（高16位是0，低16位是原高16位）</span>
+
+<span class="pl-s1">h</span> ^ (<span class="pl-s1">h</span> &gt;&gt;&gt; <span class="pl-c1">16</span>)
+<span class="pl-c">// 0x8000_1234 ^ 0x0000_8000 = 0x8000_9234</span>
+<span class="pl-c">// 正确：原高16位（0x8000）与低16位（0x1234）完成了异或</span></pre></div>
+<h3>总结对比</h3>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>右移方式</th>
+<th>符号位处理</th>
+<th>对负数 hashCode 的影响</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">&gt;&gt;</code> (算术)</td>
+<td>补符号位(1)</td>
+<td>高16位全变1</td>
+<td>高位信息丢失，冲突增加</td>
+</tr>
+<tr>
+<td><code class="notranslate">&gt;&gt;&gt;</code> (逻辑)</td>
+<td>补0</td>
+<td>高16位保持为0</td>
+<td>正确保留高位信息，均匀分布</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<hr>
+<h2>3. 实际案例演示</h2>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// 案例1：正数 hashCode = 0x0A0B_0C0D</span>
+<span class="pl-smi">int</span> <span class="pl-s1">h</span> = <span class="pl-c1">0x0A0B_0C0D</span>;
+<span class="pl-c">// h &gt;&gt;&gt; 16 = 0x0000_0A0B</span>
+<span class="pl-c">// h ^ (h &gt;&gt;&gt; 16) = 0x0A0B_0606</span>
+<span class="pl-c">// 高16位(0A0B)与低16位(0C0D)混合</span>
+
+<span class="pl-c">// 案例2：负数 hashCode = 0xF0F0_1234（某对象返回的hash）</span>
+<span class="pl-smi">int</span> <span class="pl-s1">h</span> = <span class="pl-c1">0xF0F0_1234</span>;
+<span class="pl-c">// 如果用 &gt;&gt; 16:  得到 0xFFFFF0F0（错误！高16位被符号扩展）</span>
+<span class="pl-c">// 如果用 &gt;&gt;&gt; 16: 得到 0x0000F0F0（正确！）</span>
+<span class="pl-c">// 最终异或结果：0xF0F0_E2C4（保留了F0F0的信息）</span></pre></div>
+<p><strong>结论</strong>：使用 <code class="notranslate">&gt;&gt;&gt;</code> 逻辑右移是为了确保无论 hashCode 是正数还是负数，都能将其<strong>高 16 位的原始值</strong>完整地参与低位运算，实现真正的"高位扰动"。</p>
+<h1>02 在HashMap中的resize()方法中，这段(e.hash &amp; oldCap) == 0代码的作用是什么吗，不同JDK版本中的差异（性能）</h1>
+<p><code class="notranslate">(e.hash &amp; oldCap) == 0</code> 是 HashMap 扩容时的<strong>核心优化逻辑</strong>，用于快速判断元素在新数组中的位置，<strong>避免重新计算 hash</strong>。</p>
+<hr>
+<h2>1. 代码作用</h2>
+<p><strong>判断元素在扩容后的新数组中，应该留在原索引位置，还是移动到 <code class="notranslate">原索引 + oldCap</code> 的位置。</strong></p>
+<ul>
+<li>结果为 <strong>0</strong>：元素留在<strong>原索引</strong>位置（<code class="notranslate">newIndex = oldIndex</code>）</li>
+<li>结果不为 <strong>0</strong>：元素移动到<strong>原索引 + oldCap</strong>（<code class="notranslate">newIndex = oldIndex + oldCap</code>）</li>
+</ul>
+<hr>
+<h2>2. 原理详解（基于 2 的幂特性）</h2>
+<p>HashMap 容量始终是 2 的幂（如 16, 32, 64...），二进制只有一位是 1：</p>
+<ul>
+<li><code class="notranslate">oldCap = 16</code> → <code class="notranslate">0001 0000</code>（第 5 位为 1）</li>
+<li><code class="notranslate">newCap = 32</code> → <code class="notranslate">0010 0000</code>（第 6 位为 1）</li>
+</ul>
+<h3>索引计算的本质</h3>
+<p>索引计算是 <code class="notranslate">hash &amp; (n-1)</code>，即取 hash 的低 <code class="notranslate">log2(n)</code> 位：</p>
+<ul>
+<li>容量 16 时：<code class="notranslate">hash &amp; 1111</code>（取低 4 位）</li>
+<li>容量 32 时：<code class="notranslate">hash &amp; 11111</code>（取低 5 位）</li>
+</ul>
+<h3>扩容后的变化</h3>
+<p>扩容后，索引计算多用了 1 位（第 5 位，即 <code class="notranslate">oldCap</code> 对应的那一位）：</p>
+<ul>
+<li>如果 hash 的第 5 位是 <strong>0</strong>：<code class="notranslate">hash &amp; 01111</code> 与 <code class="notranslate">hash &amp; 1111</code> 结果相同 → 位置不变</li>
+<li>如果 hash 的第 5 位是 <strong>1</strong>：新索引 = 旧索引 + <code class="notranslate">10000</code>（16）→ 位置后移 oldCap</li>
+</ul>
+<p><strong><code class="notranslate">e.hash &amp; oldCap</code> 正是提取 hash 在 <code class="notranslate">oldCap</code> 这一位上的值。</strong></p>
+<hr>
+<h2>3. 具体示例</h2>
+<p>假设 <code class="notranslate">oldCap = 16</code>，两个元素的 hash 值分别为：</p>
+<ul>
+<li><strong>Key A</strong>: <code class="notranslate">hash = 0b...0101</code>（第 5 位为 0）</li>
+<li><strong>Key B</strong>: <code class="notranslate">hash = 0b...1101</code>（第 5 位为 1）</li>
+</ul>
+<pre class="notranslate"><code class="notranslate">Key A: hash &amp; oldCap = 0b...0101 &amp; 0001 0000 = 0  → 留在原索引 5
+Key B: hash &amp; oldCap = 0b...1101 &amp; 0001 0000 = 16 → 移到新索引 5 + 16 = 21
+</code></pre>
+<hr>
+<h2>4. 不同 JDK 版本的实现差异</h2>
+<h3>JDK 7（头插法 + 重新哈希）</h3>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// JDK 7 伪代码</span>
+<span class="pl-smi">void</span> <span class="pl-en">resize</span>(<span class="pl-smi">int</span> <span class="pl-s1">newCapacity</span>) {
+    <span class="pl-smi">Entry</span>[] <span class="pl-s1">oldTable</span> = <span class="pl-s1">table</span>;
+    <span class="pl-smi">int</span> <span class="pl-s1">oldCapacity</span> = <span class="pl-s1">oldTable</span>.<span class="pl-s1">length</span>;
+    <span class="pl-c">// ... 创建新数组 ...</span>
+    
+    <span class="pl-k">for</span> (<span class="pl-smi">Entry</span> <span class="pl-s1">e</span> : <span class="pl-s1">oldTable</span>) {
+        <span class="pl-k">while</span> (<span class="pl-c1">null</span> != <span class="pl-s1">e</span>) {
+            <span class="pl-smi">Entry</span> <span class="pl-s1">next</span> = <span class="pl-s1">e</span>.<span class="pl-s1">next</span>;
+            <span class="pl-smi">int</span> <span class="pl-s1">i</span> = <span class="pl-en">indexFor</span>(<span class="pl-s1">e</span>.<span class="pl-s1">hash</span>, <span class="pl-s1">newCapacity</span>); <span class="pl-c">// ❌ 重新计算索引</span>
+            <span class="pl-s1">e</span>.<span class="pl-s1">next</span> = <span class="pl-s1">newTable</span>[<span class="pl-s1">i</span>];  <span class="pl-c">// 头插法</span>
+            <span class="pl-s1">newTable</span>[<span class="pl-s1">i</span>] = <span class="pl-s1">e</span>;
+            <span class="pl-s1">e</span> = <span class="pl-s1">next</span>;
+        }
+    }
+}</pre></div>
+<p><strong>特点：</strong></p>
+<ul>
+<li><strong>重新计算 hash</strong>：每个元素调用 <code class="notranslate">indexFor()</code> 重新定位</li>
+<li><strong>头插法</strong>：新元素插入链表头部（并发环境下会产生<strong>死循环</strong>）</li>
+<li><strong>性能较差</strong>：O(n) 时间，且散列计算有额外开销</li>
+</ul>
+<h3>JDK 8+（尾插法 + 高低位双链表）</h3>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// JDK 8 核心逻辑（简化版）</span>
+<span class="pl-k">final</span> <span class="pl-smi">Node</span>&lt;<span class="pl-smi">K</span>,<span class="pl-smi">V</span>&gt;[] <span class="pl-en">resize</span>() {
+    <span class="pl-smi">Node</span>&lt;<span class="pl-smi">K</span>,<span class="pl-smi">V</span>&gt;[] <span class="pl-s1">oldTab</span> = <span class="pl-s1">table</span>;
+    <span class="pl-smi">int</span> <span class="pl-s1">oldCap</span> = (<span class="pl-s1">oldTab</span> == <span class="pl-c1">null</span>) ? <span class="pl-c1">0</span> : <span class="pl-s1">oldTab</span>.<span class="pl-s1">length</span>;
+    <span class="pl-smi">int</span> <span class="pl-s1">newCap</span> = <span class="pl-s1">oldCap</span> &lt;&lt; <span class="pl-c1">1</span>;  <span class="pl-c">// 容量翻倍</span>
+    
+    <span class="pl-c">// 遍历旧数组每个桶</span>
+    <span class="pl-k">for</span> (<span class="pl-smi">int</span> <span class="pl-s1">j</span> = <span class="pl-c1">0</span>; <span class="pl-s1">j</span> &lt; <span class="pl-s1">oldCap</span>; ++<span class="pl-s1">j</span>) {
+        <span class="pl-smi">Node</span>&lt;<span class="pl-smi">K</span>,<span class="pl-smi">V</span>&gt; <span class="pl-s1">e</span>;
+        <span class="pl-k">if</span> ((<span class="pl-s1">e</span> = <span class="pl-s1">oldTab</span>[<span class="pl-s1">j</span>]) != <span class="pl-c1">null</span>) {
+            <span class="pl-s1">oldTab</span>[<span class="pl-s1">j</span>] = <span class="pl-c1">null</span>;
+            
+            <span class="pl-k">if</span> (<span class="pl-s1">e</span>.<span class="pl-s1">next</span> == <span class="pl-c1">null</span>)  <span class="pl-c">// 单个节点</span>
+                <span class="pl-s1">newTab</span>[<span class="pl-s1">e</span>.<span class="pl-s1">hash</span> &amp; (<span class="pl-s1">newCap</span> - <span class="pl-c1">1</span>)] = <span class="pl-s1">e</span>;
+            <span class="pl-k">else</span> <span class="pl-k">if</span> (<span class="pl-s1">e</span> <span class="pl-k">instanceof</span> <span class="pl-smi">TreeNode</span>)  <span class="pl-c">// 红黑树</span>
+                ((<span class="pl-smi">TreeNode</span>&lt;<span class="pl-smi">K</span>,<span class="pl-smi">V</span>&gt;)<span class="pl-s1">e</span>).<span class="pl-en">split</span>(<span class="pl-smi">this</span>, <span class="pl-s1">newTab</span>, <span class="pl-s1">j</span>, <span class="pl-s1">oldCap</span>);
+            <span class="pl-k">else</span> {  <span class="pl-c">// 链表处理：拆分为 lo 和 hi 两个链表</span>
+                <span class="pl-smi">Node</span>&lt;<span class="pl-smi">K</span>,<span class="pl-smi">V</span>&gt; <span class="pl-s1">loHead</span> = <span class="pl-c1">null</span>, <span class="pl-s1">loTail</span> = <span class="pl-c1">null</span>;
+                <span class="pl-smi">Node</span>&lt;<span class="pl-smi">K</span>,<span class="pl-smi">V</span>&gt; <span class="pl-s1">hiHead</span> = <span class="pl-c1">null</span>, <span class="pl-s1">hiTail</span> = <span class="pl-c1">null</span>;
+                <span class="pl-smi">Node</span>&lt;<span class="pl-smi">K</span>,<span class="pl-smi">V</span>&gt; <span class="pl-s1">next</span>;
+                
+                <span class="pl-k">do</span> {
+                    <span class="pl-s1">next</span> = <span class="pl-s1">e</span>.<span class="pl-s1">next</span>;
+                    <span class="pl-c">// ✅ 关键判断：不需要重新计算 hash，只需位运算</span>
+                    <span class="pl-k">if</span> ((<span class="pl-s1">e</span>.<span class="pl-s1">hash</span> &amp; <span class="pl-s1">oldCap</span>) == <span class="pl-c1">0</span>) {  
+                        <span class="pl-c">// 低位链表：位置不变</span>
+                        <span class="pl-k">if</span> (<span class="pl-s1">loTail</span> == <span class="pl-c1">null</span>) <span class="pl-s1">loHead</span> = <span class="pl-s1">e</span>;
+                        <span class="pl-k">else</span> <span class="pl-s1">loTail</span>.<span class="pl-s1">next</span> = <span class="pl-s1">e</span>;
+                        <span class="pl-s1">loTail</span> = <span class="pl-s1">e</span>;
+                    } <span class="pl-k">else</span> {
+                        <span class="pl-c">// 高位链表：位置 = 原索引 + oldCap</span>
+                        <span class="pl-k">if</span> (<span class="pl-s1">hiTail</span> == <span class="pl-c1">null</span>) <span class="pl-s1">hiHead</span> = <span class="pl-s1">e</span>;
+                        <span class="pl-k">else</span> <span class="pl-s1">hiTail</span>.<span class="pl-s1">next</span> = <span class="pl-s1">e</span>;
+                        <span class="pl-s1">hiTail</span> = <span class="pl-s1">e</span>;
+                    }
+                } <span class="pl-k">while</span> ((<span class="pl-s1">e</span> = <span class="pl-s1">next</span>) != <span class="pl-c1">null</span>);
+                
+                <span class="pl-c">// 放置两个链表</span>
+                <span class="pl-k">if</span> (<span class="pl-s1">loTail</span> != <span class="pl-c1">null</span>) {
+                    <span class="pl-s1">loTail</span>.<span class="pl-s1">next</span> = <span class="pl-c1">null</span>;
+                    <span class="pl-s1">newTab</span>[<span class="pl-s1">j</span>] = <span class="pl-s1">loHead</span>;  <span class="pl-c">// 原位置</span>
+                }
+                <span class="pl-k">if</span> (<span class="pl-s1">hiTail</span> != <span class="pl-c1">null</span>) {
+                    <span class="pl-s1">hiTail</span>.<span class="pl-s1">next</span> = <span class="pl-c1">null</span>;
+                    <span class="pl-s1">newTab</span>[<span class="pl-s1">j</span> + <span class="pl-s1">oldCap</span>] = <span class="pl-s1">hiHead</span>;  <span class="pl-c">// 原位置 + oldCap</span>
+                }
+            }
+        }
+    }
+}</pre></div>
+<p><strong>特点：</strong></p>
+<ul>
+<li><strong>无需重新哈希</strong>：通过 <code class="notranslate">(e.hash &amp; oldCap)</code> 快速分流</li>
+<li><strong>尾插法</strong>：保持元素相对顺序（解决死循环问题）</li>
+<li><strong>双链表拆分</strong>：将原链表拆成 <code class="notranslate">lo</code>（低位）和 <code class="notranslate">hi</code>（高位）两个链表，一次性整体迁移</li>
+<li><strong>红黑树优化</strong>：树节点也有 <code class="notranslate">split</code> 方法，逻辑类似</li>
+</ul>
+<hr>
+<h2>5. 性能对比</h2>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>维度</th>
+<th>JDK 7</th>
+<th>JDK 8+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>哈希计算</strong></td>
+<td>每个元素重新计算 <code class="notranslate">hash % newCap</code></td>
+<td>仅位运算 <code class="notranslate">hash &amp; oldCap</code></td>
+</tr>
+<tr>
+<td><strong>链表插入</strong></td>
+<td>头插法（改变顺序）</td>
+<td>尾插法（保持顺序）</td>
+</tr>
+<tr>
+<td><strong>并发安全</strong></td>
+<td>死循环风险（头插法导致环形链表）</td>
+<td>不会死循环（但仍非线程安全）</td>
+</tr>
+<tr>
+<td><strong>时间复杂度</strong></td>
+<td>O(n) 且常数较大</td>
+<td>O(n) 常数更小</td>
+</tr>
+<tr>
+<td><strong>缓存友好性</strong></td>
+<td>分散插入，缓存命中率低</td>
+<td>双链表整体迁移，局部性好</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h3>关键性能提升点</h3>
+<ol>
+<li><strong>避免取模运算</strong>：<code class="notranslate">%</code> 运算比 <code class="notranslate">&amp;</code> 慢 10-20 倍</li>
+<li><strong>避免重复哈希</strong>：不需要再调用 <code class="notranslate">hash()</code> 方法扰动</li>
+<li><strong>批量迁移</strong>：JDK8 将链表整体拆分为两个链表后一次性放置，而 JDK7 是逐个插入，指针操作更频繁</li>
+</ol>
+<p><strong>结论</strong>：<code class="notranslate">(e.hash &amp; oldCap) == 0</code> 是 JDK8 对 HashMap 扩容的重大优化，利用位运算替代取模和重哈希，将时间复杂度从 O(n×cost_of_hash) 优化到 O(n)，且保证了链表元素在扩容后的相对顺序。</p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://luminku.github.io">布谷博客</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","LuminKu/luminku.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
+
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
+
+</script>
+
+
+</html>

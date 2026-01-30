@@ -1,5 +1,13 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>布谷博客</title><link>https://luminku.github.io</link><description>一个分享有趣技术DIY的科技类博主</description><copyright>布谷博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/240149665?v=4</url><title>avatar</title><link>https://luminku.github.io</link></image><lastBuildDate>Fri, 30 Jan 2026 14:09:50 +0000</lastBuildDate><managingEditor>布谷博客</managingEditor><ttl>60</ttl><webMaster>布谷博客</webMaster><item><title>Java中的HashMap中的tableSizeFor方法讲解【64】</title><link>https://luminku.github.io/post/Java-zhong-de-HashMap-zhong-de-tableSizeFor-fang-fa-jiang-jie-%E3%80%9064%E3%80%91.html</link><description>
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>布谷博客</title><link>https://luminku.github.io</link><description>一个分享有趣技术DIY的科技类博主</description><copyright>布谷博客</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://avatars.githubusercontent.com/u/240149665?v=4</url><title>avatar</title><link>https://luminku.github.io</link></image><lastBuildDate>Fri, 30 Jan 2026 14:12:28 +0000</lastBuildDate><managingEditor>布谷博客</managingEditor><ttl>60</ttl><webMaster>布谷博客</webMaster><item><title>Java中HashMap中hash()方法的作用【65】</title><link>https://luminku.github.io/post/Java-zhong-HashMap-zhong-hash%28%29-fang-fa-de-zuo-yong-%E3%80%9065%E3%80%91.html</link><description>#01 Java中HashMap中hash()方法的作用
+
+&gt; HashMap中hash()方法的作用，以及为什么用到了算术右移而不是逻辑右移
+&gt;     static final int hash(Object key) {
+&gt;         int h;
+&gt;         return (key == null) ? 0 : (h = key.hashCode()) ^ (h &gt;&gt;&gt; 16);
+&gt;     }
+
+`hash()` 方法的作用是：**扰动函数（perturbation function）**，目的是让 `hashCode()` 的高 16 位也参与索引计算，减少哈希冲突。</description><guid isPermaLink="true">https://luminku.github.io/post/Java-zhong-HashMap-zhong-hash%28%29-fang-fa-de-zuo-yong-%E3%80%9065%E3%80%91.html</guid><pubDate>Fri, 30 Jan 2026 14:12:00 +0000</pubDate></item><item><title>Java中的HashMap中的tableSizeFor方法讲解【64】</title><link>https://luminku.github.io/post/Java-zhong-de-HashMap-zhong-de-tableSizeFor-fang-fa-jiang-jie-%E3%80%9064%E3%80%91.html</link><description>
 # 01 tableSizeFor的作用
 
 &gt; java中HashMap中的下面的函数的作用是什么，给出几个案例
