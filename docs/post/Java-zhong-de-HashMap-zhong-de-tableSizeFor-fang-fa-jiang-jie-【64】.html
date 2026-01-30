@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/240149665?v=4"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="
+# 01 tableSizeFor的作用
+
+> java中HashMap中的下面的函数的作用是什么，给出几个案例
+>     static final int tableSizeFor(int cap) {
+>         int n = cap - 1;
+>         n |= n >>> 1;
+>         n |= n >>> 2;
+>         n |= n >>> 4;
+>         n |= n >>> 8;
+>         n |= n >>> 16;
+>         return (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
+>     }
+
+`tableSizeFor` 方法的作用是：**返回大于或等于给定容量 `cap` 的最小的 2 的幂次方数**（即找到最接近且不小于 cap 的 2^n）。">
+<meta property="og:title" content="Java中的HashMap中的tableSizeFor方法讲解【64】">
+<meta property="og:description" content="
+# 01 tableSizeFor的作用
+
+> java中HashMap中的下面的函数的作用是什么，给出几个案例
+>     static final int tableSizeFor(int cap) {
+>         int n = cap - 1;
+>         n |= n >>> 1;
+>         n |= n >>> 2;
+>         n |= n >>> 4;
+>         n |= n >>> 8;
+>         n |= n >>> 16;
+>         return (n < 0) ? 1 : (n >= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;
+>     }
+
+`tableSizeFor` 方法的作用是：**返回大于或等于给定容量 `cap` 的最小的 2 的幂次方数**（即找到最接近且不小于 cap 的 2^n）。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://luminku.github.io/post/Java-zhong-de-HashMap-zhong-de-tableSizeFor-fang-fa-jiang-jie-%E3%80%9064%E3%80%91.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
+<title>Java中的HashMap中的tableSizeFor方法讲解【64】</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">Java中的HashMap中的tableSizeFor方法讲解【64】</h1>
+<div class="title-right">
+    <a href="https://luminku.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/LuminKu/luminku.github.io/issues/65" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><h1>01 tableSizeFor的作用</h1>
+<blockquote>
+<p>java中HashMap中的下面的函数的作用是什么，给出几个案例<br>
+static final int tableSizeFor(int cap) {<br>
+int n = cap - 1;<br>
+n |= n &gt;&gt;&gt; 1;<br>
+n |= n &gt;&gt;&gt; 2;<br>
+n |= n &gt;&gt;&gt; 4;<br>
+n |= n &gt;&gt;&gt; 8;<br>
+n |= n &gt;&gt;&gt; 16;<br>
+return (n &lt; 0) ? 1 : (n &gt;= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;<br>
+}</p>
+</blockquote>
+<p><code class="notranslate">tableSizeFor</code> 方法的作用是：<strong>返回大于或等于给定容量 <code class="notranslate">cap</code> 的最小的 2 的幂次方数</strong>（即找到最接近且不小于 cap 的 2^n）。</p>
+<p>HashMap 要求数组长度必须是 2 的幂次方，这样才能通过 <code class="notranslate">(n - 1) &amp; hash</code> 高效计算索引。</p>
+<h2>工作原理</h2>
+<p>通过一系列无符号右移和按位或操作，将最高位的 <code class="notranslate">1</code> 及其右侧所有位都变为 <code class="notranslate">1</code>，最后加 <code class="notranslate">1</code> 得到 2 的幂次方：</p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-en">tableSizeFor</span>(<span class="pl-smi">int</span> <span class="pl-s1">cap</span>) {
+    <span class="pl-smi">int</span> <span class="pl-s1">n</span> = <span class="pl-s1">cap</span> - <span class="pl-c1">1</span>;           <span class="pl-c">// 先减1，防止cap本身就是2的幂时结果翻倍</span>
+    <span class="pl-s1">n</span> |= <span class="pl-s1">n</span> &gt;&gt;&gt; <span class="pl-c1">1</span>;              <span class="pl-c">// 将最高位1向右传播1位</span>
+    <span class="pl-s1">n</span> |= <span class="pl-s1">n</span> &gt;&gt;&gt; <span class="pl-c1">2</span>;              <span class="pl-c">// 将最高位1向右传播2位  </span>
+    <span class="pl-s1">n</span> |= <span class="pl-s1">n</span> &gt;&gt;&gt; <span class="pl-c1">4</span>;              <span class="pl-c">// 将最高位1向右传播4位</span>
+    <span class="pl-s1">n</span> |= <span class="pl-s1">n</span> &gt;&gt;&gt; <span class="pl-c1">8</span>;              <span class="pl-c">// 将最高位1向右传播8位</span>
+    <span class="pl-s1">n</span> |= <span class="pl-s1">n</span> &gt;&gt;&gt; <span class="pl-c1">16</span>;             <span class="pl-c">// 将最高位1向右传播16位</span>
+    <span class="pl-k">return</span> (<span class="pl-s1">n</span> &lt; <span class="pl-c1">0</span>) ? <span class="pl-c1">1</span> : (<span class="pl-s1">n</span> &gt;= <span class="pl-c1">MAXIMUM_CAPACITY</span>) ? <span class="pl-c1">MAXIMUM_CAPACITY</span> : <span class="pl-s1">n</span> + <span class="pl-c1">1</span>;
+}</pre></div>
+<h2>案例演示</h2>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>输入 (cap)</th>
+<th>二进制过程</th>
+<th>输出 (返回值)</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>10</strong></td>
+<td>9(1001) → 右移或操作后变为 15(1111) → +1</td>
+<td><strong>16</strong></td>
+<td>10不是2的幂，返回最近的16 (2^4)</td>
+</tr>
+<tr>
+<td><strong>16</strong></td>
+<td>15(1111) → 保持 15 → +1</td>
+<td><strong>16</strong></td>
+<td>16本身是2的幂，返回16</td>
+</tr>
+<tr>
+<td><strong>17</strong></td>
+<td>16(10000) → 右移或操作后变为 31(11111) → +1</td>
+<td><strong>32</strong></td>
+<td>17不是2的幂，返回最近的32 (2^5)</td>
+</tr>
+<tr>
+<td><strong>1</strong></td>
+<td>0 → 保持 0 → +1</td>
+<td><strong>1</strong></td>
+<td>1是2的幂 (2^0)</td>
+</tr>
+<tr>
+<td><strong>0</strong></td>
+<td>-1(全1) → 判断 n&lt;0</td>
+<td><strong>1</strong></td>
+<td>非正数返回1</td>
+</tr>
+<tr>
+<td><strong>-5</strong></td>
+<td>-6 → 判断 n&lt;0</td>
+<td><strong>1</strong></td>
+<td>负数返回1</td>
+</tr>
+<tr>
+<td><strong>1073741824</strong> (2^30)</td>
+<td>1073741823 → 操作后变为 1073741823 → +1</td>
+<td><strong>1073741824</strong></td>
+<td>正好是最大容量的一半</td>
+</tr>
+<tr>
+<td><strong>1073741825</strong> (2^30+1)</td>
+<td>超出 MAXIMUM_CAPACITY (2^30)</td>
+<td><strong>1073741824</strong></td>
+<td>超过最大值则返回最大值</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h3>详细计算示例（cap = 10）</h3>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-s1">cap</span> = <span class="pl-c1">10</span>
+<span class="pl-s1">n</span> = <span class="pl-s1">cap</span> - <span class="pl-c1">1</span> = <span class="pl-c1">9</span>              <span class="pl-c">// 二进制: 0000 0000 0000 0000 0000 0000 0000 1001</span>
+
+<span class="pl-s1">n</span> |= <span class="pl-s1">n</span> &gt;&gt;&gt; <span class="pl-c1">1</span>;                <span class="pl-c">// 9 &gt;&gt;&gt; 1 = 4 (0100)</span>
+                             <span class="pl-c">// 1001 | 0100 = 1101 (13)</span>
+
+<span class="pl-s1">n</span> |= <span class="pl-s1">n</span> &gt;&gt;&gt; <span class="pl-c1">2</span>;                <span class="pl-c">// 13 &gt;&gt;&gt; 2 = 3 (0011)  </span>
+                             <span class="pl-c">// 1101 | 0011 = 1111 (15)</span>
+
+<span class="pl-s1">n</span> |= <span class="pl-s1">n</span> &gt;&gt;&gt; <span class="pl-c1">4</span>;                <span class="pl-c">// 15 &gt;&gt;&gt; 4 = 0</span>
+                             <span class="pl-c">// 1111 | 0000 = 1111 (15)</span>
+                             
+<span class="pl-c">// 后续 &gt;&gt;&gt; 8 和 &gt;&gt;&gt; 16 结果不变，n 保持 15</span>
+
+<span class="pl-k">return</span> <span class="pl-s1">n</span> + <span class="pl-c1">1</span>;                <span class="pl-c">// 返回 16 (2^4)</span></pre></div>
+<p><strong>实际应用场景</strong>：当你 <code class="notranslate">new HashMap&lt;&gt;(10)</code> 时，内部实际创建的数组长度是 <strong>16</strong> 而不是 10，确保哈希表性能最优。</p>
+<h1>02 tableSizeFor与之类似的实现</h1>
+<blockquote>
+<p>继续上述方法，这个方法还可以写成什么形式（越多越好），为什么jdk8和jdk17中的实现方式不一样，jdk17中的实现<br>
+static final int tableSizeFor(int cap) {<br>
+int n = -1 &gt;&gt;&gt; Integer.numberOfLeadingZeros(cap - 1);<br>
+return (n &lt; 0) ? 1 : (n &gt;= MAXIMUM_CAPACITY) ? MAXIMUM_CAPACITY : n + 1;<br>
+}</p>
+</blockquote>
+<h2>其他实现形式</h2>
+<h3>1. 使用 <code class="notranslate">Integer.highestOneBit</code>（最简洁）</h3>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-en">tableSizeFor</span>(<span class="pl-smi">int</span> <span class="pl-s1">cap</span>) {
+    <span class="pl-smi">int</span> <span class="pl-s1">n</span> = <span class="pl-s1">cap</span> - <span class="pl-c1">1</span>;
+    <span class="pl-k">if</span> (<span class="pl-s1">n</span> &lt;= <span class="pl-c1">0</span>) <span class="pl-k">return</span> <span class="pl-c1">1</span>;
+    <span class="pl-k">if</span> (<span class="pl-s1">n</span> &gt;= <span class="pl-c1">MAXIMUM_CAPACITY</span>) <span class="pl-k">return</span> <span class="pl-c1">MAXIMUM_CAPACITY</span>;
+    <span class="pl-k">return</span> <span class="pl-smi">Integer</span>.<span class="pl-en">highestOneBit</span>(<span class="pl-s1">n</span>) &lt;&lt; <span class="pl-c1">1</span>;
+}</pre></div>
+<h3>2. 使用位长度计算</h3>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-en">tableSizeFor</span>(<span class="pl-smi">int</span> <span class="pl-s1">cap</span>) {
+    <span class="pl-k">if</span> (<span class="pl-s1">cap</span> &lt;= <span class="pl-c1">1</span>) <span class="pl-k">return</span> <span class="pl-c1">1</span>;
+    <span class="pl-k">if</span> (<span class="pl-s1">cap</span> &gt; <span class="pl-c1">MAXIMUM_CAPACITY</span>) <span class="pl-k">return</span> <span class="pl-c1">MAXIMUM_CAPACITY</span>;
+    <span class="pl-c">// 32 - 前导零个数 = 有效位数，1 &lt;&lt; 位数 = 2^位数</span>
+    <span class="pl-k">return</span> <span class="pl-c1">1</span> &lt;&lt; (<span class="pl-c1">32</span> - <span class="pl-smi">Integer</span>.<span class="pl-en">numberOfLeadingZeros</span>(<span class="pl-s1">cap</span> - <span class="pl-c1">1</span>));
+}</pre></div>
+<h3>3. 循环展开式（通用模板）</h3>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-en">tableSizeFor</span>(<span class="pl-smi">int</span> <span class="pl-s1">cap</span>) {
+    <span class="pl-smi">int</span> <span class="pl-s1">n</span> = <span class="pl-s1">cap</span> - <span class="pl-c1">1</span>;
+    <span class="pl-k">for</span> (<span class="pl-smi">int</span> <span class="pl-s1">shift</span> = <span class="pl-c1">1</span>; <span class="pl-s1">shift</span> &lt; <span class="pl-c1">32</span>; <span class="pl-s1">shift</span> &lt;&lt;= <span class="pl-c1">1</span>) {
+        <span class="pl-s1">n</span> |= <span class="pl-s1">n</span> &gt;&gt;&gt; <span class="pl-s1">shift</span>;
+    }
+    <span class="pl-k">return</span> (<span class="pl-s1">n</span> &lt; <span class="pl-c1">0</span>) ? <span class="pl-c1">1</span> : (<span class="pl-s1">n</span> &gt;= <span class="pl-c1">MAXIMUM_CAPACITY</span>) ? <span class="pl-c1">MAXIMUM_CAPACITY</span> : <span class="pl-s1">n</span> + <span class="pl-c1">1</span>;
+}</pre></div>
+<h3>4. 数学计算版（不推荐用于生产）</h3>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-en">tableSizeFor</span>(<span class="pl-smi">int</span> <span class="pl-s1">cap</span>) {
+    <span class="pl-k">if</span> (<span class="pl-s1">cap</span> &lt;= <span class="pl-c1">1</span>) <span class="pl-k">return</span> <span class="pl-c1">1</span>;
+    <span class="pl-k">if</span> (<span class="pl-s1">cap</span> &gt; <span class="pl-c1">MAXIMUM_CAPACITY</span>) <span class="pl-k">return</span> <span class="pl-c1">MAXIMUM_CAPACITY</span>;
+    <span class="pl-k">return</span> (<span class="pl-smi">int</span>) <span class="pl-smi">Math</span>.<span class="pl-en">pow</span>(<span class="pl-c1">2</span>, <span class="pl-smi">Math</span>.<span class="pl-en">ceil</span>(<span class="pl-smi">Math</span>.<span class="pl-en">log</span>(<span class="pl-s1">cap</span> - <span class="pl-c1">1</span>) / <span class="pl-smi">Math</span>.<span class="pl-en">log</span>(<span class="pl-c1">2</span>)));
+}</pre></div>
+<h3>5. 查表法（适用于小范围）</h3>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">int</span>[] <span class="pl-c1">POW2_TABLE</span> = {
+    <span class="pl-c1">1</span>, <span class="pl-c1">2</span>, <span class="pl-c1">4</span>, <span class="pl-c1">8</span>, <span class="pl-c1">16</span>, <span class="pl-c1">32</span>, <span class="pl-c1">64</span>, <span class="pl-c1">128</span>, <span class="pl-c1">256</span>, <span class="pl-c1">512</span>, <span class="pl-c1">1024</span>, 
+    <span class="pl-c1">2048</span>, <span class="pl-c1">4096</span>, <span class="pl-c1">8192</span>, <span class="pl-c1">16384</span>, <span class="pl-c1">32768</span> <span class="pl-c">// ... 扩展到 MAXIMUM_CAPACITY</span>
+};
+
+<span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">int</span> <span class="pl-en">tableSizeFor</span>(<span class="pl-smi">int</span> <span class="pl-s1">cap</span>) {
+    <span class="pl-k">if</span> (<span class="pl-s1">cap</span> &lt;= <span class="pl-c1">1</span>) <span class="pl-k">return</span> <span class="pl-c1">1</span>;
+    <span class="pl-k">if</span> (<span class="pl-s1">cap</span> &gt; <span class="pl-c1">MAXIMUM_CAPACITY</span>) <span class="pl-k">return</span> <span class="pl-c1">MAXIMUM_CAPACITY</span>;
+    <span class="pl-c">// 二分查找合适的 2 的幂</span>
+    <span class="pl-smi">int</span> <span class="pl-s1">lo</span> = <span class="pl-c1">0</span>, <span class="pl-s1">hi</span> = <span class="pl-c1">POW2_TABLE</span>.<span class="pl-s1">length</span> - <span class="pl-c1">1</span>;
+    <span class="pl-k">while</span> (<span class="pl-s1">lo</span> &lt; <span class="pl-s1">hi</span>) {
+        <span class="pl-smi">int</span> <span class="pl-s1">mid</span> = (<span class="pl-s1">lo</span> + <span class="pl-s1">hi</span>) &gt;&gt;&gt; <span class="pl-c1">1</span>;
+        <span class="pl-k">if</span> (<span class="pl-c1">POW2_TABLE</span>[<span class="pl-s1">mid</span>] &lt; <span class="pl-s1">cap</span>) <span class="pl-s1">lo</span> = <span class="pl-s1">mid</span> + <span class="pl-c1">1</span>;
+        <span class="pl-k">else</span> <span class="pl-s1">hi</span> = <span class="pl-s1">mid</span>;
+    }
+    <span class="pl-k">return</span> <span class="pl-c1">POW2_TABLE</span>[<span class="pl-s1">lo</span>];
+}</pre></div>
+<hr>
+<h2>JDK8 vs JDK17 实现差异分析</h2>
+<h3>JDK8 实现（经典位运算）</h3>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-smi">int</span> <span class="pl-s1">n</span> = <span class="pl-s1">cap</span> - <span class="pl-c1">1</span>;
+<span class="pl-s1">n</span> |= <span class="pl-s1">n</span> &gt;&gt;&gt; <span class="pl-c1">1</span>;
+<span class="pl-s1">n</span> |= <span class="pl-s1">n</span> &gt;&gt;&gt; <span class="pl-c1">2</span>;
+<span class="pl-s1">n</span> |= <span class="pl-s1">n</span> &gt;&gt;&gt; <span class="pl-c1">4</span>;
+<span class="pl-s1">n</span> |= <span class="pl-s1">n</span> &gt;&gt;&gt; <span class="pl-c1">8</span>;
+<span class="pl-s1">n</span> |= <span class="pl-s1">n</span> &gt;&gt;&gt; <span class="pl-c1">16</span>;</pre></div>
+<h3>JDK17 实现（前导零计算）</h3>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-smi">int</span> <span class="pl-s1">n</span> = -<span class="pl-c1">1</span> &gt;&gt;&gt; <span class="pl-smi">Integer</span>.<span class="pl-en">numberOfLeadingZeros</span>(<span class="pl-s1">cap</span> - <span class="pl-c1">1</span>);</pre></div>
+<h3>为什么 JDK17 改变了？</h3>
+<h4>1. <strong>硬件指令支持</strong></h4>
+<p>现代 CPU（x86 的 <code class="notranslate">LZCNT</code> 指令，ARM 的 <code class="notranslate">CLZ</code>）原生支持<strong>前导零计数</strong>操作，<code class="notranslate">Integer.numberOfLeadingZeros()</code> 会被编译为单条硬件指令，而 JDK8 的 5 次移位+或运算需要多条指令。</p>
+<h4>2. <strong>代码简洁性</strong></h4>
+<p>JDK17 版本将 6 行位运算压缩为 1 行，逻辑更清晰：</p>
+<ul>
+<li><code class="notranslate">-1</code> 是 <code class="notranslate">0xFFFFFFFF</code>（32 位全 1）</li>
+<li>右移 <code class="notranslate">leadingZeros</code> 位后，保留的低位全为 1（如 <code class="notranslate">1111...</code>）</li>
+<li>加 1 后自然得到 <code class="notranslate">10000...</code>（2 的幂）</li>
+</ul>
+<p><strong>示例计算（cap = 10）：</strong></p>
+<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-s1">cap</span> - <span class="pl-c1">1</span> = <span class="pl-c1">9</span>                    <span class="pl-c">// 二进制: 0000...0000 1001</span>
+<span class="pl-smi">Integer</span>.<span class="pl-en">numberOfLeadingZeros</span>(<span class="pl-c1">9</span>) <span class="pl-c">// 返回 28（前面有28个0）</span>
+-<span class="pl-c1">1</span> &gt;&gt;&gt; <span class="pl-c1">28</span>                      <span class="pl-c">// 0xFFFFFFFF &gt;&gt;&gt; 28 = 0xF (15)</span>
+<span class="pl-k">return</span> <span class="pl-c1">15</span> + <span class="pl-c1">1</span>                  <span class="pl-c">// 16</span></pre></div>
+<h4>3. <strong>JVM 优化</strong></h4>
+<p>现代 JVM（HotSpot C2 编译器）对标准库方法的 intrinsic 优化更好，<code class="notranslate">numberOfLeadingZeros</code> 被识别为 intrinsic 方法，直接映射到 CPU 指令，消除了方法调用开销。</p>
+<h4>4. <strong>可移植性</strong></h4>
+<p>虽然 JDK8 的位运算在所有平台表现一致，但 JDK17 依赖的 <code class="notranslate">numberOfLeadingZeros</code> 在各平台都有高效的硬件/软件实现，整体性能更优。</p>
+<h3>性能对比</h3>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>实现方式</th>
+<th>指令数（x86）</th>
+<th>延迟</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JDK8（5次位运算）</td>
+<td>~10 条</td>
+<td>较高</td>
+<td>旧 JVM、无 LZCNT 的老 CPU</td>
+</tr>
+<tr>
+<td>JDK17（LZCNT）</td>
+<td>1-2 条</td>
+<td>极低</td>
+<td>现代 CPU + JDK9+</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p><strong>结论</strong>：JDK17 的改变是为了利用现代硬件特性，在保持功能等价的前提下提升性能并简化代码。</p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://luminku.github.io">布谷博客</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行"+diffDay+"天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","LuminKu/luminku.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
+
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
+
+</script>
+
+
+</html>
