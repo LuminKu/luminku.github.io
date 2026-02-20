@@ -19,7 +19,7 @@
 <meta property="og:url" content="https://luminku.github.io/post/fen-ku-fen-biao-mian-shi-zhun-bei-yu-ji-shu-jiang-jie-%E3%80%9016%E3%80%91.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
 <title>分库分表面试准备与技术讲解【16】</title>
-
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
 
 
 </head>
@@ -262,19 +262,18 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p>以下是一个典型的 <strong>SQL查询请求在分库分表架构下的工作流程图</strong>：</p>
 </li>
 </ul>
-<pre lang="mermaid" class="notranslate"><code class="notranslate">flowchart TD
-    A[应用发起SQL请求] --&gt; B[SQL解析&lt;br&gt;提取分片键]
-    B --&gt; C{分片键存在?}
-    C -- 是 --&gt; D[分片算法路由&lt;br&gt;例: order_id % 4]
-    C -- 否 --&gt; E[全库表扫描&lt;br&gt;或&lt;br&gt;广播查询]
-    D --&gt; F[定位目标分片&lt;br&gt;DB_1, Table_2]
-    E --&gt; G[向所有分片&lt;br&gt;发送查询]
-    F &amp; G --&gt; H[执行SQL]
-    H --&gt; I{是否为&lt;br&gt;多分片查询?}
-    I -- 是 --&gt; J[中间件数据聚合&lt;br&gt;排序/分组/合并]
-    I -- 否 --&gt; K[返回最终结果]
-    J --&gt; K
-</code></pre>
+<div class="highlight highlight-source-mermaid"><pre class="notranslate"><span class="pl-k">flowchart</span> <span class="pl-c1">TD</span>
+    <span class="pl-ent">A</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>应用发起SQL请求<span class="pl-pds"><span class="pl-sg">]</span></span></span> <span class="pl-k">--&gt;</span> <span class="pl-ent">B</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>SQL解析&lt;<span class="pl-ent">br</span>&gt;提取分片键<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-ent">B</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">C</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">{</span></span>分片键存在?<span class="pl-pds"><span class="pl-sg">}</span></span></span>
+    <span class="pl-ent">C</span> <span class="pl-k">--</span> <span class="pl-s">是</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">D</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>分片算法路由&lt;<span class="pl-ent">br</span>&gt;例: order_id % 4<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-ent">C</span> <span class="pl-k">--</span> <span class="pl-s">否</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">E</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>全库表扫描&lt;<span class="pl-ent">br</span>&gt;或&lt;<span class="pl-ent">br</span>&gt;广播查询<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-ent">D</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">F</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>定位目标分片&lt;<span class="pl-ent">br</span>&gt;DB_1, Table_2<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-ent">E</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">G</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>向所有分片&lt;<span class="pl-ent">br</span>&gt;发送查询<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-ent">F</span> <span class="pl-k">&amp;</span> <span class="pl-ent">G</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">H</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>执行SQL<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-ent">H</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">I</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">{</span></span>是否为&lt;<span class="pl-ent">br</span>&gt;多分片查询?<span class="pl-pds"><span class="pl-sg">}</span></span></span>
+    <span class="pl-ent">I</span> <span class="pl-k">--</span> <span class="pl-s">是</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">J</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>中间件数据聚合&lt;<span class="pl-ent">br</span>&gt;排序/分组/合并<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-ent">I</span> <span class="pl-k">--</span> <span class="pl-s">否</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">K</span><span class="pl-s"><span class="pl-pds"><span class="pl-sg">[</span></span>返回最终结果<span class="pl-pds"><span class="pl-sg">]</span></span></span>
+    <span class="pl-ent">J</span> <span class="pl-k">--&gt;</span> <span class="pl-ent">K</span></pre></div>
 <ul>
 <li><strong>关键组件/角色：</strong>
 <ul>
