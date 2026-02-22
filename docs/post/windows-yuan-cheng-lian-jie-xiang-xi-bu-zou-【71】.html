@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/240149665?v=4"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="> Windows远程桌面功能允许用户通过网络远程访问和控制另一台计算机的桌面环境。">
+<meta property="og:title" content="windows远程连接详细步骤【71】">
+<meta property="og:description" content="> Windows远程桌面功能允许用户通过网络远程访问和控制另一台计算机的桌面环境。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://luminku.github.io/post/windows-yuan-cheng-lian-jie-xiang-xi-bu-zou-%E3%80%9071%E3%80%91.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
+<title>windows远程连接详细步骤【71】</title>
+
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">windows远程连接详细步骤【71】</h1>
+<div class="title-right">
+    <a href="https://luminku.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/LuminKu/luminku.github.io/issues/72" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><blockquote>
+<p>Windows远程桌面功能允许用户通过网络远程访问和控制另一台计算机的桌面环境。本教程将全面介绍其启用、连接、配置及常见问题解决方法。</p>
+</blockquote>
+<h3>一、系统要求与准备工作</h3>
+<p>远程桌面功能对操作系统版本有特定要求。</p>
+<ul>
+<li>‌**被控端（主机）**‌：必须运行Windows专业版、企业版、教育版或Windows Server版本。 Windows家庭版不支持作为被控端，但可以作为控制端使用。‌</li>
+<li>‌**控制端（客户端）**‌：可以是任何版本的Windows，或Android、iOS等设备，使用相应的远程桌面客户端应用。‌</li>
+<li>‌<strong>账户要求</strong>‌：用于远程连接的账户必须设置密码。‌ 若使用Microsoft账户且启用了无密码登录，需改为密码登录方式。‌该账户需拥有管理员权限，或被明确添加到远程桌面用户列表中。‌</li>
+<li>‌<strong>登录限制</strong>‌：Windows 10/11专业版等桌面系统通常只支持单用户同时登录。远程连接时，被控端会显示锁屏画面，若本地登录则会断开远程连接。‌Windows Server系统可能支持多用户同时登录。‌</li>
+</ul>
+<h3>二、在被控端计算机上启用远程桌面</h3>
+<p>启用远程桌面需在被控端计算机上进行配置。</p>
+<p>‌**方法一：通过系统设置（适用于Windows 10/11）**‌</p>
+<ol>
+<li>依次点击“开始” &gt; “设置” &gt; “系统” &gt; “远程桌面”。</li>
+<li>将“启用远程桌面”选项切换为“打开”。</li>
+<li>在弹出对话框中点击“确认”。</li>
+<li>（可选）点击“远程桌面用户”或“可以远程访问此电脑的用户”，添加允许连接的非管理员账户。</li>
+</ol>
+<p>‌**方法二：通过系统属性（适用于各版本Windows）**‌</p>
+<ol>
+<li>右键点击“此电脑”或“我的电脑”，选择“属性”。</li>
+<li>点击左侧菜单中的“远程设置”。</li>
+<li>在“远程桌面”部分，选择“允许远程连接到此计算机”。</li>
+<li>为增强安全性，建议勾选“仅允许运行使用网络级别身份验证的远程桌面的计算机连接”。3 若不确定客户端是否支持此验证，或确认不支持，则选择“允许运行任意版本远程桌面的计算机连接”。</li>
+<li>（可选）点击“选择用户”，添加允许连接的账户。</li>
+</ol>
+<p>‌<strong>重要步骤：获取被控端IP地址</strong>‌<br>
+启用功能后，需获取被控端在当前网络中的IP地址，以供连接时使用。</p>
+<ol>
+<li>在任务栏搜索框输入“cmd”，选择“以管理员身份运行”打开命令提示符。</li>
+<li>输入命令 <code class="notranslate">ipconfig</code> 并回车。</li>
+<li>在输出信息中找到当前使用的网络适配器（有线网络通常为“以太网适配器 以太网”，无线网络为“无线局域网适配器 WLAN”），记录其“IPv4 地址”。</li>
+</ol>
+<h3>三、在控制端计算机上进行远程连接</h3>
+<p>在控制端计算机上使用远程桌面连接工具。</p>
+<p>‌<strong>连接步骤</strong>‌</p>
+<ol>
+<li>在任务栏搜索框输入“远程桌面连接”并打开该应用。</li>
+<li>在“计算机”栏中输入被控端的IP地址。</li>
+<li>点击“连接”。</li>
+<li>在弹出的凭据窗口中，输入被控端计算机上允许远程连接的用户名和密码。</li>
+<li>点击“确定”后即可建立连接，访问被控端桌面。</li>
+</ol>
+<p>‌**网络级别身份验证（NLA）**‌<br>
+网络级别身份验证要求在建立远程会话前先行验证用户身份，能有效降低未经授权访问的风险。 建议在安全环境中启用此选项。3</p>
+<h3>四、高级配置与外部网络访问</h3>
+<p>若需从互联网（外网）访问家庭或办公室内网中的计算机，需要进行额外配置。</p>
+<ul>
+<li>‌<strong>端口转发</strong>‌：远程桌面默认使用TCP 3389端口。需要在连接被控端所在网络的路由器上设置虚拟服务器（端口转发），将3389端口映射到被控端计算机的内网IP地址。</li>
+<li>‌<strong>VPN</strong>‌：更安全的做法是首先通过虚拟专用网络（VPN）接入目标内部网络，再进行远程桌面连接，如同在本地网络操作一样。</li>
+<li>‌<strong>修改默认端口</strong>‌：出于安全考虑，可以修改远程桌面的默认侦听端口，但需同步调整防火墙和路由器设置。</li>
+</ul>
+<h3>五、常见问题与解决方法</h3>
+<p>‌<strong>1. 连接失败</strong>‌</p>
+<ul>
+<li>‌<strong>网络问题</strong>‌：检查双方网络连接，可尝试在被控端重置网络。</li>
+<li>‌<strong>防火墙阻止</strong>‌：确保远程桌面连接（端口3389）可通过被控端计算机的防火墙。</li>
+<li>‌<strong>端口未开启</strong>‌：对于服务器或配置了高级防火墙的环境，需确认3389端口在入站规则中已开启。</li>
+<li>‌<strong>账户未授权</strong>‌：确认用于连接的账户已被添加到被控端的远程桌面用户列表中。</li>
+</ul>
+<p>‌**2. 提示“此用户账户的密码已过期”**‌<br>
+此问题源于被控端系统的组策略设置了密码使用期限。</p>
+<ul>
+<li>在被控端按 <code class="notranslate">Win+R</code>，输入 <code class="notranslate">gpedit.msc</code> 打开本地组策略编辑器（仅限专业版及以上系统）。</li>
+<li>依次进入“计算机配置” &gt; “Windows设置” &gt; “安全设置” &gt; “账户策略” &gt; “密码策略”。</li>
+<li>在右侧找到“密码最长使用期限”，将其值更改为“0”（表示密码永不过期）。</li>
+<li>公司或学校设备可能受域策略管理，需联系IT管理员处理。</li>
+</ul>
+<p>‌<strong>3. 远程连接后计算机进入睡眠状态</strong>‌<br>
+计算机睡眠会导致远程连接断开。</p>
+<ul>
+<li>在被控端，进入“设置” &gt; “系统” &gt; “电源和睡眠”。</li>
+<li>将“使计算机进入睡眠状态”选项设置为“从不”。</li>
+<li>保存修改以禁用自动睡眠功能。</li>
+</ul>
+<p>‌<strong>安全提示</strong>‌：远程桌面会开放网络端口，建议仅在受信任的网络（如家庭网络）中启用。 确保所有具有远程访问权限的账户均使用强密码。 从外部网络访问时，强烈建议结合VPN使用以提升安全性。</p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://luminku.github.io">布谷博客</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行 "+diffDay+" 天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.disabled=true;
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","LuminKu/luminku.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+
+
+</script>
+
+
+</html>
