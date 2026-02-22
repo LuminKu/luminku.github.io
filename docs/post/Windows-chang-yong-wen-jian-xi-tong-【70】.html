@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/240149665?v=4"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="> Windows 操作系统支持多种文件系统，其中最常用和主流的是 ‌**NTFS**‌。">
+<meta property="og:title" content="Windows常用文件系统【70】">
+<meta property="og:description" content="> Windows 操作系统支持多种文件系统，其中最常用和主流的是 ‌**NTFS**‌。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://luminku.github.io/post/Windows-chang-yong-wen-jian-xi-tong-%E3%80%9070%E3%80%91.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
+<title>Windows常用文件系统【70】</title>
+
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">Windows常用文件系统【70】</h1>
+<div class="title-right">
+    <a href="https://luminku.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/LuminKu/luminku.github.io/issues/71" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><blockquote>
+<p>Windows 操作系统支持多种文件系统，其中最常用和主流的是 ‌<strong>NTFS</strong>‌。此外，为了兼容不同设备和场景，还支持其他几种文件系统。<br>
+在Windows系统中，常用的文件系统主要有‌<strong>NTFS</strong>‌、‌<strong>exFAT</strong>‌和‌<strong>FAT32</strong>‌，其中NTFS是现代Windows的默认和首选格式。</p>
+</blockquote>
+<p>以下是 Windows 中主要的文件系统及其特点：</p>
+<h3>主要文件系统</h3>
+<ol>
+<li>
+<p>‌ **NTFS (New Technology File System)**‌</p>
+<ul>
+<li>‌<strong>特点</strong>‌：这是现代 Windows 系统（如 Windows 10、11）的‌<strong>默认和推荐文件系统</strong>‌。它支持大容量存储、文件级权限控制、加密（EFS）、磁盘配额、日志功能（提高数据可靠性）、压缩以及单个文件大小远超 4GB（理论上限为 16EB）。</li>
+<li>‌<strong>适用场景</strong>‌：适用于所有内部硬盘、Windows系统盘(系统分区)以及需要高安全性、稳定性和大文件支持的场景和需要高级功能的存储设备。‌</li>
+<li>‌ <strong>核心优势</strong>
+<ul>
+<li>支持超大文件和分区（单文件理论最大16EB，实际受限于Windows为256TB）。</li>
+<li>具备‌<strong>日志功能</strong>‌，能快速恢复系统崩溃或断电后的数据一致性。</li>
+<li>支持‌<strong>文件级权限控制</strong>‌、‌<strong>加密（EFS）‌、‌磁盘配额</strong>‌、‌<strong>压缩</strong>‌和‌<strong>硬链接</strong>‌等高级功能。</li>
+</ul>
+</li>
+<li>‌<strong>局限性</strong>‌：macOS仅支持读取（需第三方工具写入），Linux支持不完美，老旧设备（如老式车载音响）可能无法识别。</li>
+</ul>
+</li>
+<li>
+<p>‌ **exFAT (Extended File Allocation Table)**‌</p>
+<ul>
+<li>‌<strong>特点</strong>‌：专为闪存设备（如 U 盘、移动 SSD）优化，解决了 FAT32 的 4GB 单文件限制。它支持超大文件和大容量卷，且在 Windows 和 macOS 之间具有‌<strong>优秀的原生读写兼容性</strong>‌。</li>
+<li>‌<strong>适用场景</strong>‌：是跨平台移动存储设备的‌<strong>首选格式</strong>‌，尤其适合在 Windows 和 Mac 之间传输大型视频、工程文件等。U盘、移动SSD、SD卡等闪存设备，尤其需要在Windows和macOS之间频繁传输大文件时。</li>
+<li>‌  核心优势：
+<ul>
+<li>‌<strong>跨平台兼容性极佳</strong>‌：Windows、macOS、Linux均原生支持读写。</li>
+<li>‌<strong>突破4GB文件限制</strong>‌，支持单文件最大16EB，适合存储4K视频、虚拟机镜像等大型文件。</li>
+<li>结构轻量，读写速度快，对闪存设备更友好。</li>
+</ul>
+</li>
+<li>‌<strong>局限性</strong>‌：无日志功能，断电或强制拔出可能导致数据损坏；不支持权限、加密等高级安全功能。</li>
+</ul>
+</li>
+<li>
+<p>‌ **FAT32 (File Allocation Table 32)**‌</p>
+<ul>
+<li>‌<strong>特点</strong>‌：兼容性最广，几乎被所有操作系统和设备（如电视、游戏机、相机）支持。但其单个文件大小上限为 ‌<strong>4GB</strong>‌，分区大小上限通常为 2TB，且不支持权限控制、加密等高级功能。</li>
+<li>‌<strong>适用场景</strong>‌：适用于‌<strong>小容量 U 盘</strong>‌（通常小于 32GB）或需要在非常老旧的设备上使用的场景。‌容量小于32GB的U盘、SD卡，或需要与极老旧设备（如老式游戏机、车载音响、MP3播放器）兼容的场合。</li>
+<li>‌ 核心优势：
+<ul>
+<li>‌<strong>兼容性最广</strong>‌，几乎任何带USB接口的设备都能识别。</li>
+<li>结构简单，开销极小。</li>
+</ul>
+</li>
+<li>‌ 严重局限性：
+<ul>
+<li>‌<strong>单文件大小上限为4GB</strong>‌，无法存储高清电影、大型软件安装包等。</li>
+<li>分区容量上限为2TB（Windows格式化工具通常限制在32GB以下）。</li>
+<li>无权限控制、无日志、易产生碎片，数据安全性低。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<p>Windows、Linux、Apple三大操作系统的主流文件系统包含哪些?</p>
+<h3>其他支持的文件系统</h3>
+<ul>
+<li>‌<strong>ReFS (Resilient File System)‌：微软推出的下一代文件系统，强调数据完整性和高容错性，采用“写时复制”等技术。它主要应用于 ‌Windows Server</strong>‌ 和高端存储解决方案，在普通桌面 Windows 系统中较少见，但 Windows 10/11 也支持读写。‌</li>
+<li>‌<strong>FAT16/FAT12</strong>‌：非常老旧的文件系统，仅用于早期的软盘或极小容量存储设备，现代 Windows 虽然仍能读取，但已不再用于格式化新设备。‌</li>
+<li>‌<strong>HPFS (High Performance File System)‌：由微软与 IBM 为 OS/2 系统开发，仅在非常早期的 Windows NT 版本（3.1 至 3.51）中支持，‌现代 Windows 系统已完全不支持</strong>‌。‌</li>
+</ul>
+<h3>总结</h3>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>文件系统</th>
+<th>是否主流</th>
+<th>单文件上限</th>
+<th>跨平台兼容性</th>
+<th>推荐用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>‌<strong>NTFS</strong>‌</td>
+<td>‌<strong>是</strong>‌</td>
+<td>16EB</td>
+<td>仅 Windows（macOS 仅读）</td>
+<td>‌<strong>系统盘、内部硬盘、需要安全性的存储</strong>‌</td>
+</tr>
+<tr>
+<td>‌<strong>exFAT</strong>‌</td>
+<td>‌<strong>是</strong>‌</td>
+<td>16EB</td>
+<td>‌<strong>Windows, macOS, Linux</strong>‌</td>
+<td>‌<strong>U盘、移动SSD、跨平台文件传输</strong>‌</td>
+</tr>
+<tr>
+<td>‌<strong>FAT32</strong>‌</td>
+<td>否</td>
+<td>4GB</td>
+<td>‌<strong>极佳</strong>‌</td>
+<td>‌<strong>小容量U盘（&lt;32GB）、老旧设备</strong>‌</td>
+</tr>
+<tr>
+<td>‌<strong>ReFS</strong>‌</td>
+<td>否（服务器）</td>
+<td>极大</td>
+<td>Windows</td>
+<td>‌<strong>Windows Server、企业级存储</strong>‌</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<h3>总结建议</h3>
+<ul>
+<li>‌<strong>电脑硬盘/系统盘</strong>‌：选择 ‌<strong>NTFS</strong>‌。</li>
+<li>‌<strong>移动存储设备（U盘/移动硬盘）‌：若仅在Windows和现代Mac间使用，选 ‌exFAT</strong>‌；若需兼容老旧设备且文件均小于4GB，选 ‌<strong>FAT32</strong>‌。</li>
+<li>‌<strong>现代Windows系统（如Win10/Win11）‌：默认安装和格式化均使用‌NTFS</strong>‌，它是功能最全面、最可靠的主流选择。‌</li>
+</ul>
+<blockquote>
+<p>在实际使用中，对于绝大多数用户，‌<strong>NTFS</strong>‌ 是 Windows 系统硬盘的不二之选，而 ‌<strong>exFAT</strong>‌ 则是移动存储设备的最佳选择。‌</p>
+</blockquote></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://luminku.github.io">布谷博客</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行 "+diffDay+" 天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.disabled=true;
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","LuminKu/luminku.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+
+
+</script>
+
+
+</html>
