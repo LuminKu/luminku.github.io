@@ -19,7 +19,7 @@
 <meta property="og:url" content="https://luminku.github.io/post/a-li-yun-OSS-wen-jian-fang-wen-URL-sheng-cheng-fang-fa-%E3%80%9023%E3%80%91.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
 <title>阿里云OSS文件访问URL生成方法【23】</title>
-<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
 
 
 </head>
@@ -166,64 +166,66 @@ url = signedUrl.toString();
 <p>在阿里云 OSS 中获取文件的访问 URL，特别是带有签名的 URL，可以通过以下方式实现。根据您的代码，您使用的是 V4 签名，但预签名 URL 的生成在 SDK 中可能需要额外处理。以下是完整的解决方案：</p>
 <h3>1. 使用 <code class="notranslate">generatePresignedUrl</code> 方法生成带签名的 URL</h3>
 <p>修改您的 <code class="notranslate">uploadFile</code> 方法，在上传文件后生成预签名 URL：</p>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">import</span> <span class="pl-s1">com</span>.<span class="pl-s1">aliyun</span>.<span class="pl-s1">oss</span>.*;
-<span class="pl-k">import</span> <span class="pl-s1">com</span>.<span class="pl-s1">aliyun</span>.<span class="pl-s1">oss</span>.<span class="pl-s1">common</span>.<span class="pl-s1">auth</span>.*;
-<span class="pl-k">import</span> <span class="pl-s1">com</span>.<span class="pl-s1">aliyun</span>.<span class="pl-s1">oss</span>.<span class="pl-s1">common</span>.<span class="pl-s1">comm</span>.<span class="pl-s1">SignVersion</span>;
-<span class="pl-k">import</span> <span class="pl-s1">com</span>.<span class="pl-s1">aliyun</span>.<span class="pl-s1">oss</span>.<span class="pl-s1">model</span>.*;
-<span class="pl-k">import</span> <span class="pl-s1">java</span>.<span class="pl-s1">io</span>.<span class="pl-s1">InputStream</span>;
-<span class="pl-k">import</span> <span class="pl-s1">java</span>.<span class="pl-s1">util</span>.<span class="pl-s1">Date</span>;
+<pre lang="java" class="notranslate"><code class="notranslate">import com.aliyun.oss.*;
+import com.aliyun.oss.common.auth.*;
+import com.aliyun.oss.common.comm.SignVersion;
+import com.aliyun.oss.model.*;
+import java.io.InputStream;
+import java.util.Date;
 
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">AliOSSUtil</span> {
+public class AliOSSUtil {
 
-    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-c1">END_POINT</span> = <span class="pl-s">"https://oss-cn-chengdu.aliyuncs.com"</span>;
-    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-c1">OSS_ACCESS_KEY_ID</span> = <span class="pl-s">"您的AccessKeyId"</span>;
-    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-c1">OSS_ACCESS_KEY_SECRET</span> = <span class="pl-s">"您的AccessKeySecret"</span>;
-    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">DefaultCredentialProvider</span> <span class="pl-c1">CREDENTIAL_PROVIDER</span> = <span class="pl-k">new</span> <span class="pl-smi">DefaultCredentialProvider</span>(
-            <span class="pl-c1">OSS_ACCESS_KEY_ID</span>, <span class="pl-c1">OSS_ACCESS_KEY_SECRET</span>);
-    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-c1">BUCKET_NAME</span> = <span class="pl-s">"trybid"</span>;
-    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-c1">PATH_PREFIX</span> = <span class="pl-s">"big-event/picture/"</span>;
-    <span class="pl-k">private</span> <span class="pl-k">static</span> <span class="pl-k">final</span> <span class="pl-smi">String</span> <span class="pl-c1">REGION</span> = <span class="pl-s">"cn-chengdu"</span>;
+    private static final String END_POINT = "https://oss-cn-chengdu.aliyuncs.com";
+    private static final String OSS_ACCESS_KEY_ID = "您的AccessKeyId";
+    private static final String OSS_ACCESS_KEY_SECRET = "您的AccessKeySecret";
+    private static final DefaultCredentialProvider CREDENTIAL_PROVIDER = new DefaultCredentialProvider(
+            OSS_ACCESS_KEY_ID, OSS_ACCESS_KEY_SECRET);
+    private static final String BUCKET_NAME = "trybid";
+    private static final String PATH_PREFIX = "big-event/picture/";
+    private static final String REGION = "cn-chengdu";
 
-    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">String</span> <span class="pl-en">uploadFile</span>(<span class="pl-smi">String</span> <span class="pl-s1">objectName</span>, <span class="pl-smi">InputStream</span> <span class="pl-s1">inputStream</span>) <span class="pl-k">throws</span> <span class="pl-smi">Exception</span> {
-        <span class="pl-smi">ClientBuilderConfiguration</span> <span class="pl-s1">clientBuilderConfiguration</span> = <span class="pl-k">new</span> <span class="pl-smi">ClientBuilderConfiguration</span>();
-        <span class="pl-s1">clientBuilderConfiguration</span>.<span class="pl-en">setSignatureVersion</span>(<span class="pl-smi">SignVersion</span>.<span class="pl-c1">V4</span>);
-        <span class="pl-smi">OSS</span> <span class="pl-s1">ossClient</span> = <span class="pl-smi">OSSClientBuilder</span>.<span class="pl-en">create</span>()
-                .<span class="pl-en">endpoint</span>(<span class="pl-c1">END_POINT</span>)
-                .<span class="pl-en">credentialsProvider</span>(<span class="pl-c1">CREDENTIAL_PROVIDER</span>)
-                .<span class="pl-en">clientConfiguration</span>(<span class="pl-s1">clientBuilderConfiguration</span>)
-                .<span class="pl-en">region</span>(<span class="pl-c1">REGION</span>)
-                .<span class="pl-en">build</span>();
+    public static String uploadFile(String objectName, InputStream inputStream) throws Exception {
+        ClientBuilderConfiguration clientBuilderConfiguration = new ClientBuilderConfiguration();
+        clientBuilderConfiguration.setSignatureVersion(SignVersion.V4);
+        OSS ossClient = OSSClientBuilder.create()
+                .endpoint(END_POINT)
+                .credentialsProvider(CREDENTIAL_PROVIDER)
+                .clientConfiguration(clientBuilderConfiguration)
+                .region(REGION)
+                .build();
 
-        <span class="pl-k">try</span> {
-            <span class="pl-c">// 上传文件</span>
-            <span class="pl-smi">PutObjectRequest</span> <span class="pl-s1">putObjectRequest</span> = <span class="pl-k">new</span> <span class="pl-smi">PutObjectRequest</span>(<span class="pl-c1">BUCKET_NAME</span>, <span class="pl-s1">objectName</span>, <span class="pl-s1">inputStream</span>);
-            <span class="pl-s1">ossClient</span>.<span class="pl-en">putObject</span>(<span class="pl-s1">putObjectRequest</span>);
+        try {
+            // 上传文件
+            PutObjectRequest putObjectRequest = new PutObjectRequest(BUCKET_NAME, objectName, inputStream);
+            ossClient.putObject(putObjectRequest);
 
-            <span class="pl-c">// 生成预签名URL（有效期1小时）</span>
-            <span class="pl-smi">Date</span> <span class="pl-s1">expiration</span> = <span class="pl-k">new</span> <span class="pl-smi">Date</span>(<span class="pl-smi">System</span>.<span class="pl-en">currentTimeMillis</span>() + <span class="pl-c1">3600</span> * <span class="pl-c1">1000</span>);
-            <span class="pl-smi">GeneratePresignedUrlRequest</span> <span class="pl-s1">request</span> = <span class="pl-k">new</span> <span class="pl-smi">GeneratePresignedUrlRequest</span>(<span class="pl-c1">BUCKET_NAME</span>, <span class="pl-s1">objectName</span>);
-            <span class="pl-s1">request</span>.<span class="pl-en">setExpiration</span>(<span class="pl-s1">expiration</span>);
-            <span class="pl-s1">request</span>.<span class="pl-en">setSignVersion</span>(<span class="pl-smi">SignVersion</span>.<span class="pl-c1">V4</span>); <span class="pl-c">// 设置使用V4签名</span>
+            // 生成预签名URL（有效期1小时）
+            Date expiration = new Date(System.currentTimeMillis() + 3600 * 1000);
+            GeneratePresignedUrlRequest request = new GeneratePresignedUrlRequest(BUCKET_NAME, objectName);
+            request.setExpiration(expiration);
+            request.setSignVersion(SignVersion.V4); // 设置使用V4签名
 
-            <span class="pl-smi">URL</span> <span class="pl-s1">signedUrl</span> = <span class="pl-s1">ossClient</span>.<span class="pl-en">generatePresignedUrl</span>(<span class="pl-s1">request</span>);
-            <span class="pl-k">return</span> <span class="pl-s1">signedUrl</span>.<span class="pl-en">toString</span>();
+            URL signedUrl = ossClient.generatePresignedUrl(request);
+            return signedUrl.toString();
 
-        } <span class="pl-k">catch</span> (<span class="pl-smi">OSSException</span> <span class="pl-s1">oe</span>) {
-            <span class="pl-c">// 异常处理</span>
-            <span class="pl-k">throw</span> <span class="pl-s1">oe</span>;
-        } <span class="pl-k">finally</span> {
-            <span class="pl-s1">ossClient</span>.<span class="pl-en">shutdown</span>();
+        } catch (OSSException oe) {
+            // 异常处理
+            throw oe;
+        } finally {
+            ossClient.shutdown();
         }
     }
-}</pre></div>
+}
+</code></pre>
 <h3>2. 手动拼接 URL（备选方案）</h3>
 <p>如果上述方法不生效，您可以手动拼接 URL：</p>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// 在上传成功后添加以下代码</span>
-<span class="pl-smi">String</span> <span class="pl-s1">encodedObjectName</span> = <span class="pl-smi">URLEncoder</span>.<span class="pl-en">encode</span>(<span class="pl-s1">objectName</span>, <span class="pl-s">"UTF-8"</span>);
-<span class="pl-smi">String</span> <span class="pl-s1">baseUrl</span> = <span class="pl-s">"https://"</span> + <span class="pl-c1">BUCKET_NAME</span> + <span class="pl-s">"."</span> + <span class="pl-c1">END_POINT</span>.<span class="pl-en">replace</span>(<span class="pl-s">"https://"</span>, <span class="pl-s">""</span>) + <span class="pl-s">"/"</span> + <span class="pl-s1">encodedObjectName</span>;
+<pre lang="java" class="notranslate"><code class="notranslate">// 在上传成功后添加以下代码
+String encodedObjectName = URLEncoder.encode(objectName, "UTF-8");
+String baseUrl = "https://" + BUCKET_NAME + "." + END_POINT.replace("https://", "") + "/" + encodedObjectName;
 
-<span class="pl-c">// 然后使用OSS客户端生成签名参数</span>
-<span class="pl-c">// 注意：手动实现签名较复杂，推荐使用上述generatePresignedUrl方法</span></pre></div>
+// 然后使用OSS客户端生成签名参数
+// 注意：手动实现签名较复杂，推荐使用上述generatePresignedUrl方法
+</code></pre>
 <h3>3. 重要注意事项</h3>
 <ol>
 <li>
@@ -251,21 +253,23 @@ url = signedUrl.toString();
 <li>
 <p><strong>依赖版本</strong>：<br>
 确保使用最新版本的 OSS SDK：</p>
-<div class="highlight highlight-text-xml"><pre class="notranslate">&lt;<span class="pl-ent">dependency</span>&gt;
-    &lt;<span class="pl-ent">groupId</span>&gt;com.aliyun.oss&lt;/<span class="pl-ent">groupId</span>&gt;
-    &lt;<span class="pl-ent">artifactId</span>&gt;aliyun-sdk-oss&lt;/<span class="pl-ent">artifactId</span>&gt;
-    &lt;<span class="pl-ent">version</span>&gt;3.17.4&lt;/<span class="pl-ent">version</span>&gt;
-&lt;/<span class="pl-ent">dependency</span>&gt;</pre></div>
+<pre lang="xml" class="notranslate"><code class="notranslate">&lt;dependency&gt;
+    &lt;groupId&gt;com.aliyun.oss&lt;/groupId&gt;
+    &lt;artifactId&gt;aliyun-sdk-oss&lt;/artifactId&gt;
+    &lt;version&gt;3.17.4&lt;/version&gt;
+&lt;/dependency&gt;
+</code></pre>
 </li>
 </ol>
 <h3>4. 完整示例调用</h3>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c">// 使用示例</span>
-<span class="pl-k">try</span> (<span class="pl-smi">InputStream</span> <span class="pl-s1">inputStream</span> = <span class="pl-k">new</span> <span class="pl-smi">FileInputStream</span>(<span class="pl-s">"local-file.png"</span>)) {
-    <span class="pl-smi">String</span> <span class="pl-s1">url</span> = <span class="pl-smi">AliOSSUtil</span>.<span class="pl-en">uploadFile</span>(<span class="pl-s">"001.png"</span>, <span class="pl-s1">inputStream</span>);
-    <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s">"文件访问URL: "</span> + <span class="pl-s1">url</span>);
-} <span class="pl-k">catch</span> (<span class="pl-smi">Exception</span> <span class="pl-s1">e</span>) {
-    <span class="pl-s1">e</span>.<span class="pl-en">printStackTrace</span>();
-}</pre></div>
+<pre lang="java" class="notranslate"><code class="notranslate">// 使用示例
+try (InputStream inputStream = new FileInputStream("local-file.png")) {
+    String url = AliOSSUtil.uploadFile("001.png", inputStream);
+    System.out.println("文件访问URL: " + url);
+} catch (Exception e) {
+    e.printStackTrace();
+}
+</code></pre>
 <p>这种方法会自动生成包含签名参数的完整 URL，格式与您示例中的 URL 类似，包含 Expires、OSSAccessKeyId 和 Signature 等参数。</p>
 <p>建议优先使用 <code class="notranslate">generatePresignedUrl</code> 方法，这是阿里云官方推荐的生成签名 URL 的方式，能够自动处理签名计算和 URL 编码等问题。</p></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>

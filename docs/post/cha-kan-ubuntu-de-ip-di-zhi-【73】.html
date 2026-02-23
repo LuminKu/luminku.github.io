@@ -10,13 +10,13 @@
         let theme = localStorage.getItem("meek_theme") || "light";
         document.documentElement.setAttribute("data-color-mode", theme);
     </script>
-<meta name="description" content="> **CMD（命令提示符）** 是 Windows 自 DOS 时代延续下来的传统命令行工具，主要处理**纯文本**，适合执行简单的文件操作、批处理脚本等基础任务，启动快、占用资源少，但功能相对有限，缺乏现代化的脚本和对象处理能力。">
-<meta property="og:title" content="powershell和cmd区别【73】">
-<meta property="og:description" content="> **CMD（命令提示符）** 是 Windows 自 DOS 时代延续下来的传统命令行工具，主要处理**纯文本**，适合执行简单的文件操作、批处理脚本等基础任务，启动快、占用资源少，但功能相对有限，缺乏现代化的脚本和对象处理能力。">
+<meta name="description" content="在Ubuntu系统中，有多种方法可以查看IP地址。">
+<meta property="og:title" content="查看ubuntu的ip地址【73】">
+<meta property="og:description" content="在Ubuntu系统中，有多种方法可以查看IP地址。">
 <meta property="og:type" content="article">
-<meta property="og:url" content="https://luminku.github.io/post/powershell-he-cmd-qu-bie-%E3%80%9073%E3%80%91.html">
+<meta property="og:url" content="https://luminku.github.io/post/cha-kan-ubuntu-de-ip-di-zhi-%E3%80%9073%E3%80%91.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
-<title>powershell和cmd区别【73】</title>
+<title>查看ubuntu的ip地址【73】</title>
 <link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
 
 
@@ -59,7 +59,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 
 <body>
     <div id="header">
-<h1 class="postTitle">powershell和cmd区别【73】</h1>
+<h1 class="postTitle">查看ubuntu的ip地址【73】</h1>
 <div class="title-right">
     <a href="https://luminku.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
         <svg class="octicon" width="16" height="16">
@@ -67,7 +67,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
         </svg>
     </a>
     
-    <a href="https://github.com/LuminKu/luminku.github.io/issues/73" target="_blank" class="btn btn-invisible circle" title="Issue">
+    <a href="https://github.com/LuminKu/luminku.github.io/issues/74" target="_blank" class="btn btn-invisible circle" title="Issue">
         <svg class="octicon" width="16" height="16">
             <path id="pathIssue" fill-rule="evenodd"></path>
         </svg>
@@ -83,33 +83,60 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </div>
 </div>
     <div id="content">
-<div class="markdown-body" id="postBody"><blockquote>
-<p><strong>CMD（命令提示符）</strong> 是 Windows 自 DOS 时代延续下来的传统命令行工具，主要处理<strong>纯文本</strong>，适合执行简单的文件操作、批处理脚本等基础任务，启动快、占用资源少，但功能相对有限，缺乏现代化的脚本和对象处理能力。</p>
-</blockquote>
-<p><strong>PowerShell</strong> 则是微软推出的<strong>面向对象</strong>命令行与脚本语言，基于 <strong>.NET Framework / .NET Core</strong> 构建，输出的是<strong>结构化对象</strong>而非纯文本，可直接访问对象属性和方法，支持强大的<strong>管道传递对象</strong>、模块化、跨平台（Windows、Linux、macOS）以及高级自动化运维功能。</p>
-<p><strong>核心差异</strong></p>
+<div class="markdown-body" id="postBody"><p>在Ubuntu系统中，有多种方法可以查看IP地址。以下是一些常用的方法：</p>
+<ol>
+<li>使用<code class="notranslate">ip</code>命令</li>
+</ol>
+<p>打开终端，然后输入以下命令之一：</p>
 <ul>
-<li><strong>数据处理</strong>：CMD 处理文本流，PowerShell 处理对象流。</li>
-<li><strong>脚本能力</strong>：CMD 支持 <em>.bat</em> 批处理，PowerShell 支持 <em>.ps1</em> 脚本，具备条件判断、循环、异常处理等高级特性。</li>
-<li><strong>管道机制</strong>：CMD 管道传递文本，PowerShell 管道传递对象，避免解析文本的二次处理。</li>
-<li><strong>跨平台</strong>：CMD 仅限 Windows，PowerShell 7+ 可跨平台。</li>
+<li>
+<p>查看所有网络接口的IP地址：</p>
+<pre class="notranslate"><code class="notranslate">ip addr
+</code></pre>
+<p>或者</p>
+<pre class="notranslate"><code class="notranslate">ip a
+</code></pre>
+</li>
+<li>
+<p>查看所有IPv4地址：</p>
+<pre class="notranslate"><code class="notranslate">ip -4 addr
+</code></pre>
+</li>
+<li>
+<p>查看所有IPv6地址：</p>
+<pre class="notranslate"><code class="notranslate">ip -6 addr
+</code></pre>
+</li>
 </ul>
-<p><strong>示例对比：获取内存占用最高的前 5 个进程</strong></p>
-<div class="highlight highlight-source-batchfile"><pre class="notranslate"><span class="pl-k">tasklist</span> /fo csv <span class="pl-k">|</span> <span class="pl-k">findstr</span> /v <span class="pl-s"><span class="pl-pds">"</span>Image Name<span class="pl-pds">"</span></span> <span class="pl-k">|</span> <span class="pl-k">sort</span> /r /+5 <span class="pl-k">|</span> <span class="pl-k">more</span> <span class="pl-c1">+1</span></pre></div>
-<div class="highlight highlight-source-powershell"><pre class="notranslate"><span class="pl-c1">Get-Process</span> <span class="pl-k">|</span> <span class="pl-c1">Sort-Object</span> WorkingSet <span class="pl-k">-</span>Descending <span class="pl-k">|</span> <span class="pl-c1">Select-Object</span> <span class="pl-k">-</span>First <span class="pl-c1">5</span></pre></div>
-<p>PowerShell 语法更简洁，且每个进程是完整对象，可直接访问属性。</p>
-<p><strong>适用场景建议</strong></p>
-<ul>
-<li><strong>CMD</strong>：快速执行简单命令、兼容旧脚本、资源受限环境。</li>
-<li><strong>PowerShell</strong>：系统管理、批量运维、数据处理、跨平台自动化。</li>
-</ul>
-<p><strong>进阶技巧（PowerShell）</strong></p>
-<ul>
-<li><strong>管道操作</strong>：<em>Get-Service | Where-Object {$_.Status -eq "Running"}</em></li>
-<li><strong>模块化</strong>：<em>Install-Module Az</em> 管理 Azure 资源</li>
-<li><strong>远程管理</strong>：<em>Invoke-Command -ComputerName Server01 -ScriptBlock { Get-Process }</em></li>
-</ul>
-<p>结合实际需求选择工具：<strong>简单任务用 CMD，高级自动化用 PowerShell</strong>，两者配合能覆盖从轻量操作到企业级运维的全场景。</p></div>
+<ol start="2">
+<li>使用<code class="notranslate">ifconfig</code>命令</li>
+</ol>
+<p>虽然<code class="notranslate">ifconfig</code>命令在新版的Ubuntu中可能默认不安装，你可以通过安装<code class="notranslate">net-tools</code>包来使用它：</p>
+<div class="highlight highlight-source-shell"><pre class="notranslate">sudo apt-get install net-tools</pre></div>
+<p>安装完成后，使用以下命令查看IP地址：</p>
+<div class="highlight highlight-source-shell"><pre class="notranslate">ifconfig</pre></div>
+<p>这将列出所有网络接口及其IP地址。你也可以通过指定接口名来查看特定接口的IP地址，例如：</p>
+<div class="highlight highlight-source-shell"><pre class="notranslate">ifconfig eth0</pre></div>
+<p>这里<code class="notranslate">eth0</code>是网络接口的名称，根据你的系统配置可能有所不同。</p>
+<ol start="3">
+<li>使用<code class="notranslate">hostname</code>命令结合<code class="notranslate">-I</code>选项</li>
+</ol>
+<p>这个命令可以直接显示主机的IP地址：</p>
+<div class="highlight highlight-source-shell"><pre class="notranslate">hostname -I</pre></div>
+<p>这将会返回一个或多个IP地址，取决于你的网络配置。</p>
+<ol start="4">
+<li>使用<code class="notranslate">nmcli</code>命令（NetworkManager CLI）</li>
+</ol>
+<p>如果你的系统使用NetworkManager管理网络，可以使用<code class="notranslate">nmcli</code>命令查看IP地址：</p>
+<div class="highlight highlight-source-shell"><pre class="notranslate">nmcli device show <span class="pl-k">&lt;</span>device<span class="pl-k">&gt;</span> <span class="pl-k">|</span> grep IP4.ADDRESS</pre></div>
+<p>或者查看所有设备的IP地址：</p>
+<div class="highlight highlight-source-shell"><pre class="notranslate">nmcli con show <span class="pl-k">|</span> grep <span class="pl-s"><span class="pl-pds">'</span>ipv4.address<span class="pl-pds">'</span></span></pre></div>
+<p>在这里，<code class="notranslate">&lt;device&gt;</code>是你想要查询的网络设备名称，例如<code class="notranslate">eth0</code>或<code class="notranslate">wlp3s0</code>。如果不指定设备，可以使用<code class="notranslate">nmcli device status</code>查看所有设备的状态和名称。</p>
+<ol start="5">
+<li>使用图形界面（如果可用）</li>
+</ol>
+<p>在Ubuntu的图形界面中，你也可以通过“设置”-&gt;“网络”来查看IP地址。点击你的网络连接（例如以太网或WiFi），然后选择“IPv4”或“IPv6”标签页，你将看到分配给你的IP地址。</p>
+<p>选择适合你当前环境和偏好的方法，你应该能够轻松地查找到Ubuntu系统的IP地址。</p></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
 <button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
