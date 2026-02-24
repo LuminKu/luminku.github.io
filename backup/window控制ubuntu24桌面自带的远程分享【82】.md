@@ -1,5 +1,4 @@
-
-<img src="https://gitee.com/LuminKu/picture/raw/master/pictures/20260224234014060.png" alt="" data-canonical-src="https://gitee.com/LuminKu/picture/raw/master/pictures/20260224234014060.png" style="max-width: 100%;">
+<img src="https://gitee.com/LuminKu/picture/raw/master/pictures/20260224234014060.png" alt=""  style="max-width: 100%;">
 
 在 Windows 上控制 Ubuntu 24.04 桌面的自带远程分享功能，主要通过 Ubuntu 的 ‌**“桌面共享”**‌（Desktop Sharing）功能实现，该功能基于 GNOME 的远程桌面服务，使用 RDP 协议，与 Windows 自带的“远程桌面连接”客户端兼容。
 
