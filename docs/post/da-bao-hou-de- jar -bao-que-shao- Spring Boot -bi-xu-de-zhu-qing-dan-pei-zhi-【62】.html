@@ -17,7 +17,7 @@
 <meta property="og:url" content="https://luminku.github.io/post/da-bao-hou-de-%20jar%20-bao-que-shao-%20Spring%20Boot%20-bi-xu-de-zhu-qing-dan-pei-zhi-%E3%80%9062%E3%80%91.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
 <title>打包后的 jar 包缺少 Spring Boot 必需的主清单配置【62】</title>
-<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
 
 
 </head>
@@ -95,47 +95,48 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <h3>二、解决步骤（Maven项目，99%的Spring Boot项目用Maven）</h3>
 <h4>步骤1：在pom.xml中添加Spring Boot打包插件</h4>
 <p>这是核心解决步骤，需要在<code class="notranslate">pom.xml</code>的<code class="notranslate">&lt;build&gt;&lt;plugins&gt;</code>中添加<code class="notranslate">spring-boot-maven-plugin</code>插件，确保打包时生成正确的清单属性：</p>
-<div class="highlight highlight-text-xml"><pre class="notranslate">&lt;?<span class="pl-ent">xml</span><span class="pl-e"> version</span>=<span class="pl-s"><span class="pl-pds">"</span>1.0<span class="pl-pds">"</span></span><span class="pl-e"> encoding</span>=<span class="pl-s"><span class="pl-pds">"</span>UTF-8<span class="pl-pds">"</span></span>?&gt;
-&lt;<span class="pl-ent">project</span> <span class="pl-e">xmlns</span>=<span class="pl-s"><span class="pl-pds">"</span>http://maven.apache.org/POM/4.0.0<span class="pl-pds">"</span></span> <span class="pl-e">xmlns</span><span class="pl-e">:</span><span class="pl-e">xsi</span>=<span class="pl-s"><span class="pl-pds">"</span>http://www.w3.org/2001/XMLSchema-instance<span class="pl-pds">"</span></span>
-         <span class="pl-e">xsi</span><span class="pl-e">:</span><span class="pl-e">schemaLocation</span>=<span class="pl-s"><span class="pl-pds">"</span>http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd<span class="pl-pds">"</span></span>&gt;
-    &lt;<span class="pl-ent">modelVersion</span>&gt;4.0.0&lt;/<span class="pl-ent">modelVersion</span>&gt;
+<pre lang="xml" class="notranslate"><code class="notranslate">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd"&gt;
+    &lt;modelVersion&gt;4.0.0&lt;/modelVersion&gt;
 
-    <span class="pl-c"><span class="pl-c">&lt;!--</span> 1. 确保继承Spring Boot父依赖（如果没继承，插件配置需更完整，下面会说明） <span class="pl-c">--&gt;</span></span>
-    &lt;<span class="pl-ent">parent</span>&gt;
-        &lt;<span class="pl-ent">groupId</span>&gt;org.springframework.boot&lt;/<span class="pl-ent">groupId</span>&gt;
-        &lt;<span class="pl-ent">artifactId</span>&gt;spring-boot-starter-parent&lt;/<span class="pl-ent">artifactId</span>&gt;
-        &lt;<span class="pl-ent">version</span>&gt;2.7.0&lt;/<span class="pl-ent">version</span>&gt; <span class="pl-c"><span class="pl-c">&lt;!--</span> 替换为你的Spring Boot版本 <span class="pl-c">--&gt;</span></span>
-        &lt;<span class="pl-ent">relativePath</span>/&gt;
-    &lt;/<span class="pl-ent">parent</span>&gt;
+    &lt;!-- 1. 确保继承Spring Boot父依赖（如果没继承，插件配置需更完整，下面会说明） --&gt;
+    &lt;parent&gt;
+        &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+        &lt;artifactId&gt;spring-boot-starter-parent&lt;/artifactId&gt;
+        &lt;version&gt;2.7.0&lt;/version&gt; &lt;!-- 替换为你的Spring Boot版本 --&gt;
+        &lt;relativePath/&gt;
+    &lt;/parent&gt;
 
-    &lt;<span class="pl-ent">groupId</span>&gt;com.example&lt;/<span class="pl-ent">groupId</span>&gt;
-    &lt;<span class="pl-ent">artifactId</span>&gt;springboot-01-quickstart&lt;/<span class="pl-ent">artifactId</span>&gt;
-    &lt;<span class="pl-ent">version</span>&gt;0.0.1-SNAPSHOT&lt;/<span class="pl-ent">version</span>&gt;
-    &lt;<span class="pl-ent">name</span>&gt;springboot-01-quickstart&lt;/<span class="pl-ent">name</span>&gt;
+    &lt;groupId&gt;com.example&lt;/groupId&gt;
+    &lt;artifactId&gt;springboot-01-quickstart&lt;/artifactId&gt;
+    &lt;version&gt;0.0.1-SNAPSHOT&lt;/version&gt;
+    &lt;name&gt;springboot-01-quickstart&lt;/name&gt;
 
-    <span class="pl-c"><span class="pl-c">&lt;!--</span> 2. 核心：添加Spring Boot打包插件 <span class="pl-c">--&gt;</span></span>
-    &lt;<span class="pl-ent">build</span>&gt;
-        &lt;<span class="pl-ent">plugins</span>&gt;
-            &lt;<span class="pl-ent">plugin</span>&gt;
-                &lt;<span class="pl-ent">groupId</span>&gt;org.springframework.boot&lt;/<span class="pl-ent">groupId</span>&gt;
-                &lt;<span class="pl-ent">artifactId</span>&gt;spring-boot-maven-plugin&lt;/<span class="pl-ent">artifactId</span>&gt;
-                <span class="pl-c"><span class="pl-c">&lt;!--</span> 如果继承了父依赖，版本可省略（自动继承）；否则需手动指定版本 <span class="pl-c">--&gt;</span></span>
-                &lt;<span class="pl-ent">version</span>&gt;2.7.0&lt;/<span class="pl-ent">version</span>&gt; <span class="pl-c"><span class="pl-c">&lt;!--</span> 与Spring Boot版本一致 <span class="pl-c">--&gt;</span></span>
-                &lt;<span class="pl-ent">executions</span>&gt;
-                    &lt;<span class="pl-ent">execution</span>&gt;
-                        &lt;<span class="pl-ent">goals</span>&gt;
-                            &lt;<span class="pl-ent">goal</span>&gt;repackage&lt;/<span class="pl-ent">goal</span>&gt; <span class="pl-c"><span class="pl-c">&lt;!--</span> 关键：重新打包为可执行jar <span class="pl-c">--&gt;</span></span>
-                        &lt;/<span class="pl-ent">goals</span>&gt;
-                    &lt;/<span class="pl-ent">execution</span>&gt;
-                &lt;/<span class="pl-ent">executions</span>&gt;
-                <span class="pl-c"><span class="pl-c">&lt;!--</span> 可选：手动指定启动类（如果插件没自动识别） <span class="pl-c">--&gt;</span></span>
-                &lt;<span class="pl-ent">configuration</span>&gt;
-                    &lt;<span class="pl-ent">mainClass</span>&gt;com.example.Springboot01QuickstartApplication&lt;/<span class="pl-ent">mainClass</span>&gt;
-                &lt;/<span class="pl-ent">configuration</span>&gt;
-            &lt;/<span class="pl-ent">plugin</span>&gt;
-        &lt;/<span class="pl-ent">plugins</span>&gt;
-    &lt;/<span class="pl-ent">build</span>&gt;
-&lt;/<span class="pl-ent">project</span>&gt;</pre></div>
+    &lt;!-- 2. 核心：添加Spring Boot打包插件 --&gt;
+    &lt;build&gt;
+        &lt;plugins&gt;
+            &lt;plugin&gt;
+                &lt;groupId&gt;org.springframework.boot&lt;/groupId&gt;
+                &lt;artifactId&gt;spring-boot-maven-plugin&lt;/artifactId&gt;
+                &lt;!-- 如果继承了父依赖，版本可省略（自动继承）；否则需手动指定版本 --&gt;
+                &lt;version&gt;2.7.0&lt;/version&gt; &lt;!-- 与Spring Boot版本一致 --&gt;
+                &lt;executions&gt;
+                    &lt;execution&gt;
+                        &lt;goals&gt;
+                            &lt;goal&gt;repackage&lt;/goal&gt; &lt;!-- 关键：重新打包为可执行jar --&gt;
+                        &lt;/goals&gt;
+                    &lt;/execution&gt;
+                &lt;/executions&gt;
+                &lt;!-- 可选：手动指定启动类（如果插件没自动识别） --&gt;
+                &lt;configuration&gt;
+                    &lt;mainClass&gt;com.example.Springboot01QuickstartApplication&lt;/mainClass&gt;
+                &lt;/configuration&gt;
+            &lt;/plugin&gt;
+        &lt;/plugins&gt;
+    &lt;/build&gt;
+&lt;/project&gt;
+</code></pre>
 <p><strong>关键说明</strong>：</p>
 <ul>
 <li>如果你的项目<strong>没有继承<code class="notranslate">spring-boot-starter-parent</code></strong>，需要在插件中手动指定<code class="notranslate">spring-boot-starter-parent</code>的版本，且配置更完整（但推荐优先继承父依赖）；</li>
@@ -143,14 +144,16 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 </ul>
 <h4>步骤2：重新打包（清理旧包，生成新包）</h4>
 <p>打开终端/命令行，进入项目根目录（pom.xml所在目录），执行以下命令：</p>
-<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 清理旧的编译/打包文件</span>
+<pre lang="bash" class="notranslate"><code class="notranslate"># 清理旧的编译/打包文件
 mvn clean
-<span class="pl-c"><span class="pl-c">#</span> 打包（-DskipTests跳过测试，加快打包速度）</span>
-mvn package -DskipTests</pre></div>
+# 打包（-DskipTests跳过测试，加快打包速度）
+mvn package -DskipTests
+</code></pre>
 <p>执行成功后，会在项目的<code class="notranslate">target</code>目录下生成新的jar包（就是你要运行的<code class="notranslate">springboot-01-quickstart-0.0.1-SNAPSHOT.jar</code>）。</p>
 <h4>步骤3：重新运行jar包</h4>
 <p>再次执行<code class="notranslate">java -jar</code>命令：</p>
-<div class="highlight highlight-source-shell"><pre class="notranslate">java -jar target/springboot-01-quickstart-0.0.1-SNAPSHOT.jar</pre></div>
+<pre lang="bash" class="notranslate"><code class="notranslate">java -jar target/springboot-01-quickstart-0.0.1-SNAPSHOT.jar
+</code></pre>
 <p>此时应该能正常启动Spring Boot应用，不会再提示“没有主清单属性”。</p>
 <h3>三、验证清单属性（可选，确认配置生效）</h3>
 <p>如果想确认jar包是否包含主清单属性，可以解压jar包查看<code class="notranslate">META-INF/MANIFEST.MF</code>文件：</p>
