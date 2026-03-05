@@ -17,7 +17,7 @@
 <meta property="og:url" content="https://luminku.github.io/post/SpringBoot-shi-yong-XML%20Bean-jia-zai-%E3%80%9059%E3%80%91.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
 <title>SpringBoot使用XML Bean加载【59】</title>
-<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
 
 
 </head>
@@ -86,105 +86,110 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <div class="markdown-body" id="postBody"><p>在Spring Boot中，虽然推荐使用Java配置类（<code class="notranslate">@Configuration</code>），但仍然可以通过<code class="notranslate">@ImportResource</code>注解来加载传统的<code class="notranslate">applicationContext.xml</code>文件定义Bean。以下是完整示例：</p>
 <h3>1. 创建XML配置文件</h3>
 <p>在<code class="notranslate">src/main/resources</code>下创建<code class="notranslate">applicationContext.xml</code>：</p>
-<div class="highlight highlight-text-xml"><pre class="notranslate">&lt;?<span class="pl-ent">xml</span><span class="pl-e"> version</span>=<span class="pl-s"><span class="pl-pds">"</span>1.0<span class="pl-pds">"</span></span><span class="pl-e"> encoding</span>=<span class="pl-s"><span class="pl-pds">"</span>UTF-8<span class="pl-pds">"</span></span>?&gt;
-&lt;<span class="pl-ent">beans</span> <span class="pl-e">xmlns</span>=<span class="pl-s"><span class="pl-pds">"</span>http://www.springframework.org/schema/beans<span class="pl-pds">"</span></span>
-       <span class="pl-e">xmlns</span><span class="pl-e">:</span><span class="pl-e">xsi</span>=<span class="pl-s"><span class="pl-pds">"</span>http://www.w3.org/2001/XMLSchema-instance<span class="pl-pds">"</span></span>
-       <span class="pl-e">xsi</span><span class="pl-e">:</span><span class="pl-e">schemaLocation</span>=<span class="pl-s"><span class="pl-pds">"</span>http://www.springframework.org/schema/beans</span>
-<span class="pl-s">       http://www.springframework.org/schema/beans/spring-beans.xsd<span class="pl-pds">"</span></span>&gt;
+<pre lang="xml" class="notranslate"><code class="notranslate">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd"&gt;
 
-    <span class="pl-c"><span class="pl-c">&lt;!--</span> 定义一个简单的Bean <span class="pl-c">--&gt;</span></span>
-    &lt;<span class="pl-ent">bean</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>userService<span class="pl-pds">"</span></span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>com.example.demo.service.UserService<span class="pl-pds">"</span></span>&gt;
-        &lt;<span class="pl-ent">property</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>username<span class="pl-pds">"</span></span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">"</span>admin<span class="pl-pds">"</span></span>/&gt;
-        &lt;<span class="pl-ent">property</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>timeout<span class="pl-pds">"</span></span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">"</span>30<span class="pl-pds">"</span></span>/&gt;
-    &lt;/<span class="pl-ent">bean</span>&gt;
+    &lt;!-- 定义一个简单的Bean --&gt;
+    &lt;bean id="userService" class="com.example.demo.service.UserService"&gt;
+        &lt;property name="username" value="admin"/&gt;
+        &lt;property name="timeout" value="30"/&gt;
+    &lt;/bean&gt;
 
-    <span class="pl-c"><span class="pl-c">&lt;!--</span> 定义一个带构造参数的Bean <span class="pl-c">--&gt;</span></span>
-    &lt;<span class="pl-ent">bean</span> <span class="pl-e">id</span>=<span class="pl-s"><span class="pl-pds">"</span>orderService<span class="pl-pds">"</span></span> <span class="pl-e">class</span>=<span class="pl-s"><span class="pl-pds">"</span>com.example.demo.service.OrderService<span class="pl-pds">"</span></span>&gt;
-        &lt;<span class="pl-ent">constructor-arg</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>orderPrefix<span class="pl-pds">"</span></span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">"</span>ORD-<span class="pl-pds">"</span></span>/&gt;
-        &lt;<span class="pl-ent">constructor-arg</span> <span class="pl-e">name</span>=<span class="pl-s"><span class="pl-pds">"</span>maxItems<span class="pl-pds">"</span></span> <span class="pl-e">value</span>=<span class="pl-s"><span class="pl-pds">"</span>100<span class="pl-pds">"</span></span>/&gt;
-    &lt;/<span class="pl-ent">bean</span>&gt;
+    &lt;!-- 定义一个带构造参数的Bean --&gt;
+    &lt;bean id="orderService" class="com.example.demo.service.OrderService"&gt;
+        &lt;constructor-arg name="orderPrefix" value="ORD-"/&gt;
+        &lt;constructor-arg name="maxItems" value="100"/&gt;
+    &lt;/bean&gt;
 
-&lt;/<span class="pl-ent">beans</span>&gt;</pre></div>
+&lt;/beans&gt;
+</code></pre>
 <h3>2. 创建对应的Java类</h3>
 <p><strong>UserService.java:</strong></p>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">package</span> <span class="pl-s1">com</span>.<span class="pl-s1">example</span>.<span class="pl-s1">demo</span>.<span class="pl-s1">service</span>;
+<pre lang="java" class="notranslate"><code class="notranslate">package com.example.demo.service;
 
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">UserService</span> {
-    <span class="pl-k">private</span> <span class="pl-smi">String</span> <span class="pl-s1">username</span>;
-    <span class="pl-k">private</span> <span class="pl-smi">int</span> <span class="pl-s1">timeout</span>;
+public class UserService {
+    private String username;
+    private int timeout;
 
-    <span class="pl-c">// 必须提供setter方法用于XML注入</span>
-    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">setUsername</span>(<span class="pl-smi">String</span> <span class="pl-s1">username</span>) {
-        <span class="pl-smi">this</span>.<span class="pl-s1">username</span> = <span class="pl-s1">username</span>;
+    // 必须提供setter方法用于XML注入
+    public void setUsername(String username) {
+        this.username = username;
     }
 
-    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">setTimeout</span>(<span class="pl-smi">int</span> <span class="pl-s1">timeout</span>) {
-        <span class="pl-smi">this</span>.<span class="pl-s1">timeout</span> = <span class="pl-s1">timeout</span>;
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
     }
 
-    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">printConfig</span>() {
-        <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s">"UserService - Username: "</span> + <span class="pl-s1">username</span> + <span class="pl-s">", Timeout: "</span> + <span class="pl-s1">timeout</span>);
+    public void printConfig() {
+        System.out.println("UserService - Username: " + username + ", Timeout: " + timeout);
     }
-}</pre></div>
+}
+</code></pre>
 <p><strong>OrderService.java:</strong></p>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">package</span> <span class="pl-s1">com</span>.<span class="pl-s1">example</span>.<span class="pl-s1">demo</span>.<span class="pl-s1">service</span>;
+<pre lang="java" class="notranslate"><code class="notranslate">package com.example.demo.service;
 
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">OrderService</span> {
-    <span class="pl-k">private</span> <span class="pl-smi">String</span> <span class="pl-s1">orderPrefix</span>;
-    <span class="pl-k">private</span> <span class="pl-smi">int</span> <span class="pl-s1">maxItems</span>;
+public class OrderService {
+    private String orderPrefix;
+    private int maxItems;
 
-    <span class="pl-c">// 构造方法注入</span>
-    <span class="pl-k">public</span> <span class="pl-smi">OrderService</span>(<span class="pl-smi">String</span> <span class="pl-s1">orderPrefix</span>, <span class="pl-smi">int</span> <span class="pl-s1">maxItems</span>) {
-        <span class="pl-smi">this</span>.<span class="pl-s1">orderPrefix</span> = <span class="pl-s1">orderPrefix</span>;
-        <span class="pl-smi">this</span>.<span class="pl-s1">maxItems</span> = <span class="pl-s1">maxItems</span>;
+    // 构造方法注入
+    public OrderService(String orderPrefix, int maxItems) {
+        this.orderPrefix = orderPrefix;
+        this.maxItems = maxItems;
     }
 
-    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">printConfig</span>() {
-        <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s">"OrderService - Prefix: "</span> + <span class="pl-s1">orderPrefix</span> + <span class="pl-s">", Max Items: "</span> + <span class="pl-s1">maxItems</span>);
+    public void printConfig() {
+        System.out.println("OrderService - Prefix: " + orderPrefix + ", Max Items: " + maxItems);
     }
-}</pre></div>
+}
+</code></pre>
 <h3>3. 在启动类中加载XML配置</h3>
 <p><strong>DemoApplication.java:</strong></p>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">package</span> <span class="pl-s1">com</span>.<span class="pl-s1">example</span>.<span class="pl-s1">demo</span>;
+<pre lang="java" class="notranslate"><code class="notranslate">package com.example.demo;
 
-<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">boot</span>.<span class="pl-s1">SpringApplication</span>;
-<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">boot</span>.<span class="pl-s1">autoconfigure</span>.<span class="pl-s1">SpringBootApplication</span>;
-<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">context</span>.<span class="pl-s1">annotation</span>.<span class="pl-s1">ImportResource</span>;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ImportResource;
 
-<span class="pl-c1">@</span><span class="pl-c1">SpringBootApplication</span>
-<span class="pl-c">// 关键：加载XML配置文件</span>
-<span class="pl-c1">@</span><span class="pl-c1">ImportResource</span>(<span class="pl-s">"classpath:applicationContext.xml"</span>)
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">DemoApplication</span> {
-    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">main</span>(<span class="pl-smi">String</span>[] <span class="pl-s1">args</span>) {
-        <span class="pl-smi">SpringApplication</span>.<span class="pl-en">run</span>(<span class="pl-smi">DemoApplication</span>.<span class="pl-k">class</span>, <span class="pl-s1">args</span>);
+@SpringBootApplication
+// 关键：加载XML配置文件
+@ImportResource("classpath:applicationContext.xml")
+public class DemoApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
     }
-}</pre></div>
+}
+</code></pre>
 <h3>4. 注入并使用Bean</h3>
 <p><strong>TestController.java:</strong></p>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">package</span> <span class="pl-s1">com</span>.<span class="pl-s1">example</span>.<span class="pl-s1">demo</span>.<span class="pl-s1">controller</span>;
+<pre lang="java" class="notranslate"><code class="notranslate">package com.example.demo.controller;
 
-<span class="pl-k">import</span> <span class="pl-s1">com</span>.<span class="pl-s1">example</span>.<span class="pl-s1">demo</span>.<span class="pl-s1">service</span>.<span class="pl-s1">OrderService</span>;
-<span class="pl-k">import</span> <span class="pl-s1">com</span>.<span class="pl-s1">example</span>.<span class="pl-s1">demo</span>.<span class="pl-s1">service</span>.<span class="pl-s1">UserService</span>;
-<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">beans</span>.<span class="pl-s1">factory</span>.<span class="pl-s1">annotation</span>.<span class="pl-s1">Autowired</span>;
-<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">web</span>.<span class="pl-s1">bind</span>.<span class="pl-s1">annotation</span>.<span class="pl-s1">GetMapping</span>;
-<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">web</span>.<span class="pl-s1">bind</span>.<span class="pl-s1">annotation</span>.<span class="pl-s1">RestController</span>;
+import com.example.demo.service.OrderService;
+import com.example.demo.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-<span class="pl-c1">@</span><span class="pl-c1">RestController</span>
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">TestController</span> {
+@RestController
+public class TestController {
 
-    <span class="pl-c1">@</span><span class="pl-c1">Autowired</span>
-    <span class="pl-k">private</span> <span class="pl-smi">UserService</span> <span class="pl-s1">userService</span>;
+    @Autowired
+    private UserService userService;
 
-    <span class="pl-c1">@</span><span class="pl-c1">Autowired</span>
-    <span class="pl-k">private</span> <span class="pl-smi">OrderService</span> <span class="pl-s1">orderService</span>;
+    @Autowired
+    private OrderService orderService;
 
-    <span class="pl-c1">@</span><span class="pl-c1">GetMapping</span>(<span class="pl-s">"/test"</span>)
-    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">testBeans</span>() {
-        <span class="pl-s1">userService</span>.<span class="pl-en">printConfig</span>();
-        <span class="pl-s1">orderService</span>.<span class="pl-en">printConfig</span>();
-        <span class="pl-k">return</span> <span class="pl-s">"Check console output!"</span>;
+    @GetMapping("/test")
+    public String testBeans() {
+        userService.printConfig();
+        orderService.printConfig();
+        return "Check console output!";
     }
-}</pre></div>
+}
+</code></pre>
 <h3>5. 项目结构</h3>
 <pre class="notranslate"><code class="notranslate">src
 └── main
@@ -222,88 +227,93 @@ OrderService - Prefix: ORD-, Max Items: 100
 <p>以下是几种解决方案：</p>
 <h3>方案1：将<code class="notranslate">@ImportResource</code>移到主应用类（推荐）</h3>
 <p><strong>DemoApplication.java</strong>（主启动类添加注解）</p>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">SpringBootApplication</span>
-<span class="pl-c1">@</span><span class="pl-c1">ImportResource</span>(<span class="pl-s">"classpath:applicationContext.xml"</span>) <span class="pl-c">// 移到此处</span>
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">DemoApplication</span> {
-    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">main</span>(<span class="pl-smi">String</span>[] <span class="pl-s1">args</span>) {
-        <span class="pl-smi">SpringApplication</span>.<span class="pl-en">run</span>(<span class="pl-smi">DemoApplication</span>.<span class="pl-k">class</span>, <span class="pl-s1">args</span>);
+<pre lang="java" class="notranslate"><code class="notranslate">@SpringBootApplication
+@ImportResource("classpath:applicationContext.xml") // 移到此处
+public class DemoApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(DemoApplication.class, args);
     }
-}</pre></div>
+}
+</code></pre>
 <p><strong>K05XmlTests.java</strong>（测试类保持不变）</p>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">SpringBootTest</span>
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">K05XmlTests</span> {
-    <span class="pl-c1">@</span><span class="pl-c1">Autowired</span>
-    <span class="pl-k">private</span> <span class="pl-smi">UserService</span> <span class="pl-s1">userService</span>;
+<pre lang="java" class="notranslate"><code class="notranslate">@SpringBootTest
+public class K05XmlTests {
+    @Autowired
+    private UserService userService;
     
-    <span class="pl-c1">@</span><span class="pl-c1">Autowired</span>
-    <span class="pl-k">private</span> <span class="pl-smi">OrderService</span> <span class="pl-s1">orderService</span>;
+    @Autowired
+    private OrderService orderService;
 
-    <span class="pl-c1">@</span><span class="pl-c1">Test</span>
-    <span class="pl-smi">void</span> <span class="pl-en">test</span>() {
-        <span class="pl-s1">userService</span>.<span class="pl-en">printConfig</span>();  <span class="pl-c">// 正常输出</span>
-        <span class="pl-s1">orderService</span>.<span class="pl-en">printConfig</span>(); <span class="pl-c">// 正常输出</span>
+    @Test
+    void test() {
+        userService.printConfig();  // 正常输出
+        orderService.printConfig(); // 正常输出
     }
-}</pre></div>
+}
+</code></pre>
 <h3>方案2：测试类指定加载配置</h3>
 <p>如果不想让主应用类依赖XML，可以在测试中单独加载：</p>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">ImportResource</span>(<span class="pl-s">"classpath:applicationContext.xml"</span>)
-<span class="pl-c1">@</span><span class="pl-c1">SpringBootTest</span>(<span class="pl-s1">classes</span> = {<span class="pl-smi">K05XmlTests</span>.<span class="pl-smi">Config</span>.<span class="pl-k">class</span>}) <span class="pl-c">// 指定配置类</span>
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">K05XmlTests</span> {
+<pre lang="java" class="notranslate"><code class="notranslate">@ImportResource("classpath:applicationContext.xml")
+@SpringBootTest(classes = {K05XmlTests.Config.class}) // 指定配置类
+public class K05XmlTests {
 
-    <span class="pl-c1">@</span><span class="pl-c1">Autowired</span>
-    <span class="pl-k">private</span> <span class="pl-smi">UserService</span> <span class="pl-s1">userService</span>;
+    @Autowired
+    private UserService userService;
     
-    <span class="pl-c1">@</span><span class="pl-c1">Autowired</span>
-    <span class="pl-k">private</span> <span class="pl-smi">OrderService</span> <span class="pl-s1">orderService</span>;
+    @Autowired
+    private OrderService orderService;
 
-    <span class="pl-c1">@</span><span class="pl-c1">Test</span>
-    <span class="pl-smi">void</span> <span class="pl-en">test</span>() {
-        <span class="pl-s1">userService</span>.<span class="pl-en">printConfig</span>();
-        <span class="pl-s1">orderService</span>.<span class="pl-en">printConfig</span>();
+    @Test
+    void test() {
+        userService.printConfig();
+        orderService.printConfig();
     }
 
-    <span class="pl-c1">@</span><span class="pl-c1">Configuration</span> <span class="pl-c">// 空配置类，仅用于加载XML</span>
-    <span class="pl-k">static</span> <span class="pl-k">class</span> <span class="pl-smi">Config</span> {
+    @Configuration // 空配置类，仅用于加载XML
+    static class Config {
     }
-}</pre></div>
+}
+</code></pre>
 <h3>方案3：使用<code class="notranslate">@ContextConfiguration</code>显式指定</h3>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">ExtendWith</span>(<span class="pl-smi">SpringExtension</span>.<span class="pl-k">class</span>)
-<span class="pl-c1">@</span><span class="pl-c1">ContextConfiguration</span>(<span class="pl-s1">locations</span> = <span class="pl-s">"classpath:applicationContext.xml"</span>)
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">K05XmlTests</span> {
+<pre lang="java" class="notranslate"><code class="notranslate">@ExtendWith(SpringExtension.class)
+@ContextConfiguration(locations = "classpath:applicationContext.xml")
+public class K05XmlTests {
 
-    <span class="pl-c1">@</span><span class="pl-c1">Autowired</span>
-    <span class="pl-k">private</span> <span class="pl-smi">UserService</span> <span class="pl-s1">userService</span>;
+    @Autowired
+    private UserService userService;
     
-    <span class="pl-c1">@</span><span class="pl-c1">Autowired</span>
-    <span class="pl-k">private</span> <span class="pl-smi">OrderService</span> <span class="pl-s1">orderService</span>;
+    @Autowired
+    private OrderService orderService;
 
-    <span class="pl-c1">@</span><span class="pl-c1">Test</span>
-    <span class="pl-smi">void</span> <span class="pl-en">test</span>() {
-        <span class="pl-s1">userService</span>.<span class="pl-en">printConfig</span>();
-        <span class="pl-s1">orderService</span>.<span class="pl-en">printConfig</span>();
+    @Test
+    void test() {
+        userService.printConfig();
+        orderService.printConfig();
     }
-}</pre></div>
+}
+</code></pre>
 <h3>方案4：组合注解方式</h3>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">SpringBootTest</span>
-<span class="pl-c1">@</span><span class="pl-c1">ImportResource</span>(<span class="pl-s">"classpath:applicationContext.xml"</span>)
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">K05XmlTests</span> {
+<pre lang="java" class="notranslate"><code class="notranslate">@SpringBootTest
+@ImportResource("classpath:applicationContext.xml")
+public class K05XmlTests {
 
-    <span class="pl-c1">@</span><span class="pl-c1">Autowired</span>
-    <span class="pl-k">private</span> <span class="pl-smi">UserService</span> <span class="pl-s1">userService</span>;
+    @Autowired
+    private UserService userService;
     
-    <span class="pl-c1">@</span><span class="pl-c1">Autowired</span>
-    <span class="pl-k">private</span> <span class="pl-smi">OrderService</span> <span class="pl-s1">orderService</span>;
+    @Autowired
+    private OrderService orderService;
 
-    <span class="pl-c1">@</span><span class="pl-c1">TestConfiguration</span> <span class="pl-c">// 确保上下文加载</span>
-    <span class="pl-k">static</span> <span class="pl-k">class</span> <span class="pl-smi">TestConfig</span> {
+    @TestConfiguration // 确保上下文加载
+    static class TestConfig {
     }
 
-    <span class="pl-c1">@</span><span class="pl-c1">Test</span>
-    <span class="pl-smi">void</span> <span class="pl-en">test</span>() {
-        <span class="pl-s1">userService</span>.<span class="pl-en">printConfig</span>();
-        <span class="pl-s1">orderService</span>.<span class="pl-en">printConfig</span>();
+    @Test
+    void test() {
+        userService.printConfig();
+        orderService.printConfig();
     }
-}</pre></div>
+}
+</code></pre>
 <h3>关键点总结</h3>
 <markdown-accessiblity-table><table role="table">
 <thead>
@@ -343,13 +353,14 @@ OrderService - Prefix: ORD-, Max Items: 100
 </table></markdown-accessiblity-table>
 <p><strong>推荐做法</strong>：如果XML配置是整个项目的一部分，使用** 方案1**；如果XML只用于特定测试，使用**方案2 **。</p>
 <p><strong>调试技巧</strong>：在测试中添加以下代码检查加载的Bean：</p>
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-c1">@</span><span class="pl-c1">Autowired</span>
-<span class="pl-k">private</span> <span class="pl-smi">ApplicationContext</span> <span class="pl-s1">context</span>;
+<pre lang="java" class="notranslate"><code class="notranslate">@Autowired
+private ApplicationContext context;
 
-<span class="pl-c1">@</span><span class="pl-c1">Test</span>
-<span class="pl-smi">void</span> <span class="pl-en">debugBeans</span>() {
-    <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-smi">Arrays</span>.<span class="pl-en">toString</span>(<span class="pl-s1">context</span>.<span class="pl-en">getBeanDefinitionNames</span>()));
-}</pre></div></div>
+@Test
+void debugBeans() {
+    System.out.println(Arrays.toString(context.getBeanDefinitionNames()));
+}
+</code></pre></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
 <button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
