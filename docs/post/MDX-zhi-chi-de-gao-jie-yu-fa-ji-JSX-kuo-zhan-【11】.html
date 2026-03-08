@@ -17,7 +17,7 @@
 <meta property="og:url" content="https://luminku.github.io/post/MDX-zhi-chi-de-gao-jie-yu-fa-ji-JSX-kuo-zhan-%E3%80%9011%E3%80%91.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
 <title>MDX支持的高阶语法及JSX扩展【11】</title>
-
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
 
 
 </head>
@@ -146,262 +146,244 @@ const props = { className: 'my-class', id: 'my-id' };
 <p>MDX 支持丰富的 JSX 语法和 HTML 元素扩展，以下是主要支持的高阶语法：</p>
 <h2>🎯 JSX 元素和组件支持</h2>
 <h3>1. 自定义组件</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">import { Chart, Table } from './components'
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-k">import</span> { <span class="pl-smi">Chart</span>, <span class="pl-smi">Table</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>./components<span class="pl-pds">'</span></span>
 
-# 数据分析
+<span class="pl-mh"># <span class="pl-en">数据分析</span></span>
 
-&lt;Chart data={chartData} type="line" /&gt;
-&lt;Table rows={tableData} pagination /&gt;
-</code></pre>
+&lt;<span class="pl-c1">Chart</span> <span class="pl-e">data</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">chartData</span><span class="pl-pse">}</span> <span class="pl-e">type</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>line<span class="pl-pds">"</span></span> /&gt;
+&lt;<span class="pl-c1">Table</span> <span class="pl-e">rows</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">tableData</span><span class="pl-pse">}</span> <span class="pl-e">pagination</span> /&gt;</pre></div>
 <h3>2. 内联 JSX 与表达式</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">当前时间：{new Date().toLocaleString()}
+<div class="highlight highlight-source-mdx"><pre class="notranslate">当前时间：<span class="pl-s">{</span><span class="pl-k">new</span> <span class="pl-c1">Date</span>().<span class="pl-c1">toLocaleString</span>()<span class="pl-s">}</span>
 
-计算结果：{2 + 3 * 4}
+计算结果：<span class="pl-s">{</span><span class="pl-c1">2</span> <span class="pl-k">+</span> <span class="pl-c1">3</span> <span class="pl-k">*</span> <span class="pl-c1">4</span><span class="pl-s">}</span>
 
-条件渲染：{isVisible &amp;&amp; &lt;span&gt;显示的内容&lt;/span&gt;}
-</code></pre>
+条件渲染：<span class="pl-s">{</span><span class="pl-smi">isVisible</span> <span class="pl-k">&amp;&amp;</span> &lt;<span class="pl-ent">span</span>&gt;显示的内容&lt;/<span class="pl-ent">span</span>&gt;<span class="pl-s">}</span></pre></div>
 <h2>🎨 样式和布局组件</h2>
 <h3>1. 容器和布局</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">&lt;div className="grid grid-cols-2 gap-4"&gt;
-  &lt;div&gt;左侧内容&lt;/div&gt;
-  &lt;div&gt;右侧内容&lt;/div&gt;
-&lt;/div&gt;
+<div class="highlight highlight-source-mdx"><pre class="notranslate">&lt;<span class="pl-ent">div</span> <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>grid grid-cols-2 gap-4<span class="pl-pds">"</span></span>&gt;
+  &lt;<span class="pl-ent">div</span>&gt;左侧内容&lt;/<span class="pl-ent">div</span>&gt;
+  &lt;<span class="pl-ent">div</span>&gt;右侧内容&lt;/<span class="pl-ent">div</span>&gt;
+&lt;/<span class="pl-ent">div</span>&gt;
 
-&lt;section style={{ padding: '20px', background: '#f5f5f5' }}&gt;
+&lt;<span class="pl-ent">section</span> <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{ padding: <span class="pl-s"><span class="pl-pds">'</span>20px<span class="pl-pds">'</span></span>, background: <span class="pl-s"><span class="pl-pds">'</span>#f5f5f5<span class="pl-pds">'</span></span> }<span class="pl-pse">}</span>&gt;
   带样式的区块
-&lt;/section&gt;
-</code></pre>
+&lt;/<span class="pl-ent">section</span>&gt;</pre></div>
 <h3>2. 高级文本样式</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">&lt;text fontSize="24px" fontWeight="bold" color="#ff0000"&gt;
+<div class="highlight highlight-source-mdx"><pre class="notranslate">&lt;<span class="pl-ent">text</span> <span class="pl-e">fontSize</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>24px<span class="pl-pds">"</span></span> <span class="pl-e">fontWeight</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>bold<span class="pl-pds">"</span></span> <span class="pl-e">color</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>#ff0000<span class="pl-pds">"</span></span>&gt;
   自定义文本
-&lt;/text&gt;
+&lt;/<span class="pl-ent">text</span>&gt;
 
-&lt;p className="text-primary font-mono text-lg"&gt;
+&lt;<span class="pl-ent">p</span> <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>text-primary font-mono text-lg<span class="pl-pds">"</span></span>&gt;
   带样式的段落
-&lt;/p&gt;
-</code></pre>
+&lt;/<span class="pl-ent">p</span>&gt;</pre></div>
 <h2>🔧 交互式组件</h2>
 <h3>1. 按钮和交互</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">&lt;button 
-  onClick={() =&gt; alert('点击了!')}
-  style={{ 
-    padding: '10px 20px', 
-    background: 'blue', 
-    color: 'white',
-    border: 'none',
-    borderRadius: '5px'
-  }}
+<div class="highlight highlight-source-mdx"><pre class="notranslate">&lt;<span class="pl-ent">button</span> 
+  <span class="pl-e">onClick</span><span class="pl-k">=</span><span class="pl-pse">{</span>() <span class="pl-k">=&gt;</span> <span class="pl-en">alert</span>(<span class="pl-s"><span class="pl-pds">'</span>点击了!<span class="pl-pds">'</span></span>)<span class="pl-pse">}</span>
+  <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{ 
+    padding: <span class="pl-s"><span class="pl-pds">'</span>10px 20px<span class="pl-pds">'</span></span>, 
+    background: <span class="pl-s"><span class="pl-pds">'</span>blue<span class="pl-pds">'</span></span>, 
+    color: <span class="pl-s"><span class="pl-pds">'</span>white<span class="pl-pds">'</span></span>,
+    border: <span class="pl-s"><span class="pl-pds">'</span>none<span class="pl-pds">'</span></span>,
+    borderRadius: <span class="pl-s"><span class="pl-pds">'</span>5px<span class="pl-pds">'</span></span>
+  }<span class="pl-pse">}</span>
 &gt;
   点击我
-&lt;/button&gt;
-</code></pre>
+&lt;/<span class="pl-ent">button</span>&gt;</pre></div>
 <h3>2. 表单元素</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">&lt;input 
-  type="text" 
-  placeholder="输入内容"
-  onChange={(e) =&gt; setValue(e.target.value)}
-  value={inputValue}
+<div class="highlight highlight-source-mdx"><pre class="notranslate">&lt;<span class="pl-ent">input</span> 
+  <span class="pl-e">type</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>text<span class="pl-pds">"</span></span> 
+  <span class="pl-e">placeholder</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>输入内容<span class="pl-pds">"</span></span>
+  <span class="pl-e">onChange</span><span class="pl-k">=</span><span class="pl-pse">{</span>(<span class="pl-v">e</span>) <span class="pl-k">=&gt;</span> <span class="pl-en">setValue</span>(<span class="pl-smi">e</span>.<span class="pl-c1">target</span>.<span class="pl-c1">value</span>)<span class="pl-pse">}</span>
+  <span class="pl-e">value</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">inputValue</span><span class="pl-pse">}</span>
 /&gt;
 
-&lt;select onChange={(e) =&gt; handleSelect(e.target.value)}&gt;
-  &lt;option value="1"&gt;选项1&lt;/option&gt;
-  &lt;option value="2"&gt;选项2&lt;/option&gt;
-&lt;/select&gt;
-</code></pre>
+&lt;<span class="pl-ent">select</span> <span class="pl-e">onChange</span><span class="pl-k">=</span><span class="pl-pse">{</span>(<span class="pl-v">e</span>) <span class="pl-k">=&gt;</span> <span class="pl-en">handleSelect</span>(<span class="pl-smi">e</span>.<span class="pl-c1">target</span>.<span class="pl-c1">value</span>)<span class="pl-pse">}</span>&gt;
+  &lt;<span class="pl-ent">option</span> <span class="pl-e">value</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>1<span class="pl-pds">"</span></span>&gt;选项1&lt;/<span class="pl-ent">option</span>&gt;
+  &lt;<span class="pl-ent">option</span> <span class="pl-e">value</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>2<span class="pl-pds">"</span></span>&gt;选项2&lt;/<span class="pl-ent">option</span>&gt;
+&lt;/<span class="pl-ent">select</span>&gt;</pre></div>
 <h2>📊 媒体和嵌入内容</h2>
 <h3>1. 图片和视频</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">&lt;img 
-  src="/image.jpg" 
-  alt="描述文字"
-  width="400"
-  height="300"
-  loading="lazy"
+<div class="highlight highlight-source-mdx"><pre class="notranslate">&lt;<span class="pl-ent">img</span> 
+  <span class="pl-e">src</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>/image.jpg<span class="pl-pds">"</span></span> 
+  <span class="pl-e">alt</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>描述文字<span class="pl-pds">"</span></span>
+  <span class="pl-e">width</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>400<span class="pl-pds">"</span></span>
+  <span class="pl-e">height</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>300<span class="pl-pds">"</span></span>
+  <span class="pl-e">loading</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>lazy<span class="pl-pds">"</span></span>
 /&gt;
 
-&lt;video controls width="100%"&gt;
-  &lt;source src="/video.mp4" type="video/mp4" /&gt;
-&lt;/video&gt;
-</code></pre>
+&lt;<span class="pl-ent">video</span> <span class="pl-e">controls</span> <span class="pl-e">width</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>100%<span class="pl-pds">"</span></span>&gt;
+  &lt;<span class="pl-ent">source</span> <span class="pl-e">src</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>/video.mp4<span class="pl-pds">"</span></span> <span class="pl-e">type</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>video/mp4<span class="pl-pds">"</span></span> /&gt;
+&lt;/<span class="pl-ent">video</span>&gt;</pre></div>
 <h3>2. 嵌入内容</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">&lt;iframe 
-  src="https://example.com" 
-  width="100%" 
-  height="400"
-  frameBorder="0"
+<div class="highlight highlight-source-mdx"><pre class="notranslate">&lt;<span class="pl-ent">iframe</span> 
+  <span class="pl-e">src</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>https://example.com<span class="pl-pds">"</span></span> 
+  <span class="pl-e">width</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>100%<span class="pl-pds">"</span></span> 
+  <span class="pl-e">height</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>400<span class="pl-pds">"</span></span>
+  <span class="pl-e">frameBorder</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>0<span class="pl-pds">"</span></span>
 /&gt;
 
-&lt;embed 
-  src="/document.pdf" 
-  type="application/pdf"
-  width="100%"
-  height="600"
-/&gt;
-</code></pre>
+&lt;<span class="pl-ent">embed</span> 
+  <span class="pl-e">src</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>/document.pdf<span class="pl-pds">"</span></span> 
+  <span class="pl-e">type</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>application/pdf<span class="pl-pds">"</span></span>
+  <span class="pl-e">width</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>100%<span class="pl-pds">"</span></span>
+  <span class="pl-e">height</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>600<span class="pl-pds">"</span></span>
+/&gt;</pre></div>
 <h2>🎪 高级布局组件</h2>
 <h3>1. 网格和弹性布局</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">&lt;div className="flex justify-between items-center"&gt;
-  &lt;div&gt;Item 1&lt;/div&gt;
-  &lt;div&gt;Item 2&lt;/div&gt;
-  &lt;div&gt;Item 3&lt;/div&gt;
-&lt;/div&gt;
+<div class="highlight highlight-source-mdx"><pre class="notranslate">&lt;<span class="pl-ent">div</span> <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>flex justify-between items-center<span class="pl-pds">"</span></span>&gt;
+  &lt;<span class="pl-ent">div</span>&gt;Item 1&lt;/<span class="pl-ent">div</span>&gt;
+  &lt;<span class="pl-ent">div</span>&gt;Item 2&lt;/<span class="pl-ent">div</span>&gt;
+  &lt;<span class="pl-ent">div</span>&gt;Item 3&lt;/<span class="pl-ent">div</span>&gt;
+&lt;/<span class="pl-ent">div</span>&gt;
 
-&lt;div className="grid grid-cols-3 md:grid-cols-6 gap-2"&gt;
-  {items.map(item =&gt; &lt;div key={item.id}&gt;{item.name}&lt;/div&gt;)}
-&lt;/div&gt;
-</code></pre>
+&lt;<span class="pl-ent">div</span> <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>grid grid-cols-3 md:grid-cols-6 gap-2<span class="pl-pds">"</span></span>&gt;
+  <span class="pl-s">{</span><span class="pl-smi">items</span>.<span class="pl-en">map</span>(<span class="pl-v">item</span> <span class="pl-k">=&gt;</span> &lt;<span class="pl-ent">div</span> <span class="pl-e">key</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">item</span>.<span class="pl-c1">id</span><span class="pl-pse">}</span>&gt;<span class="pl-pse">{</span><span class="pl-smi">item</span>.<span class="pl-c1">name</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">div</span>&gt;)<span class="pl-s">}</span>
+&lt;/<span class="pl-ent">div</span>&gt;</pre></div>
 <h3>2. 卡片和面板</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">&lt;Card 
-  title="标题"
-  footer={&lt;button&gt;操作&lt;/button&gt;}
-  className="shadow-lg"
+<div class="highlight highlight-source-mdx"><pre class="notranslate">&lt;<span class="pl-c1">Card</span> 
+  <span class="pl-e">title</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>标题<span class="pl-pds">"</span></span>
+  <span class="pl-e">footer</span><span class="pl-k">=</span><span class="pl-pse">{</span>&lt;<span class="pl-ent">button</span>&gt;操作&lt;/<span class="pl-ent">button</span>&gt;<span class="pl-pse">}</span>
+  <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>shadow-lg<span class="pl-pds">"</span></span>
 &gt;
   卡片内容
-&lt;/Card&gt;
+&lt;/<span class="pl-c1">Card</span>&gt;
 
-&lt;Accordion&gt;
-  &lt;AccordionItem title="部分1"&gt;
+&lt;<span class="pl-c1">Accordion</span>&gt;
+  &lt;<span class="pl-c1">AccordionItem</span> <span class="pl-e">title</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>部分1<span class="pl-pds">"</span></span>&gt;
     折叠内容1
-  &lt;/AccordionItem&gt;
-  &lt;AccordionItem title="部分2"&gt;
+  &lt;/<span class="pl-c1">AccordionItem</span>&gt;
+  &lt;<span class="pl-c1">AccordionItem</span> <span class="pl-e">title</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>部分2<span class="pl-pds">"</span></span>&gt;
     折叠内容2
-  &lt;/AccordionItem&gt;
-&lt;/Accordion&gt;
-</code></pre>
+  &lt;/<span class="pl-c1">AccordionItem</span>&gt;
+&lt;/<span class="pl-c1">Accordion</span>&gt;</pre></div>
 <h2>🔮 动态内容</h2>
 <h3>1. 状态管理</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">import { useState, useEffect } from 'react'
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-k">import</span> { <span class="pl-smi">useState</span>, <span class="pl-smi">useEffect</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>react<span class="pl-pds">'</span></span>
 
-function Counter() {
-  const [count, setCount] = useState(0)
+function Counter() <span class="pl-s">{</span>
+  <span class="pl-smi">const</span> [<span class="pl-smi">count</span>, <span class="pl-smi">setCount</span>] <span class="pl-k">=</span> <span class="pl-en">useState</span>(<span class="pl-c1">0</span>)
   
-  return (
-    &lt;div&gt;
-      计数: {count}
-      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;+&lt;/button&gt;
-    &lt;/div&gt;
+  <span class="pl-en">return</span> (
+    &lt;<span class="pl-ent">div</span>&gt;
+      计数: <span class="pl-pse">{</span><span class="pl-smi">count</span><span class="pl-pse">}</span>
+      &lt;<span class="pl-ent">button</span> <span class="pl-e">onClick</span><span class="pl-k">=</span><span class="pl-pse">{</span>() <span class="pl-k">=&gt;</span> <span class="pl-en">setCount</span>(<span class="pl-smi">count</span> <span class="pl-k">+</span> <span class="pl-c1">1</span>)<span class="pl-pse">}</span>&gt;+&lt;/<span class="pl-ent">button</span>&gt;
+    &lt;/<span class="pl-ent">div</span>&gt;
   )
-}
+<span class="pl-s">}</span>
 
-&lt;Counter /&gt;
-</code></pre>
+&lt;<span class="pl-c1">Counter</span> /&gt;</pre></div>
 <h3>2. 数据获取</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">function DataFetcher() {
-  const [data, setData] = useState(null)
+<div class="highlight highlight-source-mdx"><pre class="notranslate">function DataFetcher() <span class="pl-s">{</span>
+  <span class="pl-smi">const</span> [<span class="pl-smi">data</span>, <span class="pl-smi">setData</span>] <span class="pl-k">=</span> <span class="pl-en">useState</span>(<span class="pl-c1">null</span>)
   
-  useEffect(() =&gt; {
-    fetch('/api/data')
-      .then(res =&gt; res.json())
-      .then(setData)
+  <span class="pl-en">useEffect</span>(() <span class="pl-k">=&gt;</span> {
+    <span class="pl-en">fetch</span>(<span class="pl-s"><span class="pl-pds">'</span>/api/data<span class="pl-pds">'</span></span>)
+      .<span class="pl-c1">then</span>(<span class="pl-v">res</span> <span class="pl-k">=&gt;</span> <span class="pl-smi">res</span>.<span class="pl-en">json</span>())
+      .<span class="pl-c1">then</span>(<span class="pl-smi">setData</span>)
   }, [])
   
-  return data ? &lt;pre&gt;{JSON.stringify(data, null, 2)}&lt;/pre&gt; : &lt;div&gt;加载中...&lt;/div&gt;
-}
+  <span class="pl-smi">return</span> <span class="pl-smi">data</span> <span class="pl-k">?</span> &lt;<span class="pl-ent">pre</span>&gt;<span class="pl-pse">{</span><span class="pl-c1">JSON</span>.<span class="pl-c1">stringify</span>(<span class="pl-smi">data</span>, <span class="pl-c1">null</span>, <span class="pl-c1">2</span>)<span class="pl-pse">}</span>&lt;/<span class="pl-ent">pre</span>&gt; <span class="pl-k">:</span> &lt;<span class="pl-ent">div</span>&gt;加载中...&lt;/<span class="pl-ent">div</span>&gt;
+<span class="pl-s">}</span>
 
-&lt;DataFetcher /&gt;
-</code></pre>
+&lt;<span class="pl-c1">DataFetcher</span> /&gt;</pre></div>
 <h2>📋 支持的 HTML 元素及属性</h2>
 <h3>常用元素及扩展属性：</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">&lt;!-- 文本相关 --&gt;
-&lt;h1 id="custom-id" className="title" data-custom="value"&gt;标题&lt;/h1&gt;
-&lt;p style={{ lineHeight: 1.6 }} data-testid="paragraph"&gt;段落&lt;/p&gt;
-&lt;blockquote cite="来源" className="custom-quote"&gt;引用&lt;/blockquote&gt;
+<div class="highlight highlight-source-mdx"><pre class="notranslate">&lt;<span class="pl-ii">!--</span> <span class="pl-ii">文本相关</span> <span class="pl-ii">--&gt;</span>
+<span class="pl-ii">&lt;h1</span> <span class="pl-e">id</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>custom-id<span class="pl-pds">"</span></span> <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>title<span class="pl-pds">"</span></span> <span class="pl-e">data-custom</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>value<span class="pl-pds">"</span></span>&gt;标题&lt;/<span class="pl-ent">h1</span>&gt;
+&lt;<span class="pl-ent">p</span> <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{ lineHeight: <span class="pl-c1">1.6</span> }<span class="pl-pse">}</span> <span class="pl-e">data-testid</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>paragraph<span class="pl-pds">"</span></span>&gt;段落&lt;/<span class="pl-ent">p</span>&gt;
+&lt;<span class="pl-ent">blockquote</span> <span class="pl-e">cite</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>来源<span class="pl-pds">"</span></span> <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>custom-quote<span class="pl-pds">"</span></span>&gt;引用&lt;/<span class="pl-ent">blockquote</span>&gt;
 
-&lt;!-- 列表 --&gt;
-&lt;ul className="list-disc list-inside"&gt;
-  &lt;li data-index="1"&gt;项目1&lt;/li&gt;
-  &lt;li data-index="2"&gt;项目2&lt;/li&gt;
-&lt;/ul&gt;
+&lt;<span class="pl-ii">!--</span> <span class="pl-ii">列表</span> <span class="pl-ii">--&gt;</span>
+<span class="pl-ii">&lt;ul</span> <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>list-disc list-inside<span class="pl-pds">"</span></span>&gt;
+  &lt;<span class="pl-ent">li</span> <span class="pl-e">data-index</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>1<span class="pl-pds">"</span></span>&gt;项目1&lt;/<span class="pl-ent">li</span>&gt;
+  &lt;<span class="pl-ent">li</span> <span class="pl-e">data-index</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>2<span class="pl-pds">"</span></span>&gt;项目2&lt;/<span class="pl-ent">li</span>&gt;
+&lt;/<span class="pl-ent">ul</span>&gt;
 
-&lt;!-- 表格 --&gt;
-&lt;table border="1" cellPadding="8" className="styled-table"&gt;
-  &lt;thead&gt;
-    &lt;tr&gt;
-      &lt;th width="200"&gt;列1&lt;/th&gt;
-      &lt;th width="300"&gt;列2&lt;/th&gt;
-    &lt;/tr&gt;
-  &lt;/thead&gt;
-&lt;/table&gt;
+&lt;<span class="pl-ii">!--</span> <span class="pl-ii">表格</span> <span class="pl-ii">--&gt;</span>
+<span class="pl-ii">&lt;table</span> <span class="pl-e">border</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>1<span class="pl-pds">"</span></span> <span class="pl-e">cellPadding</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>8<span class="pl-pds">"</span></span> <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>styled-table<span class="pl-pds">"</span></span>&gt;
+  &lt;<span class="pl-ent">thead</span>&gt;
+    &lt;<span class="pl-ent">tr</span>&gt;
+      &lt;<span class="pl-ent">th</span> <span class="pl-e">width</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>200<span class="pl-pds">"</span></span>&gt;列1&lt;/<span class="pl-ent">th</span>&gt;
+      &lt;<span class="pl-ent">th</span> <span class="pl-e">width</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>300<span class="pl-pds">"</span></span>&gt;列2&lt;/<span class="pl-ent">th</span>&gt;
+    &lt;/<span class="pl-ent">tr</span>&gt;
+  &lt;/<span class="pl-ent">thead</span>&gt;
+&lt;/<span class="pl-ent">table</span>&gt;
 
-&lt;!-- 链接 --&gt;
-&lt;a 
-  href="/page" 
-  target="_blank" 
-  rel="noopener noreferrer"
-  className="link"
-  title="链接标题"
+&lt;<span class="pl-ii">!--</span> <span class="pl-ii">链接</span> <span class="pl-ii">--&gt;</span>
+<span class="pl-ii">&lt;a</span> 
+  <span class="pl-e">href</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>/page<span class="pl-pds">"</span></span> 
+  <span class="pl-e">target</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>_blank<span class="pl-pds">"</span></span> 
+  <span class="pl-e">rel</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>noopener noreferrer<span class="pl-pds">"</span></span>
+  <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>link<span class="pl-pds">"</span></span>
+  <span class="pl-e">title</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>链接标题<span class="pl-pds">"</span></span>
 &gt;
   链接文本
-&lt;/a&gt;
-</code></pre>
+&lt;/<span class="pl-ent">a</span>&gt;</pre></div>
 <h3>表单元素完整属性：</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">&lt;input
-  type="text|email|password|number|date|checkbox|radio"
-  name="fieldName"
-  value={value}
-  defaultValue="初始值"
-  placeholder="占位符"
-  required
-  disabled
-  readOnly
-  min="0"
-  max="100"
-  step="1"
-  pattern="[A-Za-z]{3}"
-  autoComplete="on|off"
-  autoFocus
+<div class="highlight highlight-source-mdx"><pre class="notranslate">&lt;<span class="pl-ent">input</span>
+  <span class="pl-e">type</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>text|email|password|number|date|checkbox|radio<span class="pl-pds">"</span></span>
+  <span class="pl-e">name</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>fieldName<span class="pl-pds">"</span></span>
+  <span class="pl-e">value</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">value</span><span class="pl-pse">}</span>
+  <span class="pl-e">defaultValue</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>初始值<span class="pl-pds">"</span></span>
+  <span class="pl-e">placeholder</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>占位符<span class="pl-pds">"</span></span>
+  <span class="pl-e">required</span>
+  <span class="pl-e">disabled</span>
+  <span class="pl-e">readOnly</span>
+  <span class="pl-e">min</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>0<span class="pl-pds">"</span></span>
+  <span class="pl-e">max</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>100<span class="pl-pds">"</span></span>
+  <span class="pl-e">step</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>1<span class="pl-pds">"</span></span>
+  <span class="pl-e">pattern</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>[A-Za-z]{3}<span class="pl-pds">"</span></span>
+  <span class="pl-e">autoComplete</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>on|off<span class="pl-pds">"</span></span>
+  <span class="pl-e">autoFocus</span>
 /&gt;
 
-&lt;textarea
-  rows="4"
-  cols="50"
-  wrap="hard|soft"
-  maxLength="500"
-  onChange={handleChange}
-/&gt;
-</code></pre>
+&lt;<span class="pl-ent">textarea</span>
+  <span class="pl-e">rows</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>4<span class="pl-pds">"</span></span>
+  <span class="pl-e">cols</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>50<span class="pl-pds">"</span></span>
+  <span class="pl-e">wrap</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>hard|soft<span class="pl-pds">"</span></span>
+  <span class="pl-e">maxLength</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>500<span class="pl-pds">"</span></span>
+  <span class="pl-e">onChange</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">handleChange</span><span class="pl-pse">}</span>
+/&gt;</pre></div>
 <h2>🎭 特殊组件模式</h2>
 <h3>1. 插槽模式</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">&lt;Layout
-  header={&lt;Header title="页面标题" /&gt;}
-  sidebar={&lt;Navigation items={navItems} /&gt;}
-  footer={&lt;Footer copyright="2024" /&gt;}
+<div class="highlight highlight-source-mdx"><pre class="notranslate">&lt;<span class="pl-c1">Layout</span>
+  <span class="pl-e">header</span><span class="pl-k">=</span><span class="pl-pse">{</span>&lt;<span class="pl-ent"><span class="pl-c1">Header</span></span> <span class="pl-e">title</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>页面标题<span class="pl-pds">"</span></span> /&gt;<span class="pl-pse">}</span>
+  <span class="pl-e">sidebar</span><span class="pl-k">=</span><span class="pl-pse">{</span>&lt;<span class="pl-ent"><span class="pl-c1">Navigation</span></span> <span class="pl-e">items</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">navItems</span><span class="pl-pse">}</span> /&gt;<span class="pl-pse">}</span>
+  <span class="pl-e">footer</span><span class="pl-k">=</span><span class="pl-pse">{</span>&lt;<span class="pl-ent"><span class="pl-c1">Footer</span></span> <span class="pl-e">copyright</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>2024<span class="pl-pds">"</span></span> /&gt;<span class="pl-pse">}</span>
 &gt;
   主要内容区域
-&lt;/Layout&gt;
-</code></pre>
+&lt;/<span class="pl-c1">Layout</span>&gt;</pre></div>
 <h3>2. 条件渲染</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">{isLoggedIn ? (
-  &lt;Dashboard user={currentUser} /&gt;
-) : (
-  &lt;LoginForm onLogin={handleLogin} /&gt;
-)}
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-s">{</span><span class="pl-smi">isLoggedIn</span> <span class="pl-k">?</span> (
+  &lt;<span class="pl-ent"><span class="pl-c1">Dashboard</span></span> <span class="pl-e">user</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">currentUser</span><span class="pl-pse">}</span> /&gt;
+) <span class="pl-k">:</span> (
+  &lt;<span class="pl-ent"><span class="pl-c1">LoginForm</span></span> <span class="pl-e">onLogin</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">handleLogin</span><span class="pl-pse">}</span> /&gt;
+)<span class="pl-s">}</span>
 
-{hasItems &amp;&amp; (
-  &lt;ItemList items={filteredItems} /&gt;
-)}
-</code></pre>
+<span class="pl-s">{</span><span class="pl-smi">hasItems</span> <span class="pl-k">&amp;&amp;</span> (
+  &lt;<span class="pl-ent"><span class="pl-c1">ItemList</span></span> <span class="pl-e">items</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">filteredItems</span><span class="pl-pse">}</span> /&gt;
+)<span class="pl-s">}</span></pre></div>
 <h3>3. 循环渲染</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">{posts.map(post =&gt; (
-  &lt;Article 
-    key={post.id}
-    title={post.title}
-    content={post.content}
-    date={post.date}
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-s">{</span><span class="pl-smi">posts</span>.<span class="pl-en">map</span>(<span class="pl-v">post</span> <span class="pl-k">=&gt;</span> (
+  &lt;<span class="pl-ent"><span class="pl-c1">Article</span></span> 
+    <span class="pl-e">key</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">post</span>.<span class="pl-c1">id</span><span class="pl-pse">}</span>
+    <span class="pl-e">title</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">post</span>.<span class="pl-c1">title</span><span class="pl-pse">}</span>
+    <span class="pl-e">content</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">post</span>.<span class="pl-c1">content</span><span class="pl-pse">}</span>
+    <span class="pl-e">date</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">post</span>.<span class="pl-smi">date</span><span class="pl-pse">}</span>
   /&gt;
-))}
-</code></pre>
+))<span class="pl-s">}</span></pre></div>
 <h2>⚡ 性能优化属性</h2>
-<pre lang="mdx" class="notranslate"><code class="notranslate">&lt;img 
-  src="/image.jpg" 
-  loading="lazy" 
-  decoding="async"
-  alt="优化图片"
+<div class="highlight highlight-source-mdx"><pre class="notranslate">&lt;<span class="pl-ent">img</span> 
+  <span class="pl-e">src</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>/image.jpg<span class="pl-pds">"</span></span> 
+  <span class="pl-e">loading</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>lazy<span class="pl-pds">"</span></span> 
+  <span class="pl-e">decoding</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>async<span class="pl-pds">"</span></span>
+  <span class="pl-e">alt</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>优化图片<span class="pl-pds">"</span></span>
 /&gt;
 
-&lt;video preload="metadata" controlsList="nodownload"&gt;
-  &lt;source src="/video.mp4" type="video/mp4" /&gt;
-&lt;/video&gt;
-</code></pre>
+&lt;<span class="pl-ent">video</span> <span class="pl-e">preload</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>metadata<span class="pl-pds">"</span></span> <span class="pl-e">controlsList</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>nodownload<span class="pl-pds">"</span></span>&gt;
+  &lt;<span class="pl-ent">source</span> <span class="pl-e">src</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>/video.mp4<span class="pl-pds">"</span></span> <span class="pl-e">type</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>video/mp4<span class="pl-pds">"</span></span> /&gt;
+&lt;/<span class="pl-ent">video</span>&gt;</pre></div>
 <p>这些高阶语法让 MDX 超越了传统 Markdown，提供了接近完整 React 应用的开发体验，同时保持了内容的可读性和易写性。</p></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
