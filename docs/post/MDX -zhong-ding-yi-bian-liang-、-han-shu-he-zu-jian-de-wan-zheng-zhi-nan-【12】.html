@@ -19,7 +19,7 @@
 <meta property="og:url" content="https://luminku.github.io/post/MDX%20-zhong-ding-yi-bian-liang-%E3%80%81-han-shu-he-zu-jian-de-wan-zheng-zhi-nan-%E3%80%9012%E3%80%91.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
 <title>MDX 中定义变量、函数和组件的完整指南【12】</title>
-
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
 
 
 </head>
@@ -169,300 +169,284 @@ export default function Post({ children }) {
 <h2>✅ 可以定义的内容及方法</h2>
 <h3>1. <strong>变量定义</strong></h3>
 <h4>方法一：使用立即执行函数表达式 (IIFE)</h4>
-<pre lang="mdx" class="notranslate"><code class="notranslate">{(function() {
-  const userName = 'Kimi';
-  const age = 25;
-  const isLoggedIn = true;
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-s">{</span>(<span class="pl-k">function</span>() {
+  <span class="pl-k"><span class="pl-k">const</span></span> userName <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>Kimi<span class="pl-pds">'</span></span>;
+  <span class="pl-k"><span class="pl-k">const</span></span> age <span class="pl-k">=</span> <span class="pl-c1">25</span>;
+  <span class="pl-k"><span class="pl-k">const</span></span> isLoggedIn <span class="pl-k">=</span> <span class="pl-c1">true</span>;
   
-  return `用户: ${userName}, 年龄: ${age}, 登录状态: ${isLoggedIn}`;
-})()}
-</code></pre>
+  <span class="pl-k">return</span> <span class="pl-s">`</span><span class="pl-s">用户: ${<span class="pl-smi">userName</span>}, 年龄: ${<span class="pl-smi">age</span>}, 登录状态: ${<span class="pl-smi">isLoggedIn</span>}</span><span class="pl-s">`</span>;
+})()<span class="pl-s">}</span></pre></div>
 <h4>方法二：使用块作用域</h4>
-<pre lang="mdx" class="notranslate"><code class="notranslate">{(() =&gt; {
-  const message = 'Hello World!';
-  const count = 42;
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-s">{</span>(() <span class="pl-k">=&gt;</span> {
+  <span class="pl-k"><span class="pl-k">const</span></span> message <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>Hello World!<span class="pl-pds">'</span></span>;
+  <span class="pl-k"><span class="pl-k">const</span></span> count <span class="pl-k">=</span> <span class="pl-c1">42</span>;
   
-  return (
-    &lt;div&gt;
-      &lt;p&gt;{message}&lt;/p&gt;
-      &lt;p&gt;计数: {count}&lt;/p&gt;
-    &lt;/div&gt;
+  <span class="pl-k">return</span> (
+    &lt;<span class="pl-ent">div</span>&gt;
+      &lt;<span class="pl-ent">p</span>&gt;<span class="pl-pse">{</span><span class="pl-smi">message</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">p</span>&gt;
+      &lt;<span class="pl-ent">p</span>&gt;计数: <span class="pl-pse">{</span><span class="pl-smi">count</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">p</span>&gt;
+    &lt;/<span class="pl-ent">div</span>&gt;
   );
-})()}
-</code></pre>
+})()<span class="pl-s">}</span></pre></div>
 <h3>2. <strong>函数定义</strong></h3>
 <h4>方法一：IIFE 中定义函数</h4>
-<pre lang="mdx" class="notranslate"><code class="notranslate">{(function() {
-  function formatDate(date) {
-    return date.toLocaleDateString('zh-CN');
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-s">{</span>(<span class="pl-k">function</span>() {
+  <span class="pl-k">function</span> formatDate(<span class="pl-v">date</span>) {
+    <span class="pl-k">return</span> <span class="pl-smi">date</span>.<span class="pl-en">toLocaleDateString</span>(<span class="pl-s"><span class="pl-pds">'</span>zh-CN<span class="pl-pds">'</span></span>);
   }
   
-  function calculate(a, b) {
-    return a * b;
+  <span class="pl-k">function</span> calculate(<span class="pl-v">a</span>, <span class="pl-v">b</span>) {
+    <span class="pl-k">return</span> <span class="pl-smi">a</span> <span class="pl-k">*</span> <span class="pl-smi">b</span>;
   }
   
-  return (
-    &lt;div&gt;
-      &lt;p&gt;当前日期: {formatDate(new Date())}&lt;/p&gt;
-      &lt;p&gt;计算结果: {calculate(6, 7)}&lt;/p&gt;
-    &lt;/div&gt;
+  <span class="pl-k">return</span> (
+    &lt;<span class="pl-ent">div</span>&gt;
+      &lt;<span class="pl-ent">p</span>&gt;当前日期: <span class="pl-pse">{</span><span class="pl-en">formatDate</span>(<span class="pl-k">new</span> <span class="pl-c1">Date</span>())<span class="pl-pse">}</span>&lt;/<span class="pl-ent">p</span>&gt;
+      &lt;<span class="pl-ent">p</span>&gt;计算结果: <span class="pl-pse">{</span><span class="pl-en">calculate</span>(<span class="pl-c1">6</span>, <span class="pl-c1">7</span>)<span class="pl-pse">}</span>&lt;/<span class="pl-ent">p</span>&gt;
+    &lt;/<span class="pl-ent">div</span>&gt;
   );
-})()}
-</code></pre>
+})()<span class="pl-s">}</span></pre></div>
 <h4>方法二：箭头函数</h4>
-<pre lang="mdx" class="notranslate"><code class="notranslate">{(() =&gt; {
-  const greet = (name) =&gt; `你好, ${name}!`;
-  const double = (x) =&gt; x * 2;
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-s">{</span>(() <span class="pl-k">=&gt;</span> {
+  <span class="pl-k"><span class="pl-k">const</span></span> greet <span class="pl-k">=</span> (<span class="pl-v">name</span>) <span class="pl-k">=&gt;</span> <span class="pl-s">`</span><span class="pl-s">你好, ${<span class="pl-smi">name</span>}!</span><span class="pl-s">`</span>;
+  <span class="pl-k"><span class="pl-k">const</span></span> double <span class="pl-k">=</span> (<span class="pl-v">x</span>) <span class="pl-k">=&gt;</span> <span class="pl-smi">x</span> <span class="pl-k">*</span> <span class="pl-c1">2</span>;
   
-  return (
-    &lt;div&gt;
-      &lt;p&gt;{greet('Kimi')}&lt;/p&gt;
-      &lt;p&gt;两倍: {double(21)}&lt;/p&gt;
-    &lt;/div&gt;
+  <span class="pl-k">return</span> (
+    &lt;<span class="pl-ent">div</span>&gt;
+      &lt;<span class="pl-ent">p</span>&gt;<span class="pl-pse">{</span><span class="pl-en">greet</span>(<span class="pl-s"><span class="pl-pds">'</span>Kimi<span class="pl-pds">'</span></span>)<span class="pl-pse">}</span>&lt;/<span class="pl-ent">p</span>&gt;
+      &lt;<span class="pl-ent">p</span>&gt;两倍: <span class="pl-pse">{</span><span class="pl-en">double</span>(<span class="pl-c1">21</span>)<span class="pl-pse">}</span>&lt;/<span class="pl-ent">p</span>&gt;
+    &lt;/<span class="pl-ent">div</span>&gt;
   );
-})()}
-</code></pre>
+})()<span class="pl-s">}</span></pre></div>
 <h3>3. <strong>组件定义</strong></h3>
 <h4>方法一：内联函数组件</h4>
-<pre lang="mdx" class="notranslate"><code class="notranslate">{function Welcome(props) {
-  return &lt;h2 style={{color: 'blue'}}&gt;欢迎, {props.name}!&lt;/h2&gt;;
-}}
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-s">{</span><span class="pl-k">function</span> Welcome(<span class="pl-v">props</span>) {
+  <span class="pl-k">return</span> &lt;<span class="pl-ent">h2</span> <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{color: <span class="pl-s"><span class="pl-pds">'</span>blue<span class="pl-pds">'</span></span>}<span class="pl-pse">}</span>&gt;欢迎, <span class="pl-pse">{</span><span class="pl-smi">props</span>.<span class="pl-c1">name</span><span class="pl-pse">}</span>!&lt;/<span class="pl-ent">h2</span>&gt;;
+}<span class="pl-s">}</span>
 
-&lt;Welcome name="Kimi" /&gt;
-</code></pre>
+&lt;<span class="pl-c1">Welcome</span> <span class="pl-e">name</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Kimi<span class="pl-pds">"</span></span> /&gt;</pre></div>
 <h4>方法二：箭头函数组件</h4>
-<pre lang="mdx" class="notranslate"><code class="notranslate">{const UserCard = ({ user, age }) =&gt; (
-  &lt;div style={{ 
-    border: '1px solid #ccc', 
-    padding: '10px', 
-    margin: '10px',
-    borderRadius: '5px'
-  }}&gt;
-    &lt;h3&gt;{user}&lt;/h3&gt;
-    &lt;p&gt;年龄: {age}&lt;/p&gt;
-    &lt;p&gt;注册时间: {new Date().toLocaleString()}&lt;/p&gt;
-  &lt;/div&gt;
-);}
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-s">{</span><span class="pl-smi">const</span> <span class="pl-en">UserCard</span> <span class="pl-k">=</span> ({ <span class="pl-v">user</span>, <span class="pl-v">age</span> }) <span class="pl-k">=&gt;</span> (
+  &lt;<span class="pl-ent">div</span> <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{ 
+    border: <span class="pl-s"><span class="pl-pds">'</span>1px solid #ccc<span class="pl-pds">'</span></span>, 
+    padding: <span class="pl-s"><span class="pl-pds">'</span>10px<span class="pl-pds">'</span></span>, 
+    margin: <span class="pl-s"><span class="pl-pds">'</span>10px<span class="pl-pds">'</span></span>,
+    borderRadius: <span class="pl-s"><span class="pl-pds">'</span>5px<span class="pl-pds">'</span></span>
+  }<span class="pl-pse">}</span>&gt;
+    &lt;<span class="pl-ent">h3</span>&gt;<span class="pl-pse">{</span><span class="pl-smi">user</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">h3</span>&gt;
+    &lt;<span class="pl-ent">p</span>&gt;年龄: <span class="pl-pse">{</span><span class="pl-smi">age</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">p</span>&gt;
+    &lt;<span class="pl-ent">p</span>&gt;注册时间: <span class="pl-pse">{</span><span class="pl-k">new</span> <span class="pl-c1">Date</span>().<span class="pl-c1">toLocaleString</span>()<span class="pl-pse">}</span>&lt;/<span class="pl-ent">p</span>&gt;
+  &lt;/<span class="pl-ent">div</span>&gt;
+);<span class="pl-s">}</span>
 
-&lt;UserCard user="Kimi" age={25} /&gt;
-&lt;UserCard user="Alice" age={30} /&gt;
-</code></pre>
+&lt;<span class="pl-c1">UserCard</span> <span class="pl-e">user</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Kimi<span class="pl-pds">"</span></span> <span class="pl-e">age</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-c1">25</span><span class="pl-pse">}</span> /&gt;
+&lt;<span class="pl-c1">UserCard</span> <span class="pl-e">user</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Alice<span class="pl-pds">"</span></span> <span class="pl-e">age</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-c1">30</span><span class="pl-pse">}</span> /&gt;</pre></div>
 <h4>方法三：带状态的组件（使用 React Hooks）</h4>
-<pre lang="mdx" class="notranslate"><code class="notranslate">{function Counter() {
-  const [count, setCount] = React.useState(0);
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-s">{</span><span class="pl-k">function</span> Counter() {
+  <span class="pl-k"><span class="pl-k">const</span></span> [count, setCount] <span class="pl-k">=</span> <span class="pl-smi">React</span>.<span class="pl-en">useState</span>(<span class="pl-c1">0</span>);
   
-  return (
-    &lt;div&gt;
-      &lt;p&gt;当前计数: {count}&lt;/p&gt;
-      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;
+  <span class="pl-k">return</span> (
+    &lt;<span class="pl-ent">div</span>&gt;
+      &lt;<span class="pl-ent">p</span>&gt;当前计数: <span class="pl-pse">{</span><span class="pl-smi">count</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">p</span>&gt;
+      &lt;<span class="pl-ent">button</span> <span class="pl-e">onClick</span><span class="pl-k">=</span><span class="pl-pse">{</span>() <span class="pl-k">=&gt;</span> <span class="pl-en">setCount</span>(<span class="pl-smi">count</span> <span class="pl-k">+</span> <span class="pl-c1">1</span>)<span class="pl-pse">}</span>&gt;
         增加
-      &lt;/button&gt;
-      &lt;button onClick={() =&gt; setCount(count - 1)}&gt;
+      &lt;/<span class="pl-ent">button</span>&gt;
+      &lt;<span class="pl-ent">button</span> <span class="pl-e">onClick</span><span class="pl-k">=</span><span class="pl-pse">{</span>() <span class="pl-k">=&gt;</span> <span class="pl-en">setCount</span>(<span class="pl-smi">count</span> <span class="pl-k">-</span> <span class="pl-c1">1</span>)<span class="pl-pse">}</span>&gt;
         减少
-      &lt;/button&gt;
-    &lt;/div&gt;
+      &lt;/<span class="pl-ent">button</span>&gt;
+    &lt;/<span class="pl-ent">div</span>&gt;
   );
-}}
+}<span class="pl-s">}</span>
 
-&lt;Counter /&gt;
-</code></pre>
+&lt;<span class="pl-c1">Counter</span> /&gt;</pre></div>
 <h3>4. <strong>复杂逻辑和数据处理</strong></h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">{(() =&gt; {
-  // 数据数组
-  const users = [
-    { id: 1, name: 'Kimi', role: 'admin' },
-    { id: 2, name: 'Alice', role: 'user' },
-    { id: 3, name: 'Bob', role: 'user' }
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-s">{</span>(() <span class="pl-k">=&gt;</span> {
+  <span class="pl-c"><span class="pl-c">//</span> 数据数组</span>
+  <span class="pl-k"><span class="pl-k">const</span></span> users <span class="pl-k">=</span> [
+    { id: <span class="pl-c1">1</span>, name: <span class="pl-s"><span class="pl-pds">'</span>Kimi<span class="pl-pds">'</span></span>, role: <span class="pl-s"><span class="pl-pds">'</span>admin<span class="pl-pds">'</span></span> },
+    { id: <span class="pl-c1">2</span>, name: <span class="pl-s"><span class="pl-pds">'</span>Alice<span class="pl-pds">'</span></span>, role: <span class="pl-s"><span class="pl-pds">'</span>user<span class="pl-pds">'</span></span> },
+    { id: <span class="pl-c1">3</span>, name: <span class="pl-s"><span class="pl-pds">'</span>Bob<span class="pl-pds">'</span></span>, role: <span class="pl-s"><span class="pl-pds">'</span>user<span class="pl-pds">'</span></span> }
   ];
   
-  // 过滤函数
-  const filterUsers = (users, role) =&gt; 
-    users.filter(user =&gt; user.role === role);
+  <span class="pl-c"><span class="pl-c">//</span> 过滤函数</span>
+  <span class="pl-k"><span class="pl-k">const</span></span> filterUsers <span class="pl-k">=</span> (<span class="pl-v">users</span>, <span class="pl-v">role</span>) <span class="pl-k">=&gt;</span> 
+    <span class="pl-smi">users</span>.<span class="pl-en">filter</span>(<span class="pl-v">user</span> <span class="pl-k">=&gt;</span> <span class="pl-smi">user</span>.<span class="pl-smi">role</span> <span class="pl-k">===</span> <span class="pl-smi">role</span>);
   
-  // 映射函数
-  const userList = filterUsers(users, 'user').map(user =&gt; 
-    &lt;li key={user.id}&gt;{user.name}&lt;/li&gt;
+  <span class="pl-c"><span class="pl-c">//</span> 映射函数</span>
+  <span class="pl-k"><span class="pl-k">const</span></span> userList <span class="pl-k">=</span> <span class="pl-en">filterUsers</span>(<span class="pl-smi">users</span>, <span class="pl-s"><span class="pl-pds">'</span>user<span class="pl-pds">'</span></span>).<span class="pl-en">map</span>(<span class="pl-v">user</span> <span class="pl-k">=&gt;</span> 
+    &lt;<span class="pl-ent">li</span> <span class="pl-e">key</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">user</span>.<span class="pl-c1">id</span><span class="pl-pse">}</span>&gt;<span class="pl-pse">{</span><span class="pl-smi">user</span>.<span class="pl-c1">name</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">li</span>&gt;
   );
   
-  return (
-    &lt;div&gt;
-      &lt;h3&gt;用户列表:&lt;/h3&gt;
-      &lt;ul&gt;{userList}&lt;/ul&gt;
-      &lt;p&gt;总用户数: {users.length}&lt;/p&gt;
-    &lt;/div&gt;
+  <span class="pl-k">return</span> (
+    &lt;<span class="pl-ent">div</span>&gt;
+      &lt;<span class="pl-ent">h3</span>&gt;用户列表:&lt;/<span class="pl-ent">h3</span>&gt;
+      &lt;<span class="pl-ent">ul</span>&gt;<span class="pl-pse">{</span><span class="pl-smi">userList</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">ul</span>&gt;
+      &lt;<span class="pl-ent">p</span>&gt;总用户数: <span class="pl-pse">{</span><span class="pl-smi">users</span>.<span class="pl-c1">length</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">p</span>&gt;
+    &lt;/<span class="pl-ent">div</span>&gt;
   );
-})()}
-</code></pre>
+})()<span class="pl-s">}</span></pre></div>
 <h3>5. <strong>条件渲染</strong></h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">{function ConditionalExample({ isVisible, userType }) {
-  const [isLoggedIn, setIsLoggedIn] = React.useState(true);
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-s">{</span><span class="pl-k">function</span> ConditionalExample({ <span class="pl-v">isVisible</span>, <span class="pl-v">userType</span> }) {
+  <span class="pl-k"><span class="pl-k">const</span></span> [isLoggedIn, setIsLoggedIn] <span class="pl-k">=</span> <span class="pl-smi">React</span>.<span class="pl-en">useState</span>(<span class="pl-c1">true</span>);
   
-  return (
-    &lt;div&gt;
-      {isVisible &amp;&amp; &lt;p&gt;这个内容可见&lt;/p&gt;}
+  <span class="pl-k">return</span> (
+    &lt;<span class="pl-ent">div</span>&gt;
+      <span class="pl-pse">{</span><span class="pl-smi">isVisible</span> <span class="pl-k">&amp;&amp;</span> &lt;<span class="pl-ent">p</span>&gt;这个内容可见&lt;/<span class="pl-ent">p</span>&gt;<span class="pl-pse">}</span>
       
-      {userType === 'admin' ? (
-        &lt;div style={{background: 'gold', padding: '10px'}}&gt;
-          &lt;h3&gt;管理员面板&lt;/h3&gt;
-          &lt;button&gt;管理用户&lt;/button&gt;
-        &lt;/div&gt;
-      ) : (
-        &lt;p&gt;普通用户视图&lt;/p&gt;
-      )}
+      <span class="pl-pse">{</span><span class="pl-smi">userType</span> <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">'</span>admin<span class="pl-pds">'</span></span> <span class="pl-k">?</span> (
+        &lt;<span class="pl-ent">div</span> <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{background: <span class="pl-s"><span class="pl-pds">'</span>gold<span class="pl-pds">'</span></span>, padding: <span class="pl-s"><span class="pl-pds">'</span>10px<span class="pl-pds">'</span></span>}<span class="pl-pse">}</span>&gt;
+          &lt;<span class="pl-ent">h3</span>&gt;管理员面板&lt;/<span class="pl-ent">h3</span>&gt;
+          &lt;<span class="pl-ent">button</span>&gt;管理用户&lt;/<span class="pl-ent">button</span>&gt;
+        &lt;/<span class="pl-ent">div</span>&gt;
+      ) <span class="pl-k">:</span> (
+        &lt;<span class="pl-ent">p</span>&gt;普通用户视图&lt;/<span class="pl-ent">p</span>&gt;
+      )<span class="pl-pse">}</span>
       
-      {isLoggedIn ? (
-        &lt;button onClick={() =&gt; setIsLoggedIn(false)}&gt;退出登录&lt;/button&gt;
-      ) : (
-        &lt;button onClick={() =&gt; setIsLoggedIn(true)}&gt;登录&lt;/button&gt;
-      )}
-    &lt;/div&gt;
+      <span class="pl-pse">{</span><span class="pl-smi">isLoggedIn</span> <span class="pl-k">?</span> (
+        &lt;<span class="pl-ent">button</span> <span class="pl-e">onClick</span><span class="pl-k">=</span><span class="pl-pse">{</span>() <span class="pl-k">=&gt;</span> <span class="pl-en">setIsLoggedIn</span>(<span class="pl-c1">false</span>)<span class="pl-pse">}</span>&gt;退出登录&lt;/<span class="pl-ent">button</span>&gt;
+      ) <span class="pl-k">:</span> (
+        &lt;<span class="pl-ent">button</span> <span class="pl-e">onClick</span><span class="pl-k">=</span><span class="pl-pse">{</span>() <span class="pl-k">=&gt;</span> <span class="pl-en">setIsLoggedIn</span>(<span class="pl-c1">true</span>)<span class="pl-pse">}</span>&gt;登录&lt;/<span class="pl-ent">button</span>&gt;
+      )<span class="pl-pse">}</span>
+    &lt;/<span class="pl-ent">div</span>&gt;
   );
-}}
+}<span class="pl-s">}</span>
 
-&lt;ConditionalExample isVisible={true} userType="admin" /&gt;
-</code></pre>
+&lt;<span class="pl-c1">ConditionalExample</span> <span class="pl-e">isVisible</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-c1">true</span><span class="pl-pse">}</span> <span class="pl-e">userType</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>admin<span class="pl-pds">"</span></span> /&gt;</pre></div>
 <h2>❌ <strong>不能直接定义的内容及原因</strong></h2>
 <h3>1. <strong>顶层的变量/函数声明</strong></h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">// ❌ 错误：这会破坏 MDX 解析
+<div class="highlight highlight-source-mdx"><pre class="notranslate">// ❌ 错误：这会破坏 MDX 解析
 const name = 'Kimi';
-function sayHello() { return 'Hello'; }
+function sayHello() <span class="pl-s">{</span> <span class="pl-smi">return</span> <span class="pl-s"><span class="pl-pds">'</span>Hello<span class="pl-pds">'</span></span>; <span class="pl-s">}</span>
 
 // ✅ 正确：必须包裹在花括号中
-{(function() {
-  const name = 'Kimi';
-  function sayHello() { return 'Hello'; }
-  return sayHello() + ' ' + name;
-})()}
-</code></pre>
+<span class="pl-s">{</span>(<span class="pl-k">function</span>() {
+  <span class="pl-k"><span class="pl-k">const</span></span> name <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>Kimi<span class="pl-pds">'</span></span>;
+  <span class="pl-k">function</span> sayHello() { <span class="pl-k">return</span> <span class="pl-s"><span class="pl-pds">'</span>Hello<span class="pl-pds">'</span></span>; }
+  <span class="pl-k">return</span> <span class="pl-en">sayHello</span>() <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">'</span> <span class="pl-pds">'</span></span> <span class="pl-k">+</span> <span class="pl-smi">name</span>;
+})()<span class="pl-s">}</span></pre></div>
 <p><strong>原因</strong>：MDX 将顶层内容解析为 Markdown 或 JSX 元素，直接的 JavaScript 语句会被当作文本处理。</p>
 <h3>2. <strong>导入非组件模块（在表达式内部）</strong></h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">// ❌ 错误：不能在表达式内使用 import
-{(function() {
-  import { useState } from 'react'; // 语法错误
-  return null;
-})()}
+<div class="highlight highlight-source-mdx"><pre class="notranslate">// ❌ 错误：不能在表达式内使用 import
+<span class="pl-s">{</span>(<span class="pl-k">function</span>() {
+  <span class="pl-k">import</span> { <span class="pl-smi">useState</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>react<span class="pl-pds">'</span></span>; <span class="pl-c"><span class="pl-c">//</span> 语法错误</span>
+  <span class="pl-k">return</span> <span class="pl-c1">null</span>;
+})()<span class="pl-s">}</span>
 
 // ✅ 正确：import 必须在文件顶层
-import { useState } from 'react';
+<span class="pl-k">import</span> { <span class="pl-smi">useState</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>react<span class="pl-pds">'</span></span>;
 
-{function MyComponent() {
-  const [state, setState] = useState(null);
-  return &lt;div&gt;内容&lt;/div&gt;;
-}}
-</code></pre>
+<span class="pl-s">{</span><span class="pl-k">function</span> MyComponent() {
+  <span class="pl-k"><span class="pl-k">const</span></span> [state, setState] <span class="pl-k">=</span> <span class="pl-en">useState</span>(<span class="pl-c1">null</span>);
+  <span class="pl-k">return</span> &lt;<span class="pl-ent">div</span>&gt;内容&lt;/<span class="pl-ent">div</span>&gt;;
+}<span class="pl-s">}</span></pre></div>
 <h2>🎯 <strong>最佳实践模式</strong></h2>
 <h3>模式一：复杂逻辑封装</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">{function DataProcessor({ data }) {
-  // 复杂的数据处理逻辑
-  const processedData = data
-    .filter(item =&gt; item.active)
-    .map(item =&gt; ({
-      ...item,
-      formattedDate: new Date(item.date).toLocaleDateString()
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-s">{</span><span class="pl-k">function</span> DataProcessor({ <span class="pl-v">data</span> }) {
+  <span class="pl-c"><span class="pl-c">//</span> 复杂的数据处理逻辑</span>
+  <span class="pl-k"><span class="pl-k">const</span></span> processedData <span class="pl-k">=</span> <span class="pl-smi">data</span>
+    .<span class="pl-en">filter</span>(<span class="pl-v">item</span> <span class="pl-k">=&gt;</span> <span class="pl-smi">item</span>.<span class="pl-smi">active</span>)
+    .<span class="pl-en">map</span>(<span class="pl-v">item</span> <span class="pl-k">=&gt;</span> ({
+      <span class="pl-k">...</span><span class="pl-smi">item</span>,
+      formattedDate: <span class="pl-k">new</span> <span class="pl-c1">Date</span>(<span class="pl-smi">item</span>.<span class="pl-smi">date</span>).<span class="pl-en">toLocaleDateString</span>()
     }))
-    .sort((a, b) =&gt; new Date(b.date) - new Date(a.date));
+    .<span class="pl-c1">sort</span>((<span class="pl-v">a</span>, <span class="pl-v">b</span>) <span class="pl-k">=&gt;</span> <span class="pl-k">new</span> <span class="pl-c1">Date</span>(<span class="pl-smi">b</span>.<span class="pl-smi">date</span>) <span class="pl-k">-</span> <span class="pl-k">new</span> <span class="pl-c1">Date</span>(<span class="pl-smi">a</span>.<span class="pl-smi">date</span>));
   
-  return (
-    &lt;div&gt;
-      {processedData.map(item =&gt; (
-        &lt;div key={item.id}&gt;
-          &lt;h4&gt;{item.name}&lt;/h4&gt;
-          &lt;p&gt;日期: {item.formattedDate}&lt;/p&gt;
-        &lt;/div&gt;
-      ))}
-    &lt;/div&gt;
+  <span class="pl-k">return</span> (
+    &lt;<span class="pl-ent">div</span>&gt;
+      <span class="pl-pse">{</span><span class="pl-smi">processedData</span>.<span class="pl-en">map</span>(<span class="pl-v">item</span> <span class="pl-k">=&gt;</span> (
+        &lt;<span class="pl-ent">div</span> <span class="pl-e">key</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">item</span>.<span class="pl-c1">id</span><span class="pl-pse">}</span>&gt;
+          &lt;<span class="pl-ent">h4</span>&gt;<span class="pl-pse">{</span><span class="pl-smi">item</span>.<span class="pl-c1">name</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">h4</span>&gt;
+          &lt;<span class="pl-ent">p</span>&gt;日期: <span class="pl-pse">{</span><span class="pl-smi">item</span>.<span class="pl-smi">formattedDate</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">p</span>&gt;
+        &lt;/<span class="pl-ent">div</span>&gt;
+      ))<span class="pl-pse">}</span>
+    &lt;/<span class="pl-ent">div</span>&gt;
   );
-}}
+}<span class="pl-s">}</span>
 
-&lt;DataProcessor data={[
-  { id: 1, name: '项目A', active: true, date: '2024-01-15' },
-  { id: 2, name: '项目B', active: false, date: '2024-01-20' }
-]} /&gt;
-</code></pre>
+&lt;<span class="pl-c1">DataProcessor</span> <span class="pl-e">data</span><span class="pl-k">=</span><span class="pl-pse">{</span>[
+  { id: <span class="pl-c1">1</span>, name: <span class="pl-s"><span class="pl-pds">'</span>项目A<span class="pl-pds">'</span></span>, active: <span class="pl-c1">true</span>, date: <span class="pl-s"><span class="pl-pds">'</span>2024-01-15<span class="pl-pds">'</span></span> },
+  { id: <span class="pl-c1">2</span>, name: <span class="pl-s"><span class="pl-pds">'</span>项目B<span class="pl-pds">'</span></span>, active: <span class="pl-c1">false</span>, date: <span class="pl-s"><span class="pl-pds">'</span>2024-01-20<span class="pl-pds">'</span></span> }
+]<span class="pl-pse">}</span> /&gt;</pre></div>
 <h3>模式二：工具函数集合</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">{const utils = {
-  formatCurrency: (amount) =&gt; `¥${amount.toFixed(2)}`,
-  truncateText: (text, length) =&gt; 
-    text.length &gt; length ? text.substring(0, length) + '...' : text,
-  generateId: () =&gt; Math.random().toString(36).substr(2, 9)
-};}
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-s">{</span><span class="pl-smi">const</span> <span class="pl-smi">utils</span> <span class="pl-k">=</span> {
+  <span class="pl-en">formatCurrency</span>: (<span class="pl-v">amount</span>) <span class="pl-k">=&gt;</span> <span class="pl-s">`</span><span class="pl-s">¥${<span class="pl-smi">amount</span>.<span class="pl-en">toFixed</span>(<span class="pl-c1">2</span>)}</span><span class="pl-s">`</span>,
+  <span class="pl-en">truncateText</span>: (<span class="pl-v">text</span>, <span class="pl-v">length</span>) <span class="pl-k">=&gt;</span> 
+    <span class="pl-smi">text</span>.<span class="pl-c1">length</span> <span class="pl-k">&gt;</span> <span class="pl-smi">length</span> <span class="pl-k">?</span> <span class="pl-smi">text</span>.<span class="pl-c1">substring</span>(<span class="pl-c1">0</span>, <span class="pl-smi">length</span>) <span class="pl-k">+</span> <span class="pl-s"><span class="pl-pds">'</span>...<span class="pl-pds">'</span></span> <span class="pl-k">:</span> <span class="pl-smi">text</span>,
+  <span class="pl-en">generateId</span>: () <span class="pl-k">=&gt;</span> <span class="pl-c1">Math</span>.<span class="pl-c1">random</span>().<span class="pl-c1">toString</span>(<span class="pl-c1">36</span>).<span class="pl-c1">substr</span>(<span class="pl-c1">2</span>, <span class="pl-c1">9</span>)
+};<span class="pl-s">}</span>
 
-{function ProductList({ products }) {
-  return (
-    &lt;ul&gt;
-      {products.map(product =&gt; (
-        &lt;li key={utils.generateId()}&gt;
-          &lt;strong&gt;{utils.truncateText(product.name, 20)}&lt;/strong&gt;
-          &lt;span&gt; - {utils.formatCurrency(product.price)}&lt;/span&gt;
-        &lt;/li&gt;
-      ))}
-    &lt;/ul&gt;
+<span class="pl-s">{</span><span class="pl-k">function</span> ProductList({ <span class="pl-v">products</span> }) {
+  <span class="pl-k">return</span> (
+    &lt;<span class="pl-ent">ul</span>&gt;
+      <span class="pl-pse">{</span><span class="pl-smi">products</span>.<span class="pl-en">map</span>(<span class="pl-v">product</span> <span class="pl-k">=&gt;</span> (
+        &lt;<span class="pl-ent">li</span> <span class="pl-e">key</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">utils</span>.<span class="pl-en">generateId</span>()<span class="pl-pse">}</span>&gt;
+          &lt;<span class="pl-ent">strong</span>&gt;<span class="pl-pse">{</span><span class="pl-smi">utils</span>.<span class="pl-en">truncateText</span>(<span class="pl-smi">product</span>.<span class="pl-c1">name</span>, <span class="pl-c1">20</span>)<span class="pl-pse">}</span>&lt;/<span class="pl-ent">strong</span>&gt;
+          &lt;<span class="pl-ent">span</span>&gt; - <span class="pl-pse">{</span><span class="pl-smi">utils</span>.<span class="pl-en">formatCurrency</span>(<span class="pl-smi">product</span>.<span class="pl-smi">price</span>)<span class="pl-pse">}</span>&lt;/<span class="pl-ent">span</span>&gt;
+        &lt;/<span class="pl-ent">li</span>&gt;
+      ))<span class="pl-pse">}</span>
+    &lt;/<span class="pl-ent">ul</span>&gt;
   );
-}}
+}<span class="pl-s">}</span>
 
-&lt;ProductList products={[
-  { name: '笔记本电脑非常高端的型号', price: 5999.99 },
-  { name: '无线鼠标', price: 129.50 }
-]} /&gt;
-</code></pre>
+&lt;<span class="pl-c1">ProductList</span> <span class="pl-e">products</span><span class="pl-k">=</span><span class="pl-pse">{</span>[
+  { name: <span class="pl-s"><span class="pl-pds">'</span>笔记本电脑非常高端的型号<span class="pl-pds">'</span></span>, price: <span class="pl-c1">5999.99</span> },
+  { name: <span class="pl-s"><span class="pl-pds">'</span>无线鼠标<span class="pl-pds">'</span></span>, price: <span class="pl-c1">129.50</span> }
+]<span class="pl-pse">}</span> /&gt;</pre></div>
 <h2>⚡ <strong>实用技巧</strong></h2>
 <h3>1. <strong>错误边界</strong></h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">{function SafeComponent({ content }) {
-  try {
-    return &lt;div&gt;{content}&lt;/div&gt;;
-  } catch (error) {
-    return &lt;div style={{color: 'red'}}&gt;组件渲染错误&lt;/div&gt;;
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-s">{</span><span class="pl-k">function</span> SafeComponent({ <span class="pl-v">content</span> }) {
+  <span class="pl-k">try</span> {
+    <span class="pl-k">return</span> &lt;<span class="pl-ent">div</span>&gt;<span class="pl-pse">{</span><span class="pl-smi">content</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">div</span>&gt;;
+  } <span class="pl-k">catch</span> (<span class="pl-smi">error</span>) {
+    <span class="pl-k">return</span> &lt;<span class="pl-ent">div</span> <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{color: <span class="pl-s"><span class="pl-pds">'</span>red<span class="pl-pds">'</span></span>}<span class="pl-pse">}</span>&gt;组件渲染错误&lt;/<span class="pl-ent">div</span>&gt;;
   }
-}}
+}<span class="pl-s">}</span>
 
-&lt;SafeComponent content="正常内容" /&gt;
-</code></pre>
+&lt;<span class="pl-c1">SafeComponent</span> <span class="pl-e">content</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>正常内容<span class="pl-pds">"</span></span> /&gt;</pre></div>
 <h3>2. <strong>性能优化</strong></h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">{const MemoizedComponent = React.memo(function({ data }) {
-  // 昂贵的计算
-  const processed = React.useMemo(() =&gt; 
-    data.map(item =&gt; expensiveCalculation(item)), [data]);
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-s">{</span><span class="pl-smi">const</span> <span class="pl-smi">MemoizedComponent</span> <span class="pl-k">=</span> <span class="pl-smi">React</span>.<span class="pl-en">memo</span>(<span class="pl-k">function</span>({ <span class="pl-v">data</span> }) {
+  <span class="pl-c"><span class="pl-c">//</span> 昂贵的计算</span>
+  <span class="pl-k"><span class="pl-k">const</span></span> processed <span class="pl-k">=</span> <span class="pl-smi">React</span>.<span class="pl-en">useMemo</span>(() <span class="pl-k">=&gt;</span> 
+    <span class="pl-smi">data</span>.<span class="pl-en">map</span>(<span class="pl-v">item</span> <span class="pl-k">=&gt;</span> <span class="pl-en">expensiveCalculation</span>(<span class="pl-smi">item</span>)), [<span class="pl-smi">data</span>]);
   
-  return &lt;div&gt;{processed.join(', ')}&lt;/div&gt;;
-});}
+  <span class="pl-k">return</span> &lt;<span class="pl-ent">div</span>&gt;<span class="pl-pse">{</span><span class="pl-smi">processed</span>.<span class="pl-c1">join</span>(<span class="pl-s"><span class="pl-pds">'</span>, <span class="pl-pds">'</span></span>)<span class="pl-pse">}</span>&lt;/<span class="pl-ent">div</span>&gt;;
+});<span class="pl-s">}</span>
 
-&lt;MemoizedComponent data={[1, 2, 3, 4, 5]} /&gt;
-</code></pre>
+&lt;<span class="pl-c1">MemoizedComponent</span> <span class="pl-e">data</span><span class="pl-k">=</span><span class="pl-pse">{</span>[<span class="pl-c1">1</span>, <span class="pl-c1">2</span>, <span class="pl-c1">3</span>, <span class="pl-c1">4</span>, <span class="pl-c1">5</span>]<span class="pl-pse">}</span> /&gt;</pre></div>
 <h2>🎪 <strong>高级模式</strong></h2>
 <h3>1. <strong>自定义 Hook（需要 React 支持）</strong></h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">import { useState, useEffect } from 'react';
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-k">import</span> { <span class="pl-smi">useState</span>, <span class="pl-smi">useEffect</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>react<span class="pl-pds">'</span></span>;
 
-{function useApiData(url) {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
+<span class="pl-s">{</span><span class="pl-k">function</span> useApiData(<span class="pl-v">url</span>) {
+  <span class="pl-k"><span class="pl-k">const</span></span> [data, setData] <span class="pl-k">=</span> <span class="pl-en">useState</span>(<span class="pl-c1">null</span>);
+  <span class="pl-k"><span class="pl-k">const</span></span> [loading, setLoading] <span class="pl-k">=</span> <span class="pl-en">useState</span>(<span class="pl-c1">true</span>);
   
-  useEffect(() =&gt; {
-    fetch(url)
-      .then(res =&gt; res.json())
-      .then(data =&gt; {
-        setData(data);
-        setLoading(false);
+  <span class="pl-en">useEffect</span>(() <span class="pl-k">=&gt;</span> {
+    <span class="pl-en">fetch</span>(<span class="pl-smi">url</span>)
+      .<span class="pl-c1">then</span>(<span class="pl-v">res</span> <span class="pl-k">=&gt;</span> <span class="pl-smi">res</span>.<span class="pl-en">json</span>())
+      .<span class="pl-c1">then</span>(<span class="pl-v">data</span> <span class="pl-k">=&gt;</span> {
+        <span class="pl-en">setData</span>(<span class="pl-smi">data</span>);
+        <span class="pl-en">setLoading</span>(<span class="pl-c1">false</span>);
       });
-  }, [url]);
+  }, [<span class="pl-smi">url</span>]);
   
-  return { data, loading };
-}}
+  <span class="pl-k">return</span> { <span class="pl-smi">data</span>, <span class="pl-smi">loading</span> };
+}<span class="pl-s">}</span>
 
-{function ApiComponent() {
-  const { data, loading } = useApiData('/api/data');
+<span class="pl-s">{</span><span class="pl-k">function</span> ApiComponent() {
+  <span class="pl-k"><span class="pl-k">const</span></span> { data, loading } <span class="pl-k">=</span> <span class="pl-en">useApiData</span>(<span class="pl-s"><span class="pl-pds">'</span>/api/data<span class="pl-pds">'</span></span>);
   
-  if (loading) return &lt;div&gt;加载中...&lt;/div&gt;;
+  <span class="pl-k">if</span> (<span class="pl-smi">loading</span>) <span class="pl-k">return</span> &lt;<span class="pl-ent">div</span>&gt;加载中...&lt;/<span class="pl-ent">div</span>&gt;;
   
-  return (
-    &lt;div&gt;
-      &lt;h3&gt;API 数据:&lt;/h3&gt;
-      &lt;pre&gt;{JSON.stringify(data, null, 2)}&lt;/pre&gt;
-    &lt;/div&gt;
+  <span class="pl-k">return</span> (
+    &lt;<span class="pl-ent">div</span>&gt;
+      &lt;<span class="pl-ent">h3</span>&gt;API 数据:&lt;/<span class="pl-ent">h3</span>&gt;
+      &lt;<span class="pl-ent">pre</span>&gt;<span class="pl-pse">{</span><span class="pl-c1">JSON</span>.<span class="pl-c1">stringify</span>(<span class="pl-smi">data</span>, <span class="pl-c1">null</span>, <span class="pl-c1">2</span>)<span class="pl-pse">}</span>&lt;/<span class="pl-ent">pre</span>&gt;
+    &lt;/<span class="pl-ent">div</span>&gt;
   );
-}}
+}<span class="pl-s">}</span>
 
-&lt;ApiComponent /&gt;
-</code></pre>
+&lt;<span class="pl-c1">ApiComponent</span> /&gt;</pre></div>
 <p>通过以上模式，你可以在 MDX 中实现几乎所有的 JavaScript 功能，同时保持代码的整洁和可维护性。记住关键原则：<strong>所有 JavaScript 逻辑都必须包裹在 <code class="notranslate">{}</code> 中</strong>。</p></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
