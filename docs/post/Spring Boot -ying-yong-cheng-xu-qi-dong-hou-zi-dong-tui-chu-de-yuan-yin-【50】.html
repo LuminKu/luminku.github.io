@@ -17,7 +17,7 @@
 <meta property="og:url" content="https://luminku.github.io/post/Spring%20Boot%20-ying-yong-cheng-xu-qi-dong-hou-zi-dong-tui-chu-de-yuan-yin-%E3%80%9050%E3%80%91.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
 <title>Spring Boot 应用程序启动后自动退出的原因【50】</title>
-<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
 
 
 </head>
@@ -90,47 +90,50 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li><strong>解决方法</strong>：
 <ul>
 <li><strong>添加 Web 服务</strong>：如果你希望项目运行一个 Web 服务，可以添加一个简单的 <code class="notranslate">@RestController</code>：
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">package</span> <span class="pl-s1">com</span>.<span class="pl-s1">heima</span>.<span class="pl-s1">controller</span>;
+<pre lang="java" class="notranslate"><code class="notranslate">package com.heima.controller;
 
-<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">web</span>.<span class="pl-s1">bind</span>.<span class="pl-s1">annotation</span>.<span class="pl-s1">GetMapping</span>;
-<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">web</span>.<span class="pl-s1">bind</span>.<span class="pl-s1">annotation</span>.<span class="pl-s1">RestController</span>;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-<span class="pl-c1">@</span><span class="pl-c1">RestController</span>
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">HelloController</span> {
-    <span class="pl-c1">@</span><span class="pl-c1">GetMapping</span>(<span class="pl-s">"/hello"</span>)
-    <span class="pl-k">public</span> <span class="pl-smi">String</span> <span class="pl-en">hello</span>() {
-        <span class="pl-k">return</span> <span class="pl-s">"Hello, Redis!"</span>;
+@RestController
+public class HelloController {
+    @GetMapping("/hello")
+    public String hello() {
+        return "Hello, Redis!";
     }
-}</pre></div>
+}
+</code></pre>
 </li>
 <li><strong>添加定时任务</strong>：如果你希望项目在后台执行某些任务，可以使用 Spring 的 <code class="notranslate">@Scheduled</code> 注解：
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">package</span> <span class="pl-s1">com</span>.<span class="pl-s1">heima</span>;
+<pre lang="java" class="notranslate"><code class="notranslate">package com.heima;
 
-<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">scheduling</span>.<span class="pl-s1">annotation</span>.<span class="pl-s1">Scheduled</span>;
-<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">stereotype</span>.<span class="pl-s1">Component</span>;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
 
-<span class="pl-c1">@</span><span class="pl-c1">Component</span>
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">MyScheduledTask</span> {
-    <span class="pl-c1">@</span><span class="pl-c1">Scheduled</span>(<span class="pl-s1">fixedRate</span> = <span class="pl-c1">5000</span>)
-    <span class="pl-k">public</span> <span class="pl-smi">void</span> <span class="pl-en">run</span>() {
-        <span class="pl-smi">System</span>.<span class="pl-s1">out</span>.<span class="pl-en">println</span>(<span class="pl-s">"Running scheduled task every 5 seconds"</span>);
+@Component
+public class MyScheduledTask {
+    @Scheduled(fixedRate = 5000)
+    public void run() {
+        System.out.println("Running scheduled task every 5 seconds");
     }
-}</pre></div>
+}
+</code></pre>
 </li>
 <li><strong>启用定时任务</strong>：在 <code class="notranslate">RedisDemoApplication</code> 中添加 <code class="notranslate">@EnableScheduling</code> 注解：
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">package</span> <span class="pl-s1">com</span>.<span class="pl-s1">heima</span>;
+<pre lang="java" class="notranslate"><code class="notranslate">package com.heima;
 
-<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">boot</span>.<span class="pl-s1">SpringApplication</span>;
-<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">boot</span>.<span class="pl-s1">autoconfigure</span>.<span class="pl-s1">SpringBootApplication</span>;
-<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">scheduling</span>.<span class="pl-s1">annotation</span>.<span class="pl-s1">EnableScheduling</span>;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
-<span class="pl-c1">@</span><span class="pl-c1">SpringBootApplication</span>
-<span class="pl-c1">@</span><span class="pl-c1">EnableScheduling</span>
-<span class="pl-k">public</span> <span class="pl-k">class</span> <span class="pl-smi">RedisDemoApplication</span> {
-    <span class="pl-k">public</span> <span class="pl-k">static</span> <span class="pl-smi">void</span> <span class="pl-en">main</span>(<span class="pl-smi">String</span>[] <span class="pl-s1">args</span>) {
-        <span class="pl-smi">SpringApplication</span>.<span class="pl-en">run</span>(<span class="pl-smi">RedisDemoApplication</span>.<span class="pl-k">class</span>, <span class="pl-s1">args</span>);
+@SpringBootApplication
+@EnableScheduling
+public class RedisDemoApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(RedisDemoApplication.class, args);
     }
-}</pre></div>
+}
+</code></pre>
 </li>
 </ul>
 </li>
@@ -144,14 +147,15 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <li><strong>解决方法</strong>：
 <ul>
 <li><strong>定义 Redis 仓库接口</strong>：例如，定义一个简单的仓库接口：
-<div class="highlight highlight-source-java"><pre class="notranslate"><span class="pl-k">package</span> <span class="pl-s1">com</span>.<span class="pl-s1">heima</span>.<span class="pl-s1">repository</span>;
+<pre lang="java" class="notranslate"><code class="notranslate">package com.heima.repository;
 
-<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">data</span>.<span class="pl-s1">redis</span>.<span class="pl-s1">repository</span>.<span class="pl-s1">configuration</span>.<span class="pl-s1">EnableRedisRepositories</span>;
-<span class="pl-k">import</span> <span class="pl-s1">org</span>.<span class="pl-s1">springframework</span>.<span class="pl-s1">data</span>.<span class="pl-s1">repository</span>.<span class="pl-s1">CrudRepository</span>;
+import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
+import org.springframework.data.repository.CrudRepository;
 
-<span class="pl-c1">@</span><span class="pl-c1">EnableRedisRepositories</span>
-<span class="pl-k">public</span> <span class="pl-k">interface</span> <span class="pl-smi">UserRedisRepository</span> <span class="pl-k">extends</span> <span class="pl-smi">CrudRepository</span>&lt;<span class="pl-smi">User</span>, <span class="pl-smi">String</span>&gt; {
-}</pre></div>
+@EnableRedisRepositories
+public interface UserRedisRepository extends CrudRepository&lt;User, String&gt; {
+}
+</code></pre>
 </li>
 <li><strong>确保实体类存在</strong>：确保你的 <code class="notranslate">User</code> 类（或其他实体类）已正确定义，并且可以被 Spring Data Redis 使用。</li>
 </ul>

@@ -17,7 +17,7 @@
 <meta property="og:url" content="https://luminku.github.io/post/ip%20addr-xiang-jie-%E3%80%9076%E3%80%91.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
 <title>ip addr详解【76】</title>
-<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
 
 
 </head>
@@ -134,12 +134,13 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <p>💡 <strong>关键认知</strong>：<code class="notranslate">ip</code> 命令是 <strong>Linux 内核网络子系统的标准接口</strong>，不是第三方扩展！它通过 <strong>Netlink 协议</strong> 直接与内核通信，绕过 <code class="notranslate">/proc</code> 文件系统，效率更高。</p>
 </blockquote>
 <h3>🧩 软件包归属</h3>
-<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 查看 ip 命令属于哪个包</span>
-dpkg -S <span class="pl-s"><span class="pl-pds">$(</span>which ip<span class="pl-pds">)</span></span>
-<span class="pl-c"><span class="pl-c">#</span> 输出：iproute2: /usr/sbin/ip</span>
+<pre lang="bash" class="notranslate"><code class="notranslate"># 查看 ip 命令属于哪个包
+dpkg -S $(which ip)
+# 输出：iproute2: /usr/sbin/ip
 
-<span class="pl-c"><span class="pl-c">#</span> 查看包信息</span>
-apt show iproute2</pre></div>
+# 查看包信息
+apt show iproute2
+</code></pre>
 <p><strong><code class="notranslate">iproute2</code></strong> 是 Linux 网络工具的事实标准，包含：</p>
 <ul>
 <li><code class="notranslate">ip</code> - 网络设备/地址/路由管理</li>
@@ -168,7 +169,8 @@ apt show iproute2</pre></div>
 <hr>
 <h2>🔬 逐字段深度拆解</h2>
 <h3>1️⃣ 接口标识行解析</h3>
-<div class="highlight highlight-source-shell"><pre class="notranslate">3: wlp2s0: <span class="pl-k">&lt;</span>BROADCAST,MULTICAST,UP,LOWER_UP<span class="pl-k">&gt;</span> mtu 1500 qdisc noqueue state UP group default qlen 1000</pre></div>
+<pre lang="bash" class="notranslate"><code class="notranslate">3: wlp2s0: &lt;BROADCAST,MULTICAST,UP,LOWER_UP&gt; mtu 1500 qdisc noqueue state UP group default qlen 1000
+</code></pre>
 <markdown-accessiblity-table><table role="table">
 <thead>
 <tr>
@@ -272,7 +274,8 @@ apt show iproute2</pre></div>
 </table></markdown-accessiblity-table>
 <hr>
 <h3>2️⃣ 链路层信息 (L2)</h3>
-<div class="highlight highlight-source-shell"><pre class="notranslate">link/ether ac:fd:ce:47:f5:45 brd ff:ff:ff:ff:ff:ff</pre></div>
+<pre lang="bash" class="notranslate"><code class="notranslate">link/ether ac:fd:ce:47:f5:45 brd ff:ff:ff:ff:ff:ff
+</code></pre>
 <markdown-accessiblity-table><table role="table">
 <thead>
 <tr>
@@ -295,7 +298,8 @@ apt show iproute2</pre></div>
 </tbody>
 </table></markdown-accessiblity-table>
 <p><strong>特殊案例 - 你的 <code class="notranslate">veth</code> 接口：</strong></p>
-<div class="highlight highlight-source-shell"><pre class="notranslate">6: vethf656c41@if2: ... link-netnsid 0</pre></div>
+<pre lang="bash" class="notranslate"><code class="notranslate">6: vethf656c41@if2: ... link-netnsid 0
+</code></pre>
 <markdown-accessiblity-table><table role="table">
 <thead>
 <tr>
@@ -316,8 +320,9 @@ apt show iproute2</pre></div>
 </table></markdown-accessiblity-table>
 <hr>
 <h3>3️⃣ 网络层信息 (L3) - IPv4</h3>
-<div class="highlight highlight-source-shell"><pre class="notranslate">inet 192.168.0.105/24 brd 192.168.0.255 scope global dynamic noprefixroute wlp2s0
-   valid_lft 5192sec preferred_lft 5192sec</pre></div>
+<pre lang="bash" class="notranslate"><code class="notranslate">inet 192.168.0.105/24 brd 192.168.0.255 scope global dynamic noprefixroute wlp2s0
+   valid_lft 5192sec preferred_lft 5192sec
+</code></pre>
 <markdown-accessiblity-table><table role="table">
 <thead>
 <tr>
@@ -373,16 +378,18 @@ apt show iproute2</pre></div>
 <p>⏰ <strong>生命周期解读</strong>：你的 WiFi 通过 DHCP 获取 IP，租约即将到期 (5192秒 ≈ 1小时26分)，到期前会自动续租。</p>
 </blockquote>
 <p><strong>对比静态配置 (如 docker0)：</strong></p>
-<div class="highlight highlight-source-shell"><pre class="notranslate">inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
-   valid_lft forever preferred_lft forever</pre></div>
+<pre lang="bash" class="notranslate"><code class="notranslate">inet 172.17.0.1/16 brd 172.17.255.255 scope global docker0
+   valid_lft forever preferred_lft forever
+</code></pre>
 <ul>
 <li><code class="notranslate">forever</code> = 永久有效，静态配置</li>
 <li>无 <code class="notranslate">dynamic</code> 标志</li>
 </ul>
 <hr>
 <h3>4️⃣ 网络层信息 (L3) - IPv6</h3>
-<div class="highlight highlight-source-shell"><pre class="notranslate">inet6 fe80::ad37:46f0:87ac:74da/64 scope link noprefixroute 
-   valid_lft forever preferred_lft forever</pre></div>
+<pre lang="bash" class="notranslate"><code class="notranslate">inet6 fe80::ad37:46f0:87ac:74da/64 scope link noprefixroute 
+   valid_lft forever preferred_lft forever
+</code></pre>
 <markdown-accessiblity-table><table role="table">
 <thead>
 <tr>
@@ -413,15 +420,17 @@ apt show iproute2</pre></div>
 <h2>🎯 实战案例分析</h2>
 <h3>案例 1：网络故障排查 🔍</h3>
 <p><strong>场景</strong>：无法上网，但 WiFi 显示已连接</p>
-<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 检查步骤：</span>
+<pre lang="bash" class="notranslate"><code class="notranslate"># 检查步骤：
 ip addr show wlp2s0
 
-<span class="pl-c"><span class="pl-c">#</span> 关键观察点：</span>
-<span class="pl-c"><span class="pl-c">#</span> 1. 是否有 &lt;LOWER_UP&gt; 标志？没有 = 物理层问题</span>
-<span class="pl-c"><span class="pl-c">#</span> 2. 是否有 inet 地址？没有 = DHCP 失败</span>
-<span class="pl-c"><span class="pl-c">#</span> 3. valid_lft 是否为 0？是 = IP 已过期</span></pre></div>
+# 关键观察点：
+# 1. 是否有 &lt;LOWER_UP&gt; 标志？没有 = 物理层问题
+# 2. 是否有 inet 地址？没有 = DHCP 失败
+# 3. valid_lft 是否为 0？是 = IP 已过期
+</code></pre>
 <p><strong>你的 <code class="notranslate">eno1</code> 案例：</strong></p>
-<div class="highlight highlight-source-shell"><pre class="notranslate">2: eno1: <span class="pl-k">&lt;</span>NO-CARRIER,BROADCAST,MULTICAST,UP<span class="pl-k">&gt;</span> ... state DOWN</pre></div>
+<pre lang="bash" class="notranslate"><code class="notranslate">2: eno1: &lt;NO-CARRIER,BROADCAST,MULTICAST,UP&gt; ... state DOWN
+</code></pre>
 <ul>
 <li><code class="notranslate">UP</code> + <code class="notranslate">NO-CARRIER</code> = 网卡已启用，但 <strong>网线未插或交换机断电</strong></li>
 <li><code class="notranslate">state DOWN</code> = 内核认为接口未就绪</li>
@@ -447,11 +456,12 @@ ip addr show wlp2s0
     └────────────┘    └────────────┘
 </code></pre>
 <p><strong>验证命令：</strong></p>
-<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 查看哪个容器使用了这个网桥</span>
+<pre lang="bash" class="notranslate"><code class="notranslate"># 查看哪个容器使用了这个网桥
 docker network inspect br-3021998f6676
 
-<span class="pl-c"><span class="pl-c">#</span> 查看 veth 对端在容器内的名称 (通常是 eth0)</span>
-docker <span class="pl-c1">exec</span> <span class="pl-k">&lt;</span>container_id<span class="pl-k">&gt;</span> ip addr</pre></div>
+# 查看 veth 对端在容器内的名称 (通常是 eth0)
+docker exec &lt;container_id&gt; ip addr
+</code></pre>
 <h3>案例 3：预测性接口命名规则 🔮</h3>
 <p>你的接口名 <code class="notranslate">wlp2s0</code> 和 <code class="notranslate">eno1</code> 遵循 <strong>systemd 的可预测命名规则</strong>：</p>
 <markdown-accessiblity-table><table role="table">
@@ -479,40 +489,45 @@ docker <span class="pl-c1">exec</span> <span class="pl-k">&lt;</span>container_i
 </tbody>
 </table></markdown-accessiblity-table>
 <p><strong>优点</strong>：插拔网卡后名称不会乱变！</p>
-<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 查看命名策略</span>
+<pre lang="bash" class="notranslate"><code class="notranslate"># 查看命名策略
 cat /etc/systemd/network/99-default.link
-<span class="pl-c"><span class="pl-c">#</span> 或</span>
-udevadm info /sys/class/net/wlp2s0</pre></div>
+# 或
+udevadm info /sys/class/net/wlp2s0
+</code></pre>
 <hr>
 <h2>🚀 高级用法与技巧</h2>
 <h3>🎨 格式化输出 (JSON)</h3>
-<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 现代 iproute2 支持 JSON 输出 (便于脚本处理)</span>
-ip -json addr show wlp2s0 <span class="pl-k">|</span> jq <span class="pl-s"><span class="pl-pds">'</span>.[0].addr_info<span class="pl-pds">'</span></span></pre></div>
+<pre lang="bash" class="notranslate"><code class="notranslate"># 现代 iproute2 支持 JSON 输出 (便于脚本处理)
+ip -json addr show wlp2s0 | jq '.[0].addr_info'
+</code></pre>
 <h3>🔍 过滤特定接口</h3>
-<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 只显示活跃的接口</span>
+<pre lang="bash" class="notranslate"><code class="notranslate"># 只显示活跃的接口
 ip addr show up
 
-<span class="pl-c"><span class="pl-c">#</span> 只显示特定接口</span>
+# 只显示特定接口
 ip addr show dev wlp2s0
 
-<span class="pl-c"><span class="pl-c">#</span> 按 IP 地址查找接口</span>
-ip addr show to 192.168.0.0/24</pre></div>
+# 按 IP 地址查找接口
+ip addr show to 192.168.0.0/24
+</code></pre>
 <h3>⚡ 临时修改 (立即生效，重启丢失)</h3>
-<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 添加 IP 地址</span>
+<pre lang="bash" class="notranslate"><code class="notranslate"># 添加 IP 地址
 sudo ip addr add 192.168.1.100/24 dev eno1
 
-<span class="pl-c"><span class="pl-c">#</span> 删除 IP 地址</span>
+# 删除 IP 地址
 sudo ip addr del 192.168.1.100/24 dev eno1
 
-<span class="pl-c"><span class="pl-c">#</span> 启用/禁用接口</span>
-sudo ip link <span class="pl-c1">set</span> eno1 up
-sudo ip link <span class="pl-c1">set</span> eno1 down</pre></div>
+# 启用/禁用接口
+sudo ip link set eno1 up
+sudo ip link set eno1 down
+</code></pre>
 <h3>📊 监控接口变化</h3>
-<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 实时监控地址变化 (类似 tail -f)</span>
+<pre lang="bash" class="notranslate"><code class="notranslate"># 实时监控地址变化 (类似 tail -f)
 ip monitor addr
 
-<span class="pl-c"><span class="pl-c">#</span> 监控链路状态</span>
-ip monitor link</pre></div>
+# 监控链路状态
+ip monitor link
+</code></pre>
 <hr>
 <h2>🧠 核心要点总结</h2>
 <pre class="notranslate"><code class="notranslate">┌─────────────────────────────────────────────────────────────┐
