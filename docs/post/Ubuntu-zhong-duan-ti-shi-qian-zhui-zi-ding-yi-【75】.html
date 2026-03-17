@@ -17,7 +17,7 @@
 <meta property="og:url" content="https://luminku.github.io/post/Ubuntu-zhong-duan-ti-shi-qian-zhui-zi-ding-yi-%E3%80%9075%E3%80%91.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
 <title>Ubuntu终端提示前缀自定义【75】</title>
-
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
 
 
 </head>
@@ -41,7 +41,17 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     body {padding: 8px;}
     .postTitle{font-size:24px;}
 }
-
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
 </style>
 
 
@@ -84,9 +94,8 @@ xiaxincan@192.168.0.105:</del>$</p>
 <h1>🚀 Ubuntu 24.04 终端提示符(PS1) 终极定制指南</h1>
 <h2>🎯 核心概念：PS1 变量</h2>
 <p>终端提示符由环境变量 <code class="notranslate">PS1</code>（Prompt String 1）控制，修改 <code class="notranslate">~/.bashrc</code> 文件即可永久生效。</p>
-<pre lang="bash" class="notranslate"><code class="notranslate"># 查看当前配置
-echo $PS1
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 查看当前配置</span>
+<span class="pl-c1">echo</span> <span class="pl-smi">$PS1</span></pre></div>
 <hr>
 <h2>🧩 参数详解大全</h2>
 <h3>📊 基础信息类</h3>
@@ -282,13 +291,12 @@ echo $PS1
 </tbody>
 </table></markdown-accessiblity-table>
 <h4>🎭 256色扩展（现代终端）</h4>
-<pre lang="bash" class="notranslate"><code class="notranslate"># 格式：\[\e[38;5;颜色码m\]  # 前景色
-# 格式：\[\e[48;5;颜色码m\]  # 背景色
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 格式：\[\e[38;5;颜色码m\]  # 前景色</span>
+<span class="pl-c"><span class="pl-c">#</span> 格式：\[\e[48;5;颜色码m\]  # 背景色</span>
 
-# 常用颜色码：
-# 196 = 鲜红 🔴  |  82 = 鲜绿 🟢  |  226 = 鲜黄 🟡
-# 21 = 天蓝 🔵  |  201 = 粉红 💗  |  208 = 橙色 🟠
-</code></pre>
+<span class="pl-c"><span class="pl-c">#</span> 常用颜色码：</span>
+<span class="pl-c"><span class="pl-c">#</span> 196 = 鲜红 🔴  |  82 = 鲜绿 🟢  |  226 = 鲜黄 🟡</span>
+<span class="pl-c"><span class="pl-c">#</span> 21 = 天蓝 🔵  |  201 = 粉红 💗  |  208 = 橙色 🟠</span></pre></div>
 <hr>
 <h2>🔧 高级参数与技巧</h2>
 <h3>🔄 条件判断类</h3>
@@ -339,166 +347,155 @@ echo $PS1
 </tbody>
 </table></markdown-accessiblity-table>
 <h3>🌿 实用函数片段</h3>
-<pre lang="bash" class="notranslate"><code class="notranslate"># 获取Git分支名 🌿
-parse_git_branch() {
-    git branch 2&gt;/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 获取Git分支名 🌿</span>
+<span class="pl-en">parse_git_branch</span>() {
+    git branch <span class="pl-k">2&gt;</span>/dev/null <span class="pl-k">|</span> sed -e <span class="pl-s"><span class="pl-pds">'</span>/^[^*]/d<span class="pl-pds">'</span></span> -e <span class="pl-s"><span class="pl-pds">'</span>s/* \(.*\)/ (\1)/<span class="pl-pds">'</span></span>
 }
 
-# 显示退出状态码 🔴
-exit_status() {
-    local status=$?
-    if [ $status -ne 0 ]; then
-        echo "❌[$status] "
-    fi
+<span class="pl-c"><span class="pl-c">#</span> 显示退出状态码 🔴</span>
+<span class="pl-en">exit_status</span>() {
+    <span class="pl-k">local</span> status=<span class="pl-smi">$?</span>
+    <span class="pl-k">if</span> [ <span class="pl-smi">$status</span> <span class="pl-k">-ne</span> 0 ]<span class="pl-k">;</span> <span class="pl-k">then</span>
+        <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>❌[<span class="pl-smi">$status</span>] <span class="pl-pds">"</span></span>
+    <span class="pl-k">fi</span>
 }
 
-# 电池电量 🔋（笔记本适用）
-battery_status() {
-    upower -i $(upower -e | grep BAT) 2&gt;/dev/null | grep percentage | awk '{print $2}'
+<span class="pl-c"><span class="pl-c">#</span> 电池电量 🔋（笔记本适用）</span>
+<span class="pl-en">battery_status</span>() {
+    upower -i <span class="pl-s"><span class="pl-pds">$(</span>upower -e <span class="pl-k">|</span> grep BAT<span class="pl-pds">)</span></span> <span class="pl-k">2&gt;</span>/dev/null <span class="pl-k">|</span> grep percentage <span class="pl-k">|</span> awk <span class="pl-s"><span class="pl-pds">'</span>{print $2}<span class="pl-pds">'</span></span>
 }
 
-# 负载监控 📊
-load_avg() {
-    uptime | awk -F'load average:' '{print $2}' | cut -d, -f1
-}
-</code></pre>
+<span class="pl-c"><span class="pl-c">#</span> 负载监控 📊</span>
+<span class="pl-en">load_avg</span>() {
+    uptime <span class="pl-k">|</span> awk -F<span class="pl-s"><span class="pl-pds">'</span>load average:<span class="pl-pds">'</span></span> <span class="pl-s"><span class="pl-pds">'</span>{print $2}<span class="pl-pds">'</span></span> <span class="pl-k">|</span> cut -d, -f1
+}</pre></div>
 <hr>
 <h2>💡 场景化配置实战</h2>
 <h3>🏠 场景一：极简主义（适合新手/清爽派）</h3>
 <p><strong>配置目标：</strong> 只保留核心信息，视觉干净</p>
-<pre lang="bash" class="notranslate"><code class="notranslate"># ~/.bashrc 添加
-PS1='\[\e[32m\]➜ \[\e[36m\]\W\[\e[0m\] \$ '
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> ~/.bashrc 添加</span>
+PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e[32m\]➜ \[\e[36m\]\W\[\e[0m\] \$ <span class="pl-pds">'</span></span></pre></div>
 <p><strong>呈现效果：</strong></p>
-<pre lang="bash" class="notranslate"><code class="notranslate">➜ ~ $ cd projects
-➜ projects $ 
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">➜ <span class="pl-k">~</span> $ <span class="pl-c1">cd</span> projects
+➜ projects $ </pre></div>
 <p><strong>特点：</strong> ✅ 绿色箭头引导，青色目录，极简高效</p>
 <hr>
 <h3>🎨 场景二：开发者专业版（Git感知）</h3>
 <p><strong>配置目标：</strong> 显示Git分支、Python虚拟环境、退出状态</p>
-<pre lang="bash" class="notranslate"><code class="notranslate"># 添加到 ~/.bashrc
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 添加到 ~/.bashrc</span>
 
-# 虚拟环境显示 🐍
-venv_info() {
-    if [[ -n "$VIRTUAL_ENV" ]]; then
-        echo "🐍$(basename "$VIRTUAL_ENV") "
-    fi
+<span class="pl-c"><span class="pl-c">#</span> 虚拟环境显示 🐍</span>
+<span class="pl-en">venv_info</span>() {
+    <span class="pl-k">if</span> [[ <span class="pl-k">-n</span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$VIRTUAL_ENV</span><span class="pl-pds">"</span></span> ]]<span class="pl-k">;</span> <span class="pl-k">then</span>
+        <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>🐍<span class="pl-s"><span class="pl-pds">$(</span>basename <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$VIRTUAL_ENV</span><span class="pl-pds">"</span></span><span class="pl-pds">)</span></span> <span class="pl-pds">"</span></span>
+    <span class="pl-k">fi</span>
 }
 
-# Git分支显示 🌿
-git_info() {
-    local branch=$(git symbolic-ref --short HEAD 2&gt;/dev/null)
-    if [[ -n "$branch" ]]; then
-        local status=$(git status --porcelain 2&gt;/dev/null)
-        if [[ -n "$status" ]]; then
-            echo " 🌿\[\e[31m\]$branch*\[\e[0m\]"  # 有未提交更改显示红色
-        else
-            echo " 🌿\[\e[32m\]$branch\[\e[0m\]"   # 干净状态显示绿色
-        fi
-    fi
+<span class="pl-c"><span class="pl-c">#</span> Git分支显示 🌿</span>
+<span class="pl-en">git_info</span>() {
+    <span class="pl-k">local</span> branch=<span class="pl-s"><span class="pl-pds">$(</span>git symbolic-ref --short HEAD <span class="pl-k">2&gt;</span>/dev/null<span class="pl-pds">)</span></span>
+    <span class="pl-k">if</span> [[ <span class="pl-k">-n</span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$branch</span><span class="pl-pds">"</span></span> ]]<span class="pl-k">;</span> <span class="pl-k">then</span>
+        <span class="pl-k">local</span> status=<span class="pl-s"><span class="pl-pds">$(</span>git status --porcelain <span class="pl-k">2&gt;</span>/dev/null<span class="pl-pds">)</span></span>
+        <span class="pl-k">if</span> [[ <span class="pl-k">-n</span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$status</span><span class="pl-pds">"</span></span> ]]<span class="pl-k">;</span> <span class="pl-k">then</span>
+            <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span> 🌿\[\e[31m\]<span class="pl-smi">$branch</span>*\[\e[0m\]<span class="pl-pds">"</span></span>  <span class="pl-c"><span class="pl-c">#</span> 有未提交更改显示红色</span>
+        <span class="pl-k">else</span>
+            <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span> 🌿\[\e[32m\]<span class="pl-smi">$branch</span>\[\e[0m\]<span class="pl-pds">"</span></span>   <span class="pl-c"><span class="pl-c">#</span> 干净状态显示绿色</span>
+        <span class="pl-k">fi</span>
+    <span class="pl-k">fi</span>
 }
 
-# 退出状态 🔴
-last_cmd_status() {
-    local code=$?
-    if [ $code -ne 0 ]; then
-        echo "\[\e[41;37m\] ✘ $code \[\e[0m\] "
-    fi
+<span class="pl-c"><span class="pl-c">#</span> 退出状态 🔴</span>
+<span class="pl-en">last_cmd_status</span>() {
+    <span class="pl-k">local</span> code=<span class="pl-smi">$?</span>
+    <span class="pl-k">if</span> [ <span class="pl-smi">$code</span> <span class="pl-k">-ne</span> 0 ]<span class="pl-k">;</span> <span class="pl-k">then</span>
+        <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>\[\e[41;37m\] ✘ <span class="pl-smi">$code</span> \[\e[0m\] <span class="pl-pds">"</span></span>
+    <span class="pl-k">fi</span>
 }
 
-PS1='$(last_cmd_status)$(venv_info)\[\e[34m\]📁 \w\[\e[0m\]$(git_info)\n\[\e[33m\]➜\[\e[0m\] '
-</code></pre>
+PS1=<span class="pl-s"><span class="pl-pds">'</span>$(last_cmd_status)$(venv_info)\[\e[34m\]📁 \w\[\e[0m\]$(git_info)\n\[\e[33m\]➜\[\e[0m\] <span class="pl-pds">'</span></span></pre></div>
 <p><strong>呈现效果：</strong></p>
-<pre lang="bash" class="notranslate"><code class="notranslate"># 正常状态
-📁 ~/projects/webapp 🌿main
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 正常状态</span>
+📁 <span class="pl-k">~</span>/projects/webapp 🌿main
 ➜ 
 
-# 有未提交更改
-📁 ~/projects/webapp 🌿develop*
+<span class="pl-c"><span class="pl-c">#</span> 有未提交更改</span>
+📁 <span class="pl-k">~</span>/projects/webapp 🌿develop<span class="pl-k">*</span>
 ➜ 
 
-# 命令执行失败（返回码1）
- ✘ 1 📁 ~/projects/webapp 🌿main
-➜ 
-</code></pre>
+<span class="pl-c"><span class="pl-c">#</span> 命令执行失败（返回码1）</span>
+ ✘ 1 📁 <span class="pl-k">~</span>/projects/webapp 🌿main
+➜ </pre></div>
 <hr>
 <h3>🖥️ 场景三：服务器运维版（IP显示）</h3>
 <p><strong>配置目标：</strong> 远程SSH时显示IP、负载、时间</p>
-<pre lang="bash" class="notranslate"><code class="notranslate"># 获取IP地址 🌐
-get_ip() {
-    hostname -I | awk '{print $1}'
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 获取IP地址 🌐</span>
+<span class="pl-en">get_ip</span>() {
+    hostname -I <span class="pl-k">|</span> awk <span class="pl-s"><span class="pl-pds">'</span>{print $1}<span class="pl-pds">'</span></span>
 }
 
-# 系统负载 📊
-get_load() {
-    cut -d' ' -f1-3 /proc/loadavg
+<span class="pl-c"><span class="pl-c">#</span> 系统负载 📊</span>
+<span class="pl-en">get_load</span>() {
+    cut -d<span class="pl-s"><span class="pl-pds">'</span> <span class="pl-pds">'</span></span> -f1-3 /proc/loadavg
 }
 
-PS1='\[\e[40;33m\] 🖥️ \u\[\e[0m\]@\[\e[40;36m\]\h($(get_ip))\[\e[0m\] \[\e[35m\][$(get_load)]\[\e[0m\] \[\e[32m\]\w\[\e[0m\]\n\[\e[31m\]#\[\e[0m\] '
-</code></pre>
+PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e[40;33m\] 🖥️ \u\[\e[0m\]@\[\e[40;36m\]\h($(get_ip))\[\e[0m\] \[\e[35m\][$(get_load)]\[\e[0m\] \[\e[32m\]\w\[\e[0m\]\n\[\e[31m\]#\[\e[0m\] <span class="pl-pds">'</span></span></pre></div>
 <p><strong>呈现效果：</strong></p>
-<pre lang="bash" class="notranslate"><code class="notranslate"> 🖥️ xiaxincan@xiaxincan-Lenovo(192.168.0.105) [0.52 0.58 0.59] /home/xiaxincan/projects
-# 
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate"> 🖥️ xiaxincan@xiaxincan-Lenovo(192.168.0.105) [0.52 0.58 0.59] /home/xiaxincan/projects
+<span class="pl-c"><span class="pl-c">#</span> </span></pre></div>
 <hr>
 <h3>🌈 场景四：彩虹渐变版（视觉冲击）</h3>
 <p><strong>配置目标：</strong> 每个部分不同颜色，适合宽屏</p>
-<pre lang="bash" class="notranslate"><code class="notranslate">PS1='\[\e[38;5;196m\]❤\[\e[38;5;202m\] \u\[\e[38;5;208m\]@\[\e[38;5;214m\]\h \[\e[38;5;220m\]⏰ \t\[\e[38;5;82m\] 📂 \w\[\e[38;5;45m\] \$\[\e[0m\] '
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e[38;5;196m\]❤\[\e[38;5;202m\] \u\[\e[38;5;208m\]@\[\e[38;5;214m\]\h \[\e[38;5;220m\]⏰ \t\[\e[38;5;82m\] 📂 \w\[\e[38;5;45m\] \$\[\e[0m\] <span class="pl-pds">'</span></span></pre></div>
 <p><strong>呈现效果：</strong></p>
-<pre lang="bash" class="notranslate"><code class="notranslate">❤ xiaxincan@xiaxincan-Lenovo ⏰ 15:30:25 📂 /home/xiaxincan $
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">❤ xiaxincan@xiaxincan-Lenovo ⏰ 15:30:25 📂 /home/xiaxincan $</pre></div>
 <p><strong>颜色渐变：</strong> 红→橙→黄→绿→青，像彩虹一样 🌈</p>
 <hr>
 <h3>🧙 场景五：魔法极客版（全功能）</h3>
 <p><strong>配置目标：</strong> 包含时间、git、虚拟环境、电池、多行</p>
-<pre lang="bash" class="notranslate"><code class="notranslate"># 电池信息 🔋
-battery_info() {
-    if command -v acpi &amp;&gt; /dev/null; then
-        local batt=$(acpi -b 2&gt;/dev/null | head -1)
-        if [[ "$batt" == *"Charging"* ]]; then
-            echo "🔌 "
-        elif [[ "$batt" == *"Discharging"* ]]; then
-            local percent=$(echo "$batt" | grep -oP '\d+%')
-            echo "🔋$percent "
-        fi
-    fi
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 电池信息 🔋</span>
+<span class="pl-en">battery_info</span>() {
+    <span class="pl-k">if</span> <span class="pl-c1">command</span> -v acpi <span class="pl-k">&amp;</span><span class="pl-k">&gt;</span> /dev/null<span class="pl-k">;</span> <span class="pl-k">then</span>
+        <span class="pl-k">local</span> batt=<span class="pl-s"><span class="pl-pds">$(</span>acpi -b <span class="pl-k">2&gt;</span>/dev/null <span class="pl-k">|</span> head -1<span class="pl-pds">)</span></span>
+        <span class="pl-k">if</span> [[ <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$batt</span><span class="pl-pds">"</span></span> <span class="pl-k">==</span> <span class="pl-k">*</span><span class="pl-s"><span class="pl-pds">"</span>Charging<span class="pl-pds">"</span></span><span class="pl-k">*</span> ]]<span class="pl-k">;</span> <span class="pl-k">then</span>
+            <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>🔌 <span class="pl-pds">"</span></span>
+        <span class="pl-k">elif</span> [[ <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$batt</span><span class="pl-pds">"</span></span> <span class="pl-k">==</span> <span class="pl-k">*</span><span class="pl-s"><span class="pl-pds">"</span>Discharging<span class="pl-pds">"</span></span><span class="pl-k">*</span> ]]<span class="pl-k">;</span> <span class="pl-k">then</span>
+            <span class="pl-k">local</span> percent=<span class="pl-s"><span class="pl-pds">$(</span>echo <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$batt</span><span class="pl-pds">"</span></span> <span class="pl-k">|</span> grep -oP <span class="pl-s"><span class="pl-pds">'</span>\d+%<span class="pl-pds">'</span></span><span class="pl-pds">)</span></span>
+            <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>🔋<span class="pl-smi">$percent</span> <span class="pl-pds">"</span></span>
+        <span class="pl-k">fi</span>
+    <span class="pl-k">fi</span>
 }
 
-# 完整配置 ✨
-build_ps1() {
-    local RESET='\[\e[0m\]'
-    local BOLD='\[\e[1m\]'
-    local DIM='\[\e[2m\]'
+<span class="pl-c"><span class="pl-c">#</span> 完整配置 ✨</span>
+<span class="pl-en">build_ps1</span>() {
+    <span class="pl-k">local</span> RESET=<span class="pl-s"><span class="pl-pds">'</span>\[\e[0m\]<span class="pl-pds">'</span></span>
+    <span class="pl-k">local</span> BOLD=<span class="pl-s"><span class="pl-pds">'</span>\[\e[1m\]<span class="pl-pds">'</span></span>
+    <span class="pl-k">local</span> DIM=<span class="pl-s"><span class="pl-pds">'</span>\[\e[2m\]<span class="pl-pds">'</span></span>
     
-    # 第一行：系统信息栏
-    local top_line="${DIM}┌─[${RESET} $(battery_info)\[\e[36m\]\d \t\[\e[0m\] ${DIM}]${RESET}"
+    <span class="pl-c"><span class="pl-c">#</span> 第一行：系统信息栏</span>
+    <span class="pl-k">local</span> top_line=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">${DIM}</span>┌─[<span class="pl-smi">${RESET}</span> <span class="pl-s"><span class="pl-pds">$(</span>battery_info<span class="pl-pds">)</span></span>\[\e[36m\]\d \t\[\e[0m\] <span class="pl-smi">${DIM}</span>]<span class="pl-smi">${RESET}</span><span class="pl-pds">"</span></span>
     
-    # 第二行：位置信息
-    local middle_line="${DIM}├─[${RESET} \[\e[33m\]\u\[\e[0m\]@\[\e[35m\]\H\[\e[0m\] ${DIM}:${RESET} \[\e[32m\]\w\[\e[0m\] ${DIM}]${RESET}"
+    <span class="pl-c"><span class="pl-c">#</span> 第二行：位置信息</span>
+    <span class="pl-k">local</span> middle_line=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">${DIM}</span>├─[<span class="pl-smi">${RESET}</span> \[\e[33m\]\u\[\e[0m\]@\[\e[35m\]\H\[\e[0m\] <span class="pl-smi">${DIM}</span>:<span class="pl-smi">${RESET}</span> \[\e[32m\]\w\[\e[0m\] <span class="pl-smi">${DIM}</span>]<span class="pl-smi">${RESET}</span><span class="pl-pds">"</span></span>
     
-    # Git信息（如果有）
-    local git_line=""
-    if git rev-parse --git-dir &gt; /dev/null 2&gt;&amp;1; then
-        local branch=$(git symbolic-ref --short HEAD 2&gt;/dev/null)
-        git_line="\n${DIM}├─[${RESET} 🌿 \[\e[31m\]$branch\[\e[0m\] ${DIM}]${RESET}"
-    fi
+    <span class="pl-c"><span class="pl-c">#</span> Git信息（如果有）</span>
+    <span class="pl-k">local</span> git_line=<span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>
+    <span class="pl-k">if</span> git rev-parse --git-dir <span class="pl-k">&gt;</span> /dev/null <span class="pl-k">2&gt;&amp;1</span><span class="pl-k">;</span> <span class="pl-k">then</span>
+        <span class="pl-k">local</span> branch=<span class="pl-s"><span class="pl-pds">$(</span>git symbolic-ref --short HEAD <span class="pl-k">2&gt;</span>/dev/null<span class="pl-pds">)</span></span>
+        git_line=<span class="pl-s"><span class="pl-pds">"</span>\n<span class="pl-smi">${DIM}</span>├─[<span class="pl-smi">${RESET}</span> 🌿 \[\e[31m\]<span class="pl-smi">$branch</span>\[\e[0m\] <span class="pl-smi">${DIM}</span>]<span class="pl-smi">${RESET}</span><span class="pl-pds">"</span></span>
+    <span class="pl-k">fi</span>
     
-    # 第三行：输入提示
-    local bottom_line="\n${DIM}└─▶${RESET} "
+    <span class="pl-c"><span class="pl-c">#</span> 第三行：输入提示</span>
+    <span class="pl-k">local</span> bottom_line=<span class="pl-s"><span class="pl-pds">"</span>\n<span class="pl-smi">${DIM}</span>└─▶<span class="pl-smi">${RESET}</span> <span class="pl-pds">"</span></span>
     
-    echo -e "$top_line$middle_line$git_line$bottom_line"
+    <span class="pl-c1">echo</span> -e <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$top_line$middle_line$git_line$bottom_line</span><span class="pl-pds">"</span></span>
 }
 
-PROMPT_COMMAND='PS1="$(build_ps1)"'
-</code></pre>
+PROMPT_COMMAND=<span class="pl-s"><span class="pl-pds">'</span>PS1="$(build_ps1)"<span class="pl-pds">'</span></span></pre></div>
 <p><strong>呈现效果：</strong></p>
-<pre lang="bash" class="notranslate"><code class="notranslate">┌─[ 🔋85% Mon Feb 23 15:30:25 ]
-├─[ xiaxincan@xiaxincan-Lenovo : /home/xiaxincan/projects/webapp ]
+<div class="highlight highlight-source-shell"><pre class="notranslate">┌─[ 🔋85% Mon Feb 23 15:30:25 ]
+├─[ xiaxincan@xiaxincan-Lenovo <span class="pl-c1">:</span> /home/xiaxincan/projects/webapp ]
 ├─[ 🌿 feature-login ]
-└─▶ 
-</code></pre>
+└─▶ </pre></div>
 <hr>
 <h2>📋 快速参考总表</h2>
 <markdown-accessiblity-table><table role="table">
@@ -645,26 +642,25 @@ PROMPT_COMMAND='PS1="$(build_ps1)"'
 </blockquote>
 <hr>
 <h2>🚀 一键应用脚本</h2>
-<pre lang="bash" class="notranslate"><code class="notranslate"># 保存为 setup_prompt.sh 并执行
-cat &gt;&gt; ~/.bashrc &lt;&lt; 'EOF'
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 保存为 setup_prompt.sh 并执行</span>
+cat <span class="pl-k">&gt;&gt;</span> <span class="pl-k">~</span>/.bashrc <span class="pl-s"><span class="pl-k">&lt;&lt;</span> '<span class="pl-k">EOF</span>'</span>
+<span class="pl-s"></span>
+<span class="pl-s"># ==========================================</span>
+<span class="pl-s"># 🎨 自定义终端提示符配置</span>
+<span class="pl-s"># ==========================================</span>
+<span class="pl-s"></span>
+<span class="pl-s"># 选择你想要的场景，取消注释即可：</span>
+<span class="pl-s"></span>
+<span class="pl-s"># 🏠 场景一：极简</span>
+<span class="pl-s"># PS1='\[\e[32m\]➜ \[\e[36m\]\W\[\e[0m\] \$ '</span>
+<span class="pl-s"></span>
+<span class="pl-s"># 🖥️ 场景三：服务器（推荐用于SSH）</span>
+<span class="pl-s">PS1='\[\e[40;33m\] 🖥️ \u\[\e[0m\]@\[\e[40;36m\]\h(\$(hostname -I | awk "{print \$1}"))\[\e[0m\] \[\e[32m\]\w\[\e[0m\]\n\[\e[31m\]#\[\e[0m\] '</span>
+<span class="pl-s"></span>
+<span class="pl-s"><span class="pl-k">EOF</span></span>
 
-# ==========================================
-# 🎨 自定义终端提示符配置
-# ==========================================
-
-# 选择你想要的场景，取消注释即可：
-
-# 🏠 场景一：极简
-# PS1='\[\e[32m\]➜ \[\e[36m\]\W\[\e[0m\] \$ '
-
-# 🖥️ 场景三：服务器（推荐用于SSH）
-PS1='\[\e[40;33m\] 🖥️ \u\[\e[0m\]@\[\e[40;36m\]\h(\$(hostname -I | awk "{print \$1}"))\[\e[0m\] \[\e[32m\]\w\[\e[0m\]\n\[\e[31m\]#\[\e[0m\] '
-
-EOF
-
-source ~/.bashrc
-echo "✅ 提示符配置已生效！"
-</code></pre>
+<span class="pl-c1">source</span> <span class="pl-k">~</span>/.bashrc
+<span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>✅ 提示符配置已生效！<span class="pl-pds">"</span></span></pre></div>
 <p>现在，你的终端就是独一无二的艺术品了！🎨✨</p></div>
 <div style="font-size:small;margin-top:8px;float:right;"></div>
 
@@ -690,7 +686,7 @@ if(""!=""){
 </script></div>
 </body>
 <script>
-var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
 var utterancesLoad=0;
 
 let themeSettings={
@@ -764,7 +760,70 @@ function iFrameLoading(){
     }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
 
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
 
 </script>
 
