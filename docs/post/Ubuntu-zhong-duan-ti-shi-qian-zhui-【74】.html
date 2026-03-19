@@ -17,7 +17,7 @@
 <meta property="og:url" content="https://luminku.github.io/post/Ubuntu-zhong-duan-ti-shi-qian-zhui-%E3%80%9074%E3%80%91.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
 <title>Ubuntu终端提示前缀【74】</title>
-
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
 
 
 </head>
@@ -276,64 +276,55 @@ xiaxincan@xiaxincan-Lenovo:~$</p>
 <hr>
 <h2>四、不同场景配置实例</h2>
 <h3>1. 极简主义（适合截图/录屏）</h3>
-<pre lang="bash" class="notranslate"><code class="notranslate"># 仅显示当前目录和 $
-PS1='\W \$ '
-# 输出：projects $
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 仅显示当前目录和 $</span>
+PS1=<span class="pl-s"><span class="pl-pds">'</span>\W \$ <span class="pl-pds">'</span></span>
+<span class="pl-c"><span class="pl-c">#</span> 输出：projects $</span></pre></div>
 <h3>2. 开发者专业版（含Git分支、时间戳）</h3>
-<pre lang="bash" class="notranslate"><code class="notranslate"># 需要安装 git（通常已预装）
-parse_git_branch() {
-    git branch 2&gt;/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/ (\1)/'
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 需要安装 git（通常已预装）</span>
+<span class="pl-en">parse_git_branch</span>() {
+    git branch <span class="pl-k">2&gt;</span>/dev/null <span class="pl-k">|</span> sed -e <span class="pl-s"><span class="pl-pds">'</span>/^[^*]/d<span class="pl-pds">'</span></span> -e <span class="pl-s"><span class="pl-pds">'</span>s/* \(.*\)/ (\1)/<span class="pl-pds">'</span></span>
 }
-PS1='\[\e[1;36m\]\t\[\e[0m\] \[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[33m\]$(parse_git_branch)\[\e[0m\]\$ '
-</code></pre>
+PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e[1;36m\]\t\[\e[0m\] \[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[33m\]$(parse_git_branch)\[\e[0m\]\$ <span class="pl-pds">'</span></span></pre></div>
 <p><strong>效果</strong>：<code class="notranslate">14:30:25 xiaxincan@xiaxincan-Lenovo:~/projects (main)$</code></p>
 <h3>3. 多行信息版（长路径不拥挤）</h3>
-<pre lang="bash" class="notranslate"><code class="notranslate">PS1='\[\e[1;35m\]┌─[\[\e[1;36m\]\u\[\e[0m\]@\[\e[1;36m\]\h\[\e[1;35m\]]-[\[\e[1;33m\]\D{%Y-%m-%d %H:%M}\[\e[1;35m\]]-[\[\e[1;32m\]\w\[\e[1;35m\]]\n\[\e[1;35m\]└─\[\e[0m\]\$ '
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e[1;35m\]┌─[\[\e[1;36m\]\u\[\e[0m\]@\[\e[1;36m\]\h\[\e[1;35m\]]-[\[\e[1;33m\]\D{%Y-%m-%d %H:%M}\[\e[1;35m\]]-[\[\e[1;32m\]\w\[\e[1;35m\]]\n\[\e[1;35m\]└─\[\e[0m\]\$ <span class="pl-pds">'</span></span></pre></div>
 <p><strong>效果</strong>：</p>
 <pre class="notranslate"><code class="notranslate">┌─[xiaxincan@xiaxincan-Lenovo]-[2024-02-23 14:30]-[/home/xiaxincan/projects]
 └─$ 
 </code></pre>
 <h3>4. 生产服务器安全版（高对比度警告）</h3>
-<pre lang="bash" class="notranslate"><code class="notranslate"># 红色背景提醒这是生产环境
-PS1='\[\e[1;37;41m\][PROD]\[\e[0m\] \[\e[1;31m\]\u\[\e[0m\]@\[\e[1;33m\]\H\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ '
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 红色背景提醒这是生产环境</span>
+PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e[1;37;41m\][PROD]\[\e[0m\] \[\e[1;31m\]\u\[\e[0m\]@\[\e[1;33m\]\H\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ <span class="pl-pds">'</span></span></pre></div>
 <p><strong>效果</strong>：白字红底 <code class="notranslate">[PROD]</code> 标签，醒目提示</p>
 <h3>5. 动态路径缩短（长路径显示...）</h3>
-<pre lang="bash" class="notranslate"><code class="notranslate"># 路径超过3层时显示 ...
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 路径超过3层时显示 ...</span>
 PROMPT_DIRTRIM=3
-PS1='\[\e[1;32m\]\u\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ '
-# /home/xiaxincan/a/b/c/d/e 显示为 ~/a/b/.../e
-</code></pre>
+PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e[1;32m\]\u\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ <span class="pl-pds">'</span></span>
+<span class="pl-c"><span class="pl-c">#</span> /home/xiaxincan/a/b/c/d/e 显示为 ~/a/b/.../e</span></pre></div>
 <h3>6. 退出状态显示（上条命令失败标红）</h3>
-<pre lang="bash" class="notranslate"><code class="notranslate"># 上条命令非0退出时显示红色错误码
-PS1='\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] $(code=$?; [ $code -ne 0 ] &amp;&amp; echo "\[\e[1;31m\][✗ $code]\[\e[0m\] ")\$ '
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 上条命令非0退出时显示红色错误码</span>
+PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] $(code=$?; [ $code -ne 0 ] &amp;&amp; echo "\[\e[1;31m\][✗ $code]\[\e[0m\] ")\$ <span class="pl-pds">'</span></span></pre></div>
 <hr>
 <h2>五、持久化配置方法</h2>
 <h3>方法1：仅当前用户生效（推荐）</h3>
 <p>编辑 <code class="notranslate">~/.bashrc</code>：</p>
-<pre lang="bash" class="notranslate"><code class="notranslate">nano ~/.bashrc
-# 在文件末尾添加你的 PS1 定义
-export PS1='你的自定义代码'
-# 保存后生效
-source ~/.bashrc
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">nano <span class="pl-k">~</span>/.bashrc
+<span class="pl-c"><span class="pl-c">#</span> 在文件末尾添加你的 PS1 定义</span>
+<span class="pl-k">export</span> PS1=<span class="pl-s"><span class="pl-pds">'</span>你的自定义代码<span class="pl-pds">'</span></span>
+<span class="pl-c"><span class="pl-c">#</span> 保存后生效</span>
+<span class="pl-c1">source</span> <span class="pl-k">~</span>/.bashrc</pre></div>
 <h3>方法2：全局生效（所有用户）</h3>
-<pre lang="bash" class="notranslate"><code class="notranslate">sudo nano /etc/bash.bashrc
-# 添加 PS1 定义
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">sudo nano /etc/bash.bashrc
+<span class="pl-c"><span class="pl-c">#</span> 添加 PS1 定义</span></pre></div>
 <h3>方法3：区分 root/普通用户</h3>
 <p>在 <code class="notranslate">~/.bashrc</code> 中使用条件判断：</p>
-<pre lang="bash" class="notranslate"><code class="notranslate">if [ "$EUID" -eq 0 ]; then
-    # root 用户：红色背景警告
-    PS1='\[\e[1;37;41m\][ROOT]\[\e[0m\] \[\e[1;31m\]\h\[\e[0m\]:\[\e[1;33m\]\w\[\e[0m\]# '
-else
-    # 普通用户：绿色主题
-    PS1='\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ '
-fi
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-k">if</span> [ <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$EUID</span><span class="pl-pds">"</span></span> <span class="pl-k">-eq</span> 0 ]<span class="pl-k">;</span> <span class="pl-k">then</span>
+    <span class="pl-c"><span class="pl-c">#</span> root 用户：红色背景警告</span>
+    PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e[1;37;41m\][ROOT]\[\e[0m\] \[\e[1;31m\]\h\[\e[0m\]:\[\e[1;33m\]\w\[\e[0m\]# <span class="pl-pds">'</span></span>
+<span class="pl-k">else</span>
+    <span class="pl-c"><span class="pl-c">#</span> 普通用户：绿色主题</span>
+    PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ <span class="pl-pds">'</span></span>
+<span class="pl-k">fi</span></pre></div>
 <hr>
 <h2>六、快速切换代码表</h2>
 <markdown-accessiblity-table><table role="table">
@@ -390,31 +381,28 @@ fi
 <hr>
 <h2>七、进阶技巧</h2>
 <h3>1. 条件颜色（根据用户/主机变色）</h3>
-<pre lang="bash" class="notranslate"><code class="notranslate"># 不同主机不同颜色
-case $(hostname) in
-    "server-prod") COLOR="1;31" ;;  # 生产环境红色
-    "server-test") COLOR="1;33" ;;  # 测试环境黄色
-    *) COLOR="1;32" ;;               # 开发环境绿色
-esac
-PS1="\[\e[${COLOR}m\]\u@\h\[\e[0m\]:\w\$ "
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 不同主机不同颜色</span>
+<span class="pl-k">case</span> <span class="pl-s"><span class="pl-pds">$(</span>hostname<span class="pl-pds">)</span></span> <span class="pl-k">in</span>
+    <span class="pl-s"><span class="pl-pds">"</span>server-prod<span class="pl-pds">"</span></span>) COLOR=<span class="pl-s"><span class="pl-pds">"</span>1;31<span class="pl-pds">"</span></span> ;;  <span class="pl-c"><span class="pl-c">#</span> 生产环境红色</span>
+    <span class="pl-s"><span class="pl-pds">"</span>server-test<span class="pl-pds">"</span></span>) COLOR=<span class="pl-s"><span class="pl-pds">"</span>1;33<span class="pl-pds">"</span></span> ;;  <span class="pl-c"><span class="pl-c">#</span> 测试环境黄色</span>
+    <span class="pl-k">*</span>) COLOR=<span class="pl-s"><span class="pl-pds">"</span>1;32<span class="pl-pds">"</span></span> ;;               <span class="pl-c"><span class="pl-c">#</span> 开发环境绿色</span>
+<span class="pl-k">esac</span>
+PS1=<span class="pl-s"><span class="pl-pds">"</span>\[\e[<span class="pl-smi">${COLOR}</span>m\]\u@\h\[\e[0m\]:\w<span class="pl-cce">\$</span> <span class="pl-pds">"</span></span></pre></div>
 <h3>2. 右侧提示符（RPROMPT 效果）</h3>
 <p>Bash 不支持原生右对齐，但可通过 trick 实现：</p>
-<pre lang="bash" class="notranslate"><code class="notranslate"># 在提示符前打印右侧信息（需计算终端宽度）
-__rprompt() {
-    local text=" $(date +%H:%M) "
-    local width=$(tput cols)
-    local len=${#text}
-    printf "%*s" $((width - len)) ""
-    echo -e "\e[1;30m$text\e[0m"
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 在提示符前打印右侧信息（需计算终端宽度）</span>
+<span class="pl-en">__rprompt</span>() {
+    <span class="pl-k">local</span> text=<span class="pl-s"><span class="pl-pds">"</span> <span class="pl-s"><span class="pl-pds">$(</span>date +%H:%M<span class="pl-pds">)</span></span> <span class="pl-pds">"</span></span>
+    <span class="pl-k">local</span> width=<span class="pl-s"><span class="pl-pds">$(</span>tput cols<span class="pl-pds">)</span></span>
+    <span class="pl-k">local</span> len=<span class="pl-smi">${<span class="pl-k">#</span>text}</span>
+    <span class="pl-c1">printf</span> <span class="pl-s"><span class="pl-pds">"</span>%*s<span class="pl-pds">"</span></span> <span class="pl-s"><span class="pl-pds">$((</span>width <span class="pl-k">-</span> len<span class="pl-pds">))</span></span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>
+    <span class="pl-c1">echo</span> -e <span class="pl-s"><span class="pl-pds">"</span>\e[1;30m<span class="pl-smi">$text</span>\e[0m<span class="pl-pds">"</span></span>
 }
-PS1='$(__rprompt)\r\u@\h:\w\$ '
-</code></pre>
+PS1=<span class="pl-s"><span class="pl-pds">'</span>$(__rprompt)\r\u@\h:\w\$ <span class="pl-pds">'</span></span></pre></div>
 <h3>3. 动态标题（终端窗口标题）</h3>
-<pre lang="bash" class="notranslate"><code class="notranslate"># 同时设置终端标题
-PS1='\[\e]0;\u@\h: \w\a\]\u@\h:\w\$ '
-# \e]0;...\a 是设置窗口标题的转义序列
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 同时设置终端标题</span>
+PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e]0;\u@\h: \w\a\]\u@\h:\w\$ <span class="pl-pds">'</span></span>
+<span class="pl-c"><span class="pl-c">#</span> \e]0;...\a 是设置窗口标题的转义序列</span></pre></div>
 <hr>
 <h2>八、使用建议</h2>
 <ol>
@@ -438,9 +426,8 @@ PS1='\[\e]0;\u@\h: \w\a\]\u@\h:\w\$ '
 </li>
 <li>
 <p><strong>考虑使用 Starship</strong>：如果需求复杂（多语言版本管理、异步 Git 状态、右侧提示符），推荐安装 <a href="https://starship.rs/" rel="nofollow">Starship</a> 替代手动配置，它跨 Shell 且性能优异：</p>
-<pre lang="bash" class="notranslate"><code class="notranslate">curl -sS https://starship.rs/install.sh | sh
-echo 'eval "$(starship init bash)"' &gt;&gt; ~/.bashrc
-</code></pre>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -sS https://starship.rs/install.sh <span class="pl-k">|</span> sh
+<span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">'</span>eval "$(starship init bash)"<span class="pl-pds">'</span></span> <span class="pl-k">&gt;&gt;</span> <span class="pl-k">~</span>/.bashrc</pre></div>
 </li>
 </ol>
 <hr>

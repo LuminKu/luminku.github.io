@@ -17,7 +17,7 @@
 <meta property="og:url" content="https://luminku.github.io/post/MDX%20-zhong-ding-yi-he-shi-yong-zu-jian-de-wen-ti-jie-xi-%E3%80%9013%E3%80%91.html">
 <meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
 <title>MDX 中定义和使用组件的问题解析【13】</title>
-
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
 
 
 </head>
@@ -41,7 +41,17 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
     body {padding: 8px;}
     .postTitle{font-size:24px;}
 }
-
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
 </style>
 
 
@@ -76,230 +86,218 @@ body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;
 <div class="markdown-body" id="postBody"><p>遇到的 <code class="notranslate">Welcome is not defined</code> 错误是因为 <strong>MDX 的作用域限制</strong>。让我详细解释这个问题和解决方案：</p>
 <h2>🔍 问题根源</h2>
 <p>在 MDX 中，当你在 <code class="notranslate">{}</code> 中定义组件时，这个组件的<strong>作用域仅限于该表达式内部</strong>，无法在表达式外部访问。</p>
-<pre lang="mdx" class="notranslate"><code class="notranslate">{/* 这个 Welcome 只在当前 {} 内有效 */}
-{function Welcome(props) {
-  return &lt;h2 style={{color: 'blue'}}&gt;欢迎, {props.name}!&lt;/h2&gt;;
-}}
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-s">{</span><span class="pl-c"><span class="pl-c">/*</span> 这个 Welcome 只在当前 {} 内有效 <span class="pl-c">*/</span></span><span class="pl-s">}</span>
+<span class="pl-s">{</span><span class="pl-k">function</span> Welcome(<span class="pl-v">props</span>) {
+  <span class="pl-k">return</span> &lt;<span class="pl-ent">h2</span> <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{color: <span class="pl-s"><span class="pl-pds">'</span>blue<span class="pl-pds">'</span></span>}<span class="pl-pse">}</span>&gt;欢迎, <span class="pl-pse">{</span><span class="pl-smi">props</span>.<span class="pl-c1">name</span><span class="pl-pse">}</span>!&lt;/<span class="pl-ent">h2</span>&gt;;
+}<span class="pl-s">}</span>
 
-{/* 这里无法访问 Welcome，因为它在不同的作用域 */}
-&lt;Welcome name="Kimi" /&gt;  {/* ❌ Welcome is not defined */}
-</code></pre>
+<span class="pl-s">{</span><span class="pl-c"><span class="pl-c">/*</span> 这里无法访问 Welcome，因为它在不同的作用域 <span class="pl-c">*/</span></span><span class="pl-s">}</span>
+&lt;<span class="pl-c1">Welcome</span> <span class="pl-e">name</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Kimi<span class="pl-pds">"</span></span> /&gt;  <span class="pl-s">{</span><span class="pl-c"><span class="pl-c">/*</span> ❌ Welcome is not defined <span class="pl-c">*/</span></span><span class="pl-s">}</span></pre></div>
 <h2>✅ 解决方案</h2>
 <h3>方案1：使用 <strong>export</strong> 导出组件（推荐）</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">export function Welcome(props) {
-  return &lt;h2 style={{color: 'blue'}}&gt;欢迎, {props.name}!&lt;/h2&gt;;
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-k">export</span> <span class="pl-k">function</span> Welcome(<span class="pl-v">props</span>) {
+  <span class="pl-k">return</span> &lt;<span class="pl-ent">h2</span> <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{color: <span class="pl-s"><span class="pl-pds">'</span>blue<span class="pl-pds">'</span></span>}<span class="pl-pse">}</span>&gt;欢迎, <span class="pl-pse">{</span><span class="pl-smi">props</span>.<span class="pl-c1">name</span><span class="pl-pse">}</span>!&lt;/<span class="pl-ent">h2</span>&gt;;
 }
 
-{/* 现在可以在任何地方使用 Welcome */}
-&lt;Welcome name="Kimi" /&gt;
-&lt;Welcome name="Alice" /&gt;
-</code></pre>
+<span class="pl-s">{</span><span class="pl-c"><span class="pl-c">/*</span> 现在可以在任何地方使用 Welcome <span class="pl-c">*/</span></span><span class="pl-s">}</span>
+&lt;<span class="pl-c1">Welcome</span> <span class="pl-e">name</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Kimi<span class="pl-pds">"</span></span> /&gt;
+&lt;<span class="pl-c1">Welcome</span> <span class="pl-e">name</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Alice<span class="pl-pds">"</span></span> /&gt;</pre></div>
 <h3>方案2：使用 <strong>const</strong> 导出变量</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">export const Welcome = ({ name }) =&gt; (
-  &lt;h2 style={{color: 'blue'}}&gt;欢迎, {name}!&lt;/h2&gt;
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Welcome <span class="pl-k">=</span> ({ <span class="pl-v">name</span> }) <span class="pl-k">=&gt;</span> (
+  &lt;<span class="pl-ent">h2</span> <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{color: <span class="pl-s"><span class="pl-pds">'</span>blue<span class="pl-pds">'</span></span>}<span class="pl-pse">}</span>&gt;欢迎, <span class="pl-pse">{</span><span class="pl-smi">name</span><span class="pl-pse">}</span>!&lt;/<span class="pl-ent">h2</span>&gt;
 );
 
-&lt;Welcome name="Kimi" /&gt;
-</code></pre>
+&lt;<span class="pl-c1">Welcome</span> <span class="pl-e">name</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Kimi<span class="pl-pds">"</span></span> /&gt;</pre></div>
 <h3>方案3：在同一作用域内定义和使用</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">{/* 定义和使用都在同一个 {} 内 */}
-{(function() {
-  function Welcome(props) {
-    return &lt;h2 style={{color: 'blue'}}&gt;欢迎, {props.name}!&lt;/h2&gt;;
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-s">{</span><span class="pl-c"><span class="pl-c">/*</span> 定义和使用都在同一个 {} 内 <span class="pl-c">*/</span></span><span class="pl-s">}</span>
+<span class="pl-s">{</span>(<span class="pl-k">function</span>() {
+  <span class="pl-k">function</span> Welcome(<span class="pl-v">props</span>) {
+    <span class="pl-k">return</span> &lt;<span class="pl-ent">h2</span> <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{color: <span class="pl-s"><span class="pl-pds">'</span>blue<span class="pl-pds">'</span></span>}<span class="pl-pse">}</span>&gt;欢迎, <span class="pl-pse">{</span><span class="pl-smi">props</span>.<span class="pl-c1">name</span><span class="pl-pse">}</span>!&lt;/<span class="pl-ent">h2</span>&gt;;
   }
   
-  return (
-    &lt;div&gt;
-      &lt;Welcome name="Kimi" /&gt;
-      &lt;Welcome name="Alice" /&gt;
-    &lt;/div&gt;
+  <span class="pl-k">return</span> (
+    &lt;<span class="pl-ent">div</span>&gt;
+      &lt;<span class="pl-ent"><span class="pl-c1">Welcome</span></span> <span class="pl-e">name</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Kimi<span class="pl-pds">"</span></span> /&gt;
+      &lt;<span class="pl-ent"><span class="pl-c1">Welcome</span></span> <span class="pl-e">name</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Alice<span class="pl-pds">"</span></span> /&gt;
+    &lt;/<span class="pl-ent">div</span>&gt;
   );
-})()}
-</code></pre>
+})()<span class="pl-s">}</span></pre></div>
 <h2>🎯 完整的可行示例</h2>
 <h3>定义多个组件并在全局使用</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">export function Welcome(props) {
-  return &lt;h2 style={{color: 'blue'}}&gt;欢迎, {props.name}!&lt;/h2&gt;;
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-k">export</span> <span class="pl-k">function</span> Welcome(<span class="pl-v">props</span>) {
+  <span class="pl-k">return</span> &lt;<span class="pl-ent">h2</span> <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{color: <span class="pl-s"><span class="pl-pds">'</span>blue<span class="pl-pds">'</span></span>}<span class="pl-pse">}</span>&gt;欢迎, <span class="pl-pse">{</span><span class="pl-smi">props</span>.<span class="pl-c1">name</span><span class="pl-pse">}</span>!&lt;/<span class="pl-ent">h2</span>&gt;;
 }
 
-export const UserCard = ({ user, age }) =&gt; (
-  &lt;div style={{ border: '1px solid #ccc', padding: '10px', margin: '10px' }}&gt;
-    &lt;h3&gt;{user}&lt;/h3&gt;
-    &lt;p&gt;年龄: {age}&lt;/p&gt;
-  &lt;/div&gt;
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> UserCard <span class="pl-k">=</span> ({ <span class="pl-v">user</span>, <span class="pl-v">age</span> }) <span class="pl-k">=&gt;</span> (
+  &lt;<span class="pl-ent">div</span> <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{ border: <span class="pl-s"><span class="pl-pds">'</span>1px solid #ccc<span class="pl-pds">'</span></span>, padding: <span class="pl-s"><span class="pl-pds">'</span>10px<span class="pl-pds">'</span></span>, margin: <span class="pl-s"><span class="pl-pds">'</span>10px<span class="pl-pds">'</span></span> }<span class="pl-pse">}</span>&gt;
+    &lt;<span class="pl-ent">h3</span>&gt;<span class="pl-pse">{</span><span class="pl-smi">user</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">h3</span>&gt;
+    &lt;<span class="pl-ent">p</span>&gt;年龄: <span class="pl-pse">{</span><span class="pl-smi">age</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">p</span>&gt;
+  &lt;/<span class="pl-ent">div</span>&gt;
 );
 
-export const Counter = () =&gt; {
-  const [count, setCount] = React.useState(0);
-  return (
-    &lt;div&gt;
-      &lt;p&gt;计数: {count}&lt;/p&gt;
-      &lt;button onClick={() =&gt; setCount(count + 1)}&gt;+1&lt;/button&gt;
-    &lt;/div&gt;
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Counter <span class="pl-k">=</span> () <span class="pl-k">=&gt;</span> {
+  <span class="pl-k"><span class="pl-k">const</span></span> [count, setCount] <span class="pl-k">=</span> <span class="pl-smi">React</span>.<span class="pl-en">useState</span>(<span class="pl-c1">0</span>);
+  <span class="pl-k">return</span> (
+    &lt;<span class="pl-ent">div</span>&gt;
+      &lt;<span class="pl-ent">p</span>&gt;计数: <span class="pl-pse">{</span><span class="pl-smi">count</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">p</span>&gt;
+      &lt;<span class="pl-ent">button</span> <span class="pl-e">onClick</span><span class="pl-k">=</span><span class="pl-pse">{</span>() <span class="pl-k">=&gt;</span> <span class="pl-en">setCount</span>(<span class="pl-smi">count</span> <span class="pl-k">+</span> <span class="pl-c1">1</span>)<span class="pl-pse">}</span>&gt;+1&lt;/<span class="pl-ent">button</span>&gt;
+    &lt;/<span class="pl-ent">div</span>&gt;
   );
 };
 
-{/* 现在可以自由使用这些组件 */}
-&lt;Welcome name="Kimi" /&gt;
+<span class="pl-s">{</span><span class="pl-c"><span class="pl-c">/*</span> 现在可以自由使用这些组件 <span class="pl-c">*/</span></span><span class="pl-s">}</span>
+&lt;<span class="pl-c1">Welcome</span> <span class="pl-e">name</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Kimi<span class="pl-pds">"</span></span> /&gt;
 
-&lt;UserCard user="Kimi" age={25} /&gt;
-&lt;UserCard user="Alice" age={30} /&gt;
+&lt;<span class="pl-c1">UserCard</span> <span class="pl-e">user</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Kimi<span class="pl-pds">"</span></span> <span class="pl-e">age</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-c1">25</span><span class="pl-pse">}</span> /&gt;
+&lt;<span class="pl-c1">UserCard</span> <span class="pl-e">user</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>Alice<span class="pl-pds">"</span></span> <span class="pl-e">age</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-c1">30</span><span class="pl-pse">}</span> /&gt;
 
-&lt;Counter /&gt;
-</code></pre>
+&lt;<span class="pl-c1">Counter</span> /&gt;</pre></div>
 <h3>定义工具函数和变量</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">export const siteName = "我的网站";
-export const currentYear = new Date().getFullYear();
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> siteName <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">"</span>我的网站<span class="pl-pds">"</span></span>;
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> currentYear <span class="pl-k">=</span> <span class="pl-k">new</span> <span class="pl-c1">Date</span>().<span class="pl-c1">getFullYear</span>();
 
-export function formatDate(date) {
-  return date.toLocaleDateString('zh-CN');
+<span class="pl-k">export</span> <span class="pl-k">function</span> formatDate(<span class="pl-v">date</span>) {
+  <span class="pl-k">return</span> <span class="pl-smi">date</span>.<span class="pl-en">toLocaleDateString</span>(<span class="pl-s"><span class="pl-pds">'</span>zh-CN<span class="pl-pds">'</span></span>);
 }
 
-export const calculateTotal = (price, quantity) =&gt; price * quantity;
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> calculateTotal <span class="pl-k">=</span> (<span class="pl-v">price</span>, <span class="pl-v">quantity</span>) <span class="pl-k">=&gt;</span> <span class="pl-smi">price</span> <span class="pl-k">*</span> <span class="pl-smi">quantity</span>;
 
-{/* 使用导出的变量和函数 */}
-# {siteName}
+<span class="pl-s">{</span><span class="pl-c"><span class="pl-c">/*</span> 使用导出的变量和函数 <span class="pl-c">*/</span></span><span class="pl-s">}</span>
+<span class="pl-mh"># <span class="pl-en"><span class="pl-s">{</span><span class="pl-smi">siteName</span><span class="pl-s">}</span></span></span>
 
-&lt;p&gt;当前年份: {currentYear}&lt;/p&gt;
-&lt;p&gt;今天日期: {formatDate(new Date())}&lt;/p&gt;
-&lt;p&gt;总价: {calculateTotal(25, 3)}&lt;/p&gt;
-</code></pre>
+&lt;<span class="pl-ent">p</span>&gt;当前年份: <span class="pl-s">{</span><span class="pl-smi">currentYear</span><span class="pl-s">}</span>&lt;/<span class="pl-ent">p</span>&gt;
+&lt;<span class="pl-ent">p</span>&gt;今天日期: <span class="pl-s">{</span><span class="pl-en">formatDate</span>(<span class="pl-k">new</span> <span class="pl-c1">Date</span>())<span class="pl-s">}</span>&lt;/<span class="pl-ent">p</span>&gt;
+&lt;<span class="pl-ent">p</span>&gt;总价: <span class="pl-s">{</span><span class="pl-en">calculateTotal</span>(<span class="pl-c1">25</span>, <span class="pl-c1">3</span>)<span class="pl-s">}</span>&lt;/<span class="pl-ent">p</span>&gt;</pre></div>
 <h3>复杂组件组合</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">export const Button = ({ children, onClick, variant = 'primary' }) =&gt; (
-  &lt;button 
-    onClick={onClick}
-    style={{
-      padding: '10px 20px',
-      background: variant === 'primary' ? 'blue' : 'gray',
-      color: 'white',
-      border: 'none',
-      borderRadius: '5px'
-    }}
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Button <span class="pl-k">=</span> ({ <span class="pl-v">children</span>, <span class="pl-v">onClick</span>, <span class="pl-v">variant</span> <span class="pl-k">=</span> <span class="pl-s"><span class="pl-pds">'</span>primary<span class="pl-pds">'</span></span> }) <span class="pl-k">=&gt;</span> (
+  &lt;<span class="pl-ent">button</span> 
+    <span class="pl-e">onClick</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">onClick</span><span class="pl-pse">}</span>
+    <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{
+      padding: <span class="pl-s"><span class="pl-pds">'</span>10px 20px<span class="pl-pds">'</span></span>,
+      background: <span class="pl-smi">variant</span> <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">'</span>primary<span class="pl-pds">'</span></span> <span class="pl-k">?</span> <span class="pl-s"><span class="pl-pds">'</span>blue<span class="pl-pds">'</span></span> <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>gray<span class="pl-pds">'</span></span>,
+      color: <span class="pl-s"><span class="pl-pds">'</span>white<span class="pl-pds">'</span></span>,
+      border: <span class="pl-s"><span class="pl-pds">'</span>none<span class="pl-pds">'</span></span>,
+      borderRadius: <span class="pl-s"><span class="pl-pds">'</span>5px<span class="pl-pds">'</span></span>
+    }<span class="pl-pse">}</span>
   &gt;
-    {children}
-  &lt;/button&gt;
+    <span class="pl-pse">{</span><span class="pl-smi">children</span><span class="pl-pse">}</span>
+  &lt;/<span class="pl-ent">button</span>&gt;
 );
 
-export function UserDashboard() {
-  const [users, setUsers] = React.useState([
-    { id: 1, name: 'Kimi', active: true },
-    { id: 2, name: 'Alice', active: false }
+<span class="pl-k">export</span> <span class="pl-k">function</span> UserDashboard() {
+  <span class="pl-k"><span class="pl-k">const</span></span> [users, setUsers] <span class="pl-k">=</span> <span class="pl-smi">React</span>.<span class="pl-en">useState</span>([
+    { id: <span class="pl-c1">1</span>, name: <span class="pl-s"><span class="pl-pds">'</span>Kimi<span class="pl-pds">'</span></span>, active: <span class="pl-c1">true</span> },
+    { id: <span class="pl-c1">2</span>, name: <span class="pl-s"><span class="pl-pds">'</span>Alice<span class="pl-pds">'</span></span>, active: <span class="pl-c1">false</span> }
   ]);
 
-  const activateUser = (id) =&gt; {
-    setUsers(users.map(user =&gt; 
-      user.id === id ? { ...user, active: true } : user
+  <span class="pl-k"><span class="pl-k">const</span></span> activateUser <span class="pl-k">=</span> (<span class="pl-v">id</span>) <span class="pl-k">=&gt;</span> {
+    <span class="pl-en">setUsers</span>(<span class="pl-smi">users</span>.<span class="pl-en">map</span>(<span class="pl-v">user</span> <span class="pl-k">=&gt;</span> 
+      <span class="pl-smi">user</span>.<span class="pl-c1">id</span> <span class="pl-k">===</span> <span class="pl-smi">id</span> <span class="pl-k">?</span> { <span class="pl-k">...</span><span class="pl-smi">user</span>, active: <span class="pl-c1">true</span> } <span class="pl-k">:</span> <span class="pl-smi">user</span>
     ));
   };
 
-  return (
-    &lt;div&gt;
-      &lt;h2&gt;用户管理&lt;/h2&gt;
-      {users.map(user =&gt; (
-        &lt;div key={user.id} style={{ margin: '10px 0' }}&gt;
-          &lt;span&gt;{user.name} - {user.active ? '活跃' : '非活跃'}&lt;/span&gt;
-          {!user.active &amp;&amp; (
-            &lt;Button variant="primary" onClick={() =&gt; activateUser(user.id)}&gt;
+  <span class="pl-k">return</span> (
+    &lt;<span class="pl-ent">div</span>&gt;
+      &lt;<span class="pl-ent">h2</span>&gt;用户管理&lt;/<span class="pl-ent">h2</span>&gt;
+      <span class="pl-pse">{</span><span class="pl-smi">users</span>.<span class="pl-en">map</span>(<span class="pl-v">user</span> <span class="pl-k">=&gt;</span> (
+        &lt;<span class="pl-ent">div</span> <span class="pl-e">key</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">user</span>.<span class="pl-c1">id</span><span class="pl-pse">}</span> <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{ margin: <span class="pl-s"><span class="pl-pds">'</span>10px 0<span class="pl-pds">'</span></span> }<span class="pl-pse">}</span>&gt;
+          &lt;<span class="pl-ent">span</span>&gt;<span class="pl-pse">{</span><span class="pl-smi">user</span>.<span class="pl-c1">name</span><span class="pl-pse">}</span> - <span class="pl-pse">{</span><span class="pl-smi">user</span>.<span class="pl-smi">active</span> <span class="pl-k">?</span> <span class="pl-s"><span class="pl-pds">'</span>活跃<span class="pl-pds">'</span></span> <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>非活跃<span class="pl-pds">'</span></span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">span</span>&gt;
+          <span class="pl-pse">{</span><span class="pl-k">!</span><span class="pl-smi">user</span>.<span class="pl-smi">active</span> <span class="pl-k">&amp;&amp;</span> (
+            &lt;<span class="pl-ent"><span class="pl-c1">Button</span></span> <span class="pl-e">variant</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>primary<span class="pl-pds">"</span></span> <span class="pl-e">onClick</span><span class="pl-k">=</span><span class="pl-pse">{</span>() <span class="pl-k">=&gt;</span> <span class="pl-en">activateUser</span>(<span class="pl-smi">user</span>.<span class="pl-c1">id</span>)<span class="pl-pse">}</span>&gt;
               激活
-            &lt;/Button&gt;
-          )}
-        &lt;/div&gt;
-      ))}
-    &lt;/div&gt;
+            &lt;/<span class="pl-ent"><span class="pl-c1">Button</span></span>&gt;
+          )<span class="pl-pse">}</span>
+        &lt;/<span class="pl-ent">div</span>&gt;
+      ))<span class="pl-pse">}</span>
+    &lt;/<span class="pl-ent">div</span>&gt;
   );
 }
 
-{/* 使用组件 */}
-&lt;Button onClick={() =&gt; alert('点击!')}&gt;点击我&lt;/Button&gt;
-&lt;UserDashboard /&gt;
-</code></pre>
+<span class="pl-s">{</span><span class="pl-c"><span class="pl-c">/*</span> 使用组件 <span class="pl-c">*/</span></span><span class="pl-s">}</span>
+&lt;<span class="pl-c1">Button</span> <span class="pl-e">onClick</span><span class="pl-k">=</span><span class="pl-pse">{</span>() <span class="pl-k">=&gt;</span> <span class="pl-en">alert</span>(<span class="pl-s"><span class="pl-pds">'</span>点击!<span class="pl-pds">'</span></span>)<span class="pl-pse">}</span>&gt;点击我&lt;/<span class="pl-c1">Button</span>&gt;
+&lt;<span class="pl-c1">UserDashboard</span> /&gt;</pre></div>
 <h2><g-emoji class="g-emoji" alias="warning">⚠️</g-emoji> 注意事项</h2>
 <h3>1. <strong>导入 React</strong></h3>
 <p>如果使用 React Hooks，需要导入 React：</p>
-<pre lang="mdx" class="notranslate"><code class="notranslate">import React from 'react';
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-k">import</span> <span class="pl-smi">React</span> <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>react<span class="pl-pds">'</span></span>;
 
-export function MyComponent() {
-  const [state, setState] = React.useState(null);
-  return &lt;div&gt;内容&lt;/div&gt;;
-}
-</code></pre>
+<span class="pl-k">export</span> <span class="pl-k">function</span> MyComponent() {
+  <span class="pl-k"><span class="pl-k">const</span></span> [state, setState] <span class="pl-k">=</span> <span class="pl-smi">React</span>.<span class="pl-en">useState</span>(<span class="pl-c1">null</span>);
+  <span class="pl-k">return</span> &lt;<span class="pl-ent">div</span>&gt;内容&lt;/<span class="pl-ent">div</span>&gt;;
+}</pre></div>
 <h3>2. <strong>默认导出限制</strong></h3>
 <p>每个 MDX 文件只能有一个默认导出：</p>
-<pre lang="mdx" class="notranslate"><code class="notranslate">export default function Layout({ children }) {
-  return &lt;div className="layout"&gt;{children}&lt;/div&gt;;
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-k">export</span> <span class="pl-k">default</span> <span class="pl-k">function</span> Layout({ <span class="pl-v">children</span> }) {
+  <span class="pl-k">return</span> &lt;<span class="pl-ent">div</span> <span class="pl-e">className</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>layout<span class="pl-pds">"</span></span>&gt;<span class="pl-pse">{</span><span class="pl-smi">children</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">div</span>&gt;;
 }
 
-export const ComponentA = () =&gt; &lt;div&gt;A&lt;/div&gt;;  // ✅ 命名导出
-export const ComponentB = () =&gt; &lt;div&gt;B&lt;/div&gt;;  // ✅ 命名导出
-</code></pre>
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> ComponentA <span class="pl-k">=</span> () <span class="pl-k">=&gt;</span> &lt;<span class="pl-ent">div</span>&gt;A&lt;/<span class="pl-ent">div</span>&gt;;  <span class="pl-c"><span class="pl-c">//</span> ✅ 命名导出</span>
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> ComponentB <span class="pl-k">=</span> () <span class="pl-k">=&gt;</span> &lt;<span class="pl-ent">div</span>&gt;B&lt;/<span class="pl-ent">div</span>&gt;;  <span class="pl-c"><span class="pl-c">//</span> ✅ 命名导出</span></pre></div>
 <h3>3. <strong>作用域最佳实践</strong></h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">{/* ❌ 避免：作用域受限 */}
-{function LocalComponent() { return &lt;div&gt;局部&lt;/div&gt;; }}
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-s">{</span><span class="pl-c"><span class="pl-c">/*</span> ❌ 避免：作用域受限 <span class="pl-c">*/</span></span><span class="pl-s">}</span>
+<span class="pl-s">{</span><span class="pl-k">function</span> LocalComponent() { <span class="pl-k">return</span> &lt;<span class="pl-ent">div</span>&gt;局部&lt;/<span class="pl-ent">div</span>&gt;; }<span class="pl-s">}</span>
 
-{/* ✅ 推荐：全局可用 */}
-export function GlobalComponent() { return &lt;div&gt;全局&lt;/div&gt;; }
+<span class="pl-s">{</span><span class="pl-c"><span class="pl-c">/*</span> ✅ 推荐：全局可用 <span class="pl-c">*/</span></span><span class="pl-s">}</span>
+<span class="pl-k">export</span> <span class="pl-k">function</span> GlobalComponent() { <span class="pl-k">return</span> &lt;<span class="pl-ent">div</span>&gt;全局&lt;/<span class="pl-ent">div</span>&gt;; }
 
-{/* 使用 */}
-&lt;GlobalComponent /&gt;  {/* ✅ 正常工作 */}
-{/* &lt;LocalComponent /&gt; */}  {/* ❌ 无法工作 */}
-</code></pre>
+<span class="pl-s">{</span><span class="pl-c"><span class="pl-c">/*</span> 使用 <span class="pl-c">*/</span></span><span class="pl-s">}</span>
+&lt;<span class="pl-c1">GlobalComponent</span> /&gt;  <span class="pl-s">{</span><span class="pl-c"><span class="pl-c">/*</span> ✅ 正常工作 <span class="pl-c">*/</span></span><span class="pl-s">}</span>
+<span class="pl-s">{</span><span class="pl-c"><span class="pl-c">/*</span> &lt;LocalComponent /&gt; <span class="pl-c">*/</span></span><span class="pl-s">}</span>  <span class="pl-s">{</span><span class="pl-c"><span class="pl-c">/*</span> ❌ 无法工作 <span class="pl-c">*/</span></span><span class="pl-s">}</span></pre></div>
 <h2>🎪 高级用法</h2>
 <h3>组件组合模式</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">export const Container = ({ children, title }) =&gt; (
-  &lt;div style={{ border: '1px solid #ddd', padding: '20px', margin: '10px' }}&gt;
-    {title &amp;&amp; &lt;h3&gt;{title}&lt;/h3&gt;}
-    {children}
-  &lt;/div&gt;
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Container <span class="pl-k">=</span> ({ <span class="pl-v">children</span>, <span class="pl-v">title</span> }) <span class="pl-k">=&gt;</span> (
+  &lt;<span class="pl-ent">div</span> <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{ border: <span class="pl-s"><span class="pl-pds">'</span>1px solid #ddd<span class="pl-pds">'</span></span>, padding: <span class="pl-s"><span class="pl-pds">'</span>20px<span class="pl-pds">'</span></span>, margin: <span class="pl-s"><span class="pl-pds">'</span>10px<span class="pl-pds">'</span></span> }<span class="pl-pse">}</span>&gt;
+    <span class="pl-pse">{</span><span class="pl-smi">title</span> <span class="pl-k">&amp;&amp;</span> &lt;<span class="pl-ent">h3</span>&gt;<span class="pl-pse">{</span><span class="pl-smi">title</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">h3</span>&gt;<span class="pl-pse">}</span>
+    <span class="pl-pse">{</span><span class="pl-smi">children</span><span class="pl-pse">}</span>
+  &lt;/<span class="pl-ent">div</span>&gt;
 );
 
-export const Feature = ({ title, description }) =&gt; (
-  &lt;Container title={title}&gt;
-    &lt;p&gt;{description}&lt;/p&gt;
-  &lt;/Container&gt;
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> Feature <span class="pl-k">=</span> ({ <span class="pl-v">title</span>, <span class="pl-v">description</span> }) <span class="pl-k">=&gt;</span> (
+  &lt;<span class="pl-ent"><span class="pl-c1">Container</span></span> <span class="pl-e">title</span><span class="pl-k">=</span><span class="pl-pse">{</span><span class="pl-smi">title</span><span class="pl-pse">}</span>&gt;
+    &lt;<span class="pl-ent">p</span>&gt;<span class="pl-pse">{</span><span class="pl-smi">description</span><span class="pl-pse">}</span>&lt;/<span class="pl-ent">p</span>&gt;
+  &lt;/<span class="pl-ent"><span class="pl-c1">Container</span></span>&gt;
 );
 
-{/* 使用组合 */}
-&lt;Feature 
-  title="特性1" 
-  description="这是一个很棒的特性" 
-/&gt;
-</code></pre>
+<span class="pl-s">{</span><span class="pl-c"><span class="pl-c">/*</span> 使用组合 <span class="pl-c">*/</span></span><span class="pl-s">}</span>
+&lt;<span class="pl-c1">Feature</span> 
+  <span class="pl-e">title</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>特性1<span class="pl-pds">"</span></span> 
+  <span class="pl-e">description</span><span class="pl-k">=</span><span class="pl-s"><span class="pl-pds">"</span>这是一个很棒的特性<span class="pl-pds">"</span></span> 
+/&gt;</pre></div>
 <h3>上下文提供者模式</h3>
-<pre lang="mdx" class="notranslate"><code class="notranslate">import React, { createContext, useContext } from 'react';
+<div class="highlight highlight-source-mdx"><pre class="notranslate"><span class="pl-k">import</span> <span class="pl-smi">React</span>, { <span class="pl-smi">createContext</span>, <span class="pl-smi">useContext</span> } <span class="pl-k">from</span> <span class="pl-s"><span class="pl-pds">'</span>react<span class="pl-pds">'</span></span>;
 
-export const ThemeContext = createContext();
+<span class="pl-k"><span class="pl-k">export</span></span> <span class="pl-k"><span class="pl-k">const</span></span> ThemeContext <span class="pl-k">=</span> <span class="pl-en">createContext</span>();
 
-export function ThemeProvider({ children }) {
-  const [theme, setTheme] = React.useState('light');
+<span class="pl-k">export</span> <span class="pl-k">function</span> ThemeProvider({ <span class="pl-v">children</span> }) {
+  <span class="pl-k"><span class="pl-k">const</span></span> [theme, setTheme] <span class="pl-k">=</span> <span class="pl-smi">React</span>.<span class="pl-en">useState</span>(<span class="pl-s"><span class="pl-pds">'</span>light<span class="pl-pds">'</span></span>);
   
-  return (
-    &lt;ThemeContext.Provider value={{ theme, setTheme }}&gt;
-      {children}
-    &lt;/ThemeContext.Provider&gt;
+  <span class="pl-k">return</span> (
+    &lt;<span class="pl-ent"><span class="pl-c1">ThemeContext.Provider</span></span> <span class="pl-e">value</span><span class="pl-k">=</span><span class="pl-pse">{</span>{ <span class="pl-smi">theme</span>, <span class="pl-smi">setTheme</span> }<span class="pl-pse">}</span>&gt;
+      <span class="pl-pse">{</span><span class="pl-smi">children</span><span class="pl-pse">}</span>
+    &lt;/<span class="pl-ent"><span class="pl-c1">ThemeContext.Provider</span></span>&gt;
   );
 }
 
-export function ThemedButton() {
-  const { theme, setTheme } = useContext(ThemeContext);
+<span class="pl-k">export</span> <span class="pl-k">function</span> ThemedButton() {
+  <span class="pl-k"><span class="pl-k">const</span></span> { theme, setTheme } <span class="pl-k">=</span> <span class="pl-en">useContext</span>(<span class="pl-smi">ThemeContext</span>);
   
-  return (
-    &lt;button 
-      onClick={() =&gt; setTheme(theme === 'light' ? 'dark' : 'light')}
-      style={{
-        background: theme === 'light' ? 'white' : 'black',
-        color: theme === 'light' ? 'black' : 'white'
-      }}
+  <span class="pl-k">return</span> (
+    &lt;<span class="pl-ent">button</span> 
+      <span class="pl-e">onClick</span><span class="pl-k">=</span><span class="pl-pse">{</span>() <span class="pl-k">=&gt;</span> <span class="pl-en">setTheme</span>(<span class="pl-smi">theme</span> <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">'</span>light<span class="pl-pds">'</span></span> <span class="pl-k">?</span> <span class="pl-s"><span class="pl-pds">'</span>dark<span class="pl-pds">'</span></span> <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>light<span class="pl-pds">'</span></span>)<span class="pl-pse">}</span>
+      <span class="pl-e">style</span><span class="pl-k">=</span><span class="pl-pse">{</span>{
+        background: <span class="pl-smi">theme</span> <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">'</span>light<span class="pl-pds">'</span></span> <span class="pl-k">?</span> <span class="pl-s"><span class="pl-pds">'</span>white<span class="pl-pds">'</span></span> <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>black<span class="pl-pds">'</span></span>,
+        color: <span class="pl-smi">theme</span> <span class="pl-k">===</span> <span class="pl-s"><span class="pl-pds">'</span>light<span class="pl-pds">'</span></span> <span class="pl-k">?</span> <span class="pl-s"><span class="pl-pds">'</span>black<span class="pl-pds">'</span></span> <span class="pl-k">:</span> <span class="pl-s"><span class="pl-pds">'</span>white<span class="pl-pds">'</span></span>
+      }<span class="pl-pse">}</span>
     &gt;
       切换主题
-    &lt;/button&gt;
+    &lt;/<span class="pl-ent">button</span>&gt;
   );
 }
 
-{/* 使用 */}
-&lt;ThemeProvider&gt;
-  &lt;ThemedButton /&gt;
-&lt;/ThemeProvider&gt;
-</code></pre>
+<span class="pl-s">{</span><span class="pl-c"><span class="pl-c">/*</span> 使用 <span class="pl-c">*/</span></span><span class="pl-s">}</span>
+&lt;<span class="pl-c1">ThemeProvider</span>&gt;
+  &lt;<span class="pl-c1">ThemedButton</span> /&gt;
+&lt;/<span class="pl-c1">ThemeProvider</span>&gt;</pre></div>
 <h2>💡 总结</h2>
 <p><strong>关键要点：</strong></p>
 <ul>
@@ -333,7 +331,7 @@ if(""!=""){
 </script></div>
 </body>
 <script>
-var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
 var utterancesLoad=0;
 
 let themeSettings={
@@ -407,7 +405,70 @@ function iFrameLoading(){
     }
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
 
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
 
 </script>
 
