@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/240149665?v=4"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="> 在使用Ubuntu24系统时，命令终端的提示前缀如何自定义，请全方面进行参数配置和讲解，再举例不同场景下推荐使用的代码，最后用一张表总结进行快速访问的切换代码，给使用者几句使用建议。">
+<meta property="og:title" content="Ubuntu终端提示前缀【74】">
+<meta property="og:description" content="> 在使用Ubuntu24系统时，命令终端的提示前缀如何自定义，请全方面进行参数配置和讲解，再举例不同场景下推荐使用的代码，最后用一张表总结进行快速访问的切换代码，给使用者几句使用建议。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://luminku.github.io/post/Ubuntu-zhong-duan-ti-shi-qian-zhui-%E3%80%9074%E3%80%91.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
+<title>Ubuntu终端提示前缀【74】</title>
+<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+.copy-feedback {
+    display: none;
+    position: absolute;
+    top: 10px;
+    right: 50px;
+    color: var(--color-fg-on-emphasis);
+    background-color: var(--color-fg-muted);
+    border-radius: 3px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">Ubuntu终端提示前缀【74】</h1>
+<div class="title-right">
+    <a href="https://luminku.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/LuminKu/luminku.github.io/issues/75" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><blockquote>
+<p>在使用Ubuntu24系统时，命令终端的提示前缀如何自定义，请全方面进行参数配置和讲解，再举例不同场景下推荐使用的代码，最后用一张表总结进行快速访问的切换代码，给使用者几句使用建议。<br>
+xiaxincan@xiaxincan-Lenovo:~$</p>
+</blockquote>
+<hr>
+<p>我将为你全面讲解 Ubuntu 24 终端提示符（PS1）的自定义配置，无需搜索工具即可基于系统知识完成。</p>
+<hr>
+<h2>一、核心概念：PS1 变量</h2>
+<p>Bash 终端提示符由 <code class="notranslate">PS1</code>（Primary Prompt String）环境变量控制，显示在 <code class="notranslate">:</code> 之前的所有内容。你的当前提示符 <code class="notranslate">xiaxincan@xiaxincan-Lenovo:~$</code> 包含：</p>
+<ul>
+<li><code class="notranslate">\u</code> → 用户名（xiaxincan）</li>
+<li><code class="notranslate">@</code> → 分隔符</li>
+<li><code class="notranslate">\h</code> → 主机名（xiaxincan-Lenovo）</li>
+<li><code class="notranslate">:</code> → 分隔符</li>
+<li><code class="notranslate">\w</code> → 当前工作目录（~ 表示家目录）</li>
+<li><code class="notranslate">\$</code> → 普通用户显示 <code class="notranslate">$</code>，root 显示 <code class="notranslate">#</code></li>
+</ul>
+<hr>
+<h2>二、基础转义字符大全</h2>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>转义符</th>
+<th>含义</th>
+<th>示例输出</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code class="notranslate">\u</code></td>
+<td>当前用户名</td>
+<td><code class="notranslate">xiaxincan</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">\h</code></td>
+<td>主机名（短）</td>
+<td><code class="notranslate">xiaxincan-Lenovo</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">\H</code></td>
+<td>主机名（完整FQDN）</td>
+<td><code class="notranslate">xiaxincan-Lenovo.local</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">\w</code></td>
+<td>当前完整路径</td>
+<td><code class="notranslate">/home/xiaxincan/projects</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">\W</code></td>
+<td>当前目录名（仅最后一层）</td>
+<td><code class="notranslate">projects</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">\d</code></td>
+<td>日期（周 月 日）</td>
+<td><code class="notranslate">Mon Feb 23</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">\D{格式}</code></td>
+<td>自定义日期格式</td>
+<td><code class="notranslate">\D{%H:%M}</code> → <code class="notranslate">14:30</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">\t</code></td>
+<td>24小时制时间（HH:MM:SS）</td>
+<td><code class="notranslate">14:30:25</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">\T</code></td>
+<td>12小时制时间</td>
+<td><code class="notranslate">02:30:25</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">\@</code></td>
+<td>12小时制带AM/PM</td>
+<td><code class="notranslate">02:30 PM</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">\n</code></td>
+<td>换行</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code class="notranslate">\r</code></td>
+<td>回车</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code class="notranslate">\$</code></td>
+<td>用户提示符（<code class="notranslate">$</code>或<code class="notranslate">#</code>）</td>
+<td><code class="notranslate">$</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">\!</code></td>
+<td>历史命令序号</td>
+<td><code class="notranslate">1024</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">\#</code></td>
+<td>当前命令序号</td>
+<td><code class="notranslate">42</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">\v</code></td>
+<td>Bash版本</td>
+<td><code class="notranslate">5.2</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">\V</code></td>
+<td>Bash详细版本</td>
+<td><code class="notranslate">5.2.21</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">\\</code></td>
+<td>反斜杠</td>
+<td><code class="notranslate">\</code></td>
+</tr>
+<tr>
+<td><code class="notranslate">\[</code> <code class="notranslate">\]</code></td>
+<td>包裹非打印字符（颜色代码必需）</td>
+<td>-</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<hr>
+<h2>三、颜色配置（ANSI 颜色码）</h2>
+<p>颜色格式：<code class="notranslate">\[\e[样式;前景色;背景色m\]</code></p>
+<h3>颜色代码表</h3>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>颜色</th>
+<th>前景色</th>
+<th>背景色</th>
+<th>样式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>黑色</td>
+<td>30</td>
+<td>40</td>
+<td>0=正常</td>
+</tr>
+<tr>
+<td>红色</td>
+<td>31</td>
+<td>41</td>
+<td>1=粗体/高亮</td>
+</tr>
+<tr>
+<td>绿色</td>
+<td>32</td>
+<td>42</td>
+<td>2=暗淡</td>
+</tr>
+<tr>
+<td>黄色</td>
+<td>33</td>
+<td>43</td>
+<td>3=斜体</td>
+</tr>
+<tr>
+<td>蓝色</td>
+<td>34</td>
+<td>44</td>
+<td>4=下划线</td>
+</tr>
+<tr>
+<td>洋红</td>
+<td>35</td>
+<td>45</td>
+<td>5=闪烁</td>
+</tr>
+<tr>
+<td>青色</td>
+<td>36</td>
+<td>46</td>
+<td>7=反显</td>
+</tr>
+<tr>
+<td>白色</td>
+<td>37</td>
+<td>47</td>
+<td>8=隐藏</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p><strong>重置颜色</strong>：<code class="notranslate">\[\e[0m\]</code></p>
+<hr>
+<h2>四、不同场景配置实例</h2>
+<h3>1. 极简主义（适合截图/录屏）</h3>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 仅显示当前目录和 $</span>
+PS1=<span class="pl-s"><span class="pl-pds">'</span>\W \$ <span class="pl-pds">'</span></span>
+<span class="pl-c"><span class="pl-c">#</span> 输出：projects $</span></pre></div>
+<h3>2. 开发者专业版（含Git分支、时间戳）</h3>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 需要安装 git（通常已预装）</span>
+<span class="pl-en">parse_git_branch</span>() {
+    git branch <span class="pl-k">2&gt;</span>/dev/null <span class="pl-k">|</span> sed -e <span class="pl-s"><span class="pl-pds">'</span>/^[^*]/d<span class="pl-pds">'</span></span> -e <span class="pl-s"><span class="pl-pds">'</span>s/* \(.*\)/ (\1)/<span class="pl-pds">'</span></span>
+}
+PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e[1;36m\]\t\[\e[0m\] \[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[33m\]$(parse_git_branch)\[\e[0m\]\$ <span class="pl-pds">'</span></span></pre></div>
+<p><strong>效果</strong>：<code class="notranslate">14:30:25 xiaxincan@xiaxincan-Lenovo:~/projects (main)$</code></p>
+<h3>3. 多行信息版（长路径不拥挤）</h3>
+<div class="highlight highlight-source-shell"><pre class="notranslate">PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e[1;35m\]┌─[\[\e[1;36m\]\u\[\e[0m\]@\[\e[1;36m\]\h\[\e[1;35m\]]-[\[\e[1;33m\]\D{%Y-%m-%d %H:%M}\[\e[1;35m\]]-[\[\e[1;32m\]\w\[\e[1;35m\]]\n\[\e[1;35m\]└─\[\e[0m\]\$ <span class="pl-pds">'</span></span></pre></div>
+<p><strong>效果</strong>：</p>
+<pre class="notranslate"><code class="notranslate">┌─[xiaxincan@xiaxincan-Lenovo]-[2024-02-23 14:30]-[/home/xiaxincan/projects]
+└─$ 
+</code></pre>
+<h3>4. 生产服务器安全版（高对比度警告）</h3>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 红色背景提醒这是生产环境</span>
+PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e[1;37;41m\][PROD]\[\e[0m\] \[\e[1;31m\]\u\[\e[0m\]@\[\e[1;33m\]\H\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ <span class="pl-pds">'</span></span></pre></div>
+<p><strong>效果</strong>：白字红底 <code class="notranslate">[PROD]</code> 标签，醒目提示</p>
+<h3>5. 动态路径缩短（长路径显示...）</h3>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 路径超过3层时显示 ...</span>
+PROMPT_DIRTRIM=3
+PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e[1;32m\]\u\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ <span class="pl-pds">'</span></span>
+<span class="pl-c"><span class="pl-c">#</span> /home/xiaxincan/a/b/c/d/e 显示为 ~/a/b/.../e</span></pre></div>
+<h3>6. 退出状态显示（上条命令失败标红）</h3>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 上条命令非0退出时显示红色错误码</span>
+PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\] $(code=$?; [ $code -ne 0 ] &amp;&amp; echo "\[\e[1;31m\][✗ $code]\[\e[0m\] ")\$ <span class="pl-pds">'</span></span></pre></div>
+<hr>
+<h2>五、持久化配置方法</h2>
+<h3>方法1：仅当前用户生效（推荐）</h3>
+<p>编辑 <code class="notranslate">~/.bashrc</code>：</p>
+<div class="highlight highlight-source-shell"><pre class="notranslate">nano <span class="pl-k">~</span>/.bashrc
+<span class="pl-c"><span class="pl-c">#</span> 在文件末尾添加你的 PS1 定义</span>
+<span class="pl-k">export</span> PS1=<span class="pl-s"><span class="pl-pds">'</span>你的自定义代码<span class="pl-pds">'</span></span>
+<span class="pl-c"><span class="pl-c">#</span> 保存后生效</span>
+<span class="pl-c1">source</span> <span class="pl-k">~</span>/.bashrc</pre></div>
+<h3>方法2：全局生效（所有用户）</h3>
+<div class="highlight highlight-source-shell"><pre class="notranslate">sudo nano /etc/bash.bashrc
+<span class="pl-c"><span class="pl-c">#</span> 添加 PS1 定义</span></pre></div>
+<h3>方法3：区分 root/普通用户</h3>
+<p>在 <code class="notranslate">~/.bashrc</code> 中使用条件判断：</p>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-k">if</span> [ <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$EUID</span><span class="pl-pds">"</span></span> <span class="pl-k">-eq</span> 0 ]<span class="pl-k">;</span> <span class="pl-k">then</span>
+    <span class="pl-c"><span class="pl-c">#</span> root 用户：红色背景警告</span>
+    PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e[1;37;41m\][ROOT]\[\e[0m\] \[\e[1;31m\]\h\[\e[0m\]:\[\e[1;33m\]\w\[\e[0m\]# <span class="pl-pds">'</span></span>
+<span class="pl-k">else</span>
+    <span class="pl-c"><span class="pl-c">#</span> 普通用户：绿色主题</span>
+    PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e[1;32m\]\u@\h\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ <span class="pl-pds">'</span></span>
+<span class="pl-k">fi</span></pre></div>
+<hr>
+<h2>六、快速切换代码表</h2>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>场景</th>
+<th>一键切换代码</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>恢复默认</strong></td>
+<td><code class="notranslate">PS1='\u@\h:\w\$ '</code></td>
+<td>Ubuntu 原始风格</td>
+</tr>
+<tr>
+<td><strong>极简模式</strong></td>
+<td><code class="notranslate">PS1='\W \$ '</code></td>
+<td>最简洁，适合截图</td>
+</tr>
+<tr>
+<td><strong>开发模式</strong></td>
+<td><code class="notranslate">PS1='\[\e[1;36m\]\t\[\e[0m\] \[\e[1;32m\]\u\[\e[0m\]:\[\e[1;34m\]\W\[\e[0m\]\$ '</code></td>
+<td>含时间、彩色目录</td>
+</tr>
+<tr>
+<td><strong>多行模式</strong></td>
+<td><code class="notranslate">PS1='\[\e[1;35m\]┌─[\[\e[36m\]\u@\h\[\e[35m\]]-[\[\e[33m\]\w\[\e[35m\]]\n\[\e[35m\]└─\[\e[0m\]\$ '</code></td>
+<td>信息不拥挤</td>
+</tr>
+<tr>
+<td><strong>高亮路径</strong></td>
+<td><code class="notranslate">PS1='\u@\h:\[\e[1;33m\]\w\[\e[0m\]\$ '</code></td>
+<td>仅目录黄色高亮</td>
+</tr>
+<tr>
+<td><strong>隐藏主机</strong></td>
+<td><code class="notranslate">PS1='\[\e[1;32m\]\u\[\e[0m\]:\[\e[1;34m\]\w\[\e[0m\]\$ '</code></td>
+<td>隐私保护，不显示主机名</td>
+</tr>
+<tr>
+<td><strong>全路径模式</strong></td>
+<td><code class="notranslate">PS1='[\t] \u@\H:\w\$ '</code></td>
+<td>显示完整FQDN主机名</td>
+</tr>
+<tr>
+<td><strong>命令序号</strong></td>
+<td><code class="notranslate">PS1='[\!] \u@\h:\W\$ '</code></td>
+<td>显示历史命令编号</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<hr>
+<h2>七、进阶技巧</h2>
+<h3>1. 条件颜色（根据用户/主机变色）</h3>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 不同主机不同颜色</span>
+<span class="pl-k">case</span> <span class="pl-s"><span class="pl-pds">$(</span>hostname<span class="pl-pds">)</span></span> <span class="pl-k">in</span>
+    <span class="pl-s"><span class="pl-pds">"</span>server-prod<span class="pl-pds">"</span></span>) COLOR=<span class="pl-s"><span class="pl-pds">"</span>1;31<span class="pl-pds">"</span></span> ;;  <span class="pl-c"><span class="pl-c">#</span> 生产环境红色</span>
+    <span class="pl-s"><span class="pl-pds">"</span>server-test<span class="pl-pds">"</span></span>) COLOR=<span class="pl-s"><span class="pl-pds">"</span>1;33<span class="pl-pds">"</span></span> ;;  <span class="pl-c"><span class="pl-c">#</span> 测试环境黄色</span>
+    <span class="pl-k">*</span>) COLOR=<span class="pl-s"><span class="pl-pds">"</span>1;32<span class="pl-pds">"</span></span> ;;               <span class="pl-c"><span class="pl-c">#</span> 开发环境绿色</span>
+<span class="pl-k">esac</span>
+PS1=<span class="pl-s"><span class="pl-pds">"</span>\[\e[<span class="pl-smi">${COLOR}</span>m\]\u@\h\[\e[0m\]:\w<span class="pl-cce">\$</span> <span class="pl-pds">"</span></span></pre></div>
+<h3>2. 右侧提示符（RPROMPT 效果）</h3>
+<p>Bash 不支持原生右对齐，但可通过 trick 实现：</p>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 在提示符前打印右侧信息（需计算终端宽度）</span>
+<span class="pl-en">__rprompt</span>() {
+    <span class="pl-k">local</span> text=<span class="pl-s"><span class="pl-pds">"</span> <span class="pl-s"><span class="pl-pds">$(</span>date +%H:%M<span class="pl-pds">)</span></span> <span class="pl-pds">"</span></span>
+    <span class="pl-k">local</span> width=<span class="pl-s"><span class="pl-pds">$(</span>tput cols<span class="pl-pds">)</span></span>
+    <span class="pl-k">local</span> len=<span class="pl-smi">${<span class="pl-k">#</span>text}</span>
+    <span class="pl-c1">printf</span> <span class="pl-s"><span class="pl-pds">"</span>%*s<span class="pl-pds">"</span></span> <span class="pl-s"><span class="pl-pds">$((</span>width <span class="pl-k">-</span> len<span class="pl-pds">))</span></span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-pds">"</span></span>
+    <span class="pl-c1">echo</span> -e <span class="pl-s"><span class="pl-pds">"</span>\e[1;30m<span class="pl-smi">$text</span>\e[0m<span class="pl-pds">"</span></span>
+}
+PS1=<span class="pl-s"><span class="pl-pds">'</span>$(__rprompt)\r\u@\h:\w\$ <span class="pl-pds">'</span></span></pre></div>
+<h3>3. 动态标题（终端窗口标题）</h3>
+<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> 同时设置终端标题</span>
+PS1=<span class="pl-s"><span class="pl-pds">'</span>\[\e]0;\u@\h: \w\a\]\u@\h:\w\$ <span class="pl-pds">'</span></span>
+<span class="pl-c"><span class="pl-c">#</span> \e]0;...\a 是设置窗口标题的转义序列</span></pre></div>
+<hr>
+<h2>八、使用建议</h2>
+<ol>
+<li>
+<p><strong>颜色包裹必用 <code class="notranslate">\[</code> <code class="notranslate">\]</code></strong>：所有颜色代码必须用 <code class="notranslate">\[</code> <code class="notranslate">\]</code> 包裹，否则 Bash 计算行宽错误，导致长命令换行异常。</p>
+</li>
+<li>
+<p><strong>测试先于写入</strong>：在终端直接输入 <code class="notranslate">PS1='...'</code> 实时预览，满意后再写入 <code class="notranslate">~/.bashrc</code>，避免配置错误导致提示符混乱。</p>
+</li>
+<li>
+<p><strong>Git 分支检测性能</strong>：在大型仓库中，每次显示提示符都执行 <code class="notranslate">git branch</code> 可能有延迟，可考虑使用 <code class="notranslate"> PROMPT_COMMAND</code> 异步更新或使用 <code class="notranslate">starship</code> 等现代提示符工具。</p>
+</li>
+<li>
+<p><strong>特殊字符转义</strong>：如果提示符包含 <code class="notranslate">$</code>、<code class="notranslate">`</code>、<code class="notranslate">\</code> 等，需用 <code class="notranslate">\</code> 转义或改用单引号定义 PS1。</p>
+</li>
+<li>
+<p><strong>跨会话一致性</strong>：将配置放入 <code class="notranslate">~/.bashrc</code> 而非 <code class="notranslate">~/.profile</code>，确保非登录 Shell（如新开终端标签页）也能生效。</p>
+</li>
+<li>
+<p><strong>备份原始配置</strong>：修改前注释掉原 PS1 行，添加 <code class="notranslate"># Original: ...</code> 备注，方便回滚。</p>
+</li>
+<li>
+<p><strong>考虑使用 Starship</strong>：如果需求复杂（多语言版本管理、异步 Git 状态、右侧提示符），推荐安装 <a href="https://starship.rs/" rel="nofollow">Starship</a> 替代手动配置，它跨 Shell 且性能优异：</p>
+<div class="highlight highlight-source-shell"><pre class="notranslate">curl -sS https://starship.rs/install.sh <span class="pl-k">|</span> sh
+<span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">'</span>eval "$(starship init bash)"<span class="pl-pds">'</span></span> <span class="pl-k">&gt;&gt;</span> <span class="pl-k">~</span>/.bashrc</pre></div>
+</li>
+</ol>
+<hr>
+<p>通过以上配置，你可以打造既美观又实用的终端提示符，显著提升命令行工作效率！</p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://luminku.github.io">布谷博客</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行 "+diffDay+" 天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z', 'copy': 'M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z', 'check': 'M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.disabled=true;
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","LuminKu/luminku.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const createClipboardHTML = (codeContent, additionalClasses = '') => `
+        <pre class="notranslate"><code class="notranslate">${codeContent}</code></pre>
+        <div class="clipboard-container position-absolute right-0 top-0 ${additionalClasses}">
+            <clipboard-copy class="ClipboardButton btn m-2 p-0" role="button" style="display: inherit;">
+                <svg height="16" width="16" class="octicon octicon-copy m-2"><path d="${IconList["copy"]}"></path></svg>
+                <svg height="16" width="16" class="octicon octicon-check color-fg-success m-2 d-none"><path d="${IconList["check"]}"></path></svg>
+            </clipboard-copy>
+            <div class="copy-feedback">Copied!</div>
+        </div>
+    `;
+
+    const handleCodeElements = (selector = '') => {
+        document.querySelectorAll(selector).forEach(codeElement => {
+            const codeContent = codeElement.innerHTML;
+            const newStructure = document.createElement('div');
+            newStructure.className = 'snippet-clipboard-content position-relative overflow-auto';
+            newStructure.innerHTML = createClipboardHTML(codeContent);
+
+            const parentElement = codeElement.parentElement;
+            if (selector.includes('highlight')) {
+                parentElement.insertBefore(newStructure, codeElement.nextSibling);
+                parentElement.removeChild(codeElement);
+            } else {
+                parentElement.parentElement.replaceChild(newStructure, parentElement);
+            }
+        });
+    };
+
+    handleCodeElements('pre.notranslate > code.notranslate');
+    handleCodeElements('div.highlight > pre.notranslate');
+
+    let currentFeedback = null;
+    document.querySelectorAll('clipboard-copy').forEach(copyButton => {
+        copyButton.addEventListener('click', () => {
+            const codeContent = copyButton.closest('.snippet-clipboard-content').innerText;
+            const tempTextArea = document.createElement('textarea');
+            tempTextArea.value = codeContent;
+            document.body.appendChild(tempTextArea);
+            tempTextArea.select();
+            document.execCommand('copy');
+            document.body.removeChild(tempTextArea);
+
+            const copyIcon = copyButton.querySelector('.octicon-copy');
+            const checkIcon = copyButton.querySelector('.octicon-check');
+            const copyFeedback = copyButton.nextElementSibling;
+
+            if (currentFeedback && currentFeedback !== copyFeedback) {currentFeedback.style.display = 'none';}
+            currentFeedback = copyFeedback;
+
+            copyIcon.classList.add('d-none');
+            checkIcon.classList.remove('d-none');
+            copyFeedback.style.display = 'block';
+            copyButton.style.borderColor = 'var(--color-success-fg)';
+
+            setTimeout(() => {
+                copyIcon.classList.remove('d-none');
+                checkIcon.classList.add('d-none');
+                copyFeedback.style.display = 'none';
+                copyButton.style.borderColor = '';
+            }, 2000);
+        });
+    });
+});
+
+</script>
+
+
+</html>

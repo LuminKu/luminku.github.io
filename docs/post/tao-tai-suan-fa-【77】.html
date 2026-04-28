@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/240149665?v=4"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="在计算机系统中，淘汰算法（也称替换算法）主要用于内存管理、缓存系统等场景，当资源（如内存页、缓存空间）不足时，决定哪些数据应被移除以腾出空间。">
+<meta property="og:title" content="淘汰算法【77】">
+<meta property="og:description" content="在计算机系统中，淘汰算法（也称替换算法）主要用于内存管理、缓存系统等场景，当资源（如内存页、缓存空间）不足时，决定哪些数据应被移除以腾出空间。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://luminku.github.io/post/tao-tai-suan-fa-%E3%80%9077%E3%80%91.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
+<title>淘汰算法【77】</title>
+
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">淘汰算法【77】</h1>
+<div class="title-right">
+    <a href="https://luminku.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/LuminKu/luminku.github.io/issues/78" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><p>在计算机系统中，淘汰算法（也称替换算法）主要用于内存管理、缓存系统等场景，当资源（如内存页、缓存空间）不足时，决定哪些数据应被移除以腾出空间。根据应用场景不同，主要分为‌<strong>页面置换算法</strong>‌（常用于操作系统虚拟内存）和‌<strong>缓存淘汰算法</strong>‌（常用于Redis、CPU缓存等）。</p>
+<p>以下是几种最常用和经典的淘汰算法：</p>
+<h3>主要淘汰算法</h3>
+<ol>
+<li>‌**先进先出（FIFO, First-In-First-Out）**‌
+<ul>
+<li>‌<strong>原理</strong>‌：选择最早进入内存或缓存的页面/数据进行淘汰，如同队列结构。</li>
+<li>‌<strong>优点</strong>‌：实现简单，开销小。</li>
+<li>‌<strong>缺点</strong>‌：可能淘汰掉频繁使用的页面（如“Belady异常”：增加物理块数反而缺页率上升），性能不稳定。</li>
+</ul>
+</li>
+<li>‌<strong>最久未使用（LRU, Least Recently Used）,最近最少使用</strong>‌
+<ul>
+<li>‌<strong>原理</strong>‌：淘汰最近最久未被访问的页面/数据，基于“局部性原理”——近期被访问的，未来也可能被访问。</li>
+<li>‌<strong>优点</strong>‌：能较好地适应程序访问模式，缺页率通常低于FIFO，是实际系统中广泛使用的算法（如Redis的<code class="notranslate">allkeys-lru</code>策略）。</li>
+<li>‌<strong>缺点</strong>‌：实现需要维护访问时间顺序（如用双向链表+哈希表），硬件或软件开销较大。</li>
+</ul>
+</li>
+<li>‌**最不常用（LFU, Least Frequently Used）**‌
+<ul>
+<li>‌<strong>原理</strong>‌：淘汰访问频率最低的页面/数据，关注历史访问次数而非时间。</li>
+<li>‌<strong>优点</strong>‌：能有效保留长期热点数据，适合访问模式稳定的场景（如Redis的<code class="notranslate">allkeys-lfu</code>策略）。</li>
+<li>‌<strong>缺点</strong>‌：新加入的数据因初始频率为0易被误淘汰；历史高频但近期冷门的数据可能被错误淘汰。现代实现（如Redis）使用衰减计数器（<code class="notranslate">lfu-log-factor</code>、<code class="notranslate">lfu-decay-time</code>）来缓解此问题。</li>
+</ul>
+</li>
+<li>‌**时钟算法（Clock / Second Chance）**‌
+<ul>
+<li>‌<strong>原理</strong>‌：FIFO的改进版，使用环形链表和访问位（reference bit）。当页面被访问时，访问位置1；淘汰时，扫描环形链表，遇到访问位为0的页面即淘汰；若为1，则置0并继续扫描，给予一次“第二次机会”。</li>
+<li>‌<strong>优点</strong>‌：兼顾了FIFO的简单性和LRU的部分效果，实现成本适中，是许多操作系统（如Unix/Linux）的默认页面置换算法。</li>
+<li>‌<strong>缺点</strong>‌：仍可能淘汰频繁访问但恰好未被访问的页面。</li>
+</ul>
+</li>
+<li>‌**最优算法（OPT, Optimal Page Replacement）**‌
+<ul>
+<li>‌<strong>原理</strong>‌：淘汰未来最长时间内不会被访问的页面。理论上能获得最低缺页率。</li>
+<li>‌<strong>优点</strong>‌：作为理想基准，用于评估其他算法的性能。</li>
+<li>‌<strong>缺点</strong>‌：‌<strong>无法实现</strong>‌，因为需要预知未来访问序列，仅用于理论分析。</li>
+</ul>
+</li>
+<li>‌**随机算法（RAND, Random Replacement）**‌
+<ul>
+<li>‌<strong>原理</strong>‌：随机选择一个页面进行淘汰。</li>
+<li>‌<strong>优点</strong>‌：实现极其简单，开销极低。</li>
+<li>‌<strong>缺点</strong>‌：命中率不稳定，可能淘汰重要数据，但在某些场景（如TLB）为追求速度而使用。</li>
+</ul>
+</li>
+</ol>
+<h3>其他相关算法</h3>
+<ul>
+<li>‌**MRU（Most Recently Used）**‌：淘汰最近刚被访问的数据，适用于某些特定访问模式（如循环访问）。</li>
+<li>‌**ARC（Adaptive Replacement Cache）**‌：IBM开发的自适应算法，动态平衡LRU和LFU，性能优于单一算法，但实现复杂。</li>
+<li>‌<strong>Redis淘汰策略</strong>‌：Redis提供了多种内存淘汰策略，包括<code class="notranslate">noeviction</code>、<code class="notranslate">allkeys-random</code>、<code class="notranslate">volatile-ttl</code>、<code class="notranslate">allkeys-lru</code>、<code class="notranslate">allkeys-lfu</code>等，其中<code class="notranslate">allkeys-lru</code>和<code class="notranslate">allkeys-lfu</code>是处理热点数据的主流方案‌。</li>
+</ul>
+<h3>总结</h3>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>算法</th>
+<th>核心思想</th>
+<th>是否常用</th>
+<th>实现复杂度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>‌<strong>FIFO</strong>‌</td>
+<td>最早进入的先淘汰</td>
+<td>✅ 是</td>
+<td>低</td>
+</tr>
+<tr>
+<td>‌<strong>LRU</strong>‌</td>
+<td>最久未访问的先淘汰</td>
+<td>✅ 是（广泛使用）</td>
+<td>中高</td>
+</tr>
+<tr>
+<td>‌<strong>LFU</strong>‌</td>
+<td>访问次数最少的先淘汰</td>
+<td>✅ 是（尤其在缓存中）</td>
+<td>中</td>
+</tr>
+<tr>
+<td>‌<strong>Clock</strong>‌</td>
+<td>带“第二次机会”的FIFO</td>
+<td>✅ 是（操作系统常用）</td>
+<td>中</td>
+</tr>
+<tr>
+<td>‌<strong>OPT</strong>‌</td>
+<td>未来最久不访问的</td>
+<td>❌ 理论仅用</td>
+<td>无</td>
+</tr>
+<tr>
+<td>‌<strong>RAND</strong>‌</td>
+<td>随机淘汰</td>
+<td>✅ 是（特定场景）</td>
+<td>极低</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>在实际应用中，‌<strong>LRU</strong>‌ 和 ‌<strong>LFU</strong>‌ 是现代缓存系统（如Redis、CDN、浏览器缓存）的主流选择，而操作系统内核则多采用 ‌<strong>Clock</strong>‌ 算法。选择哪种算法需权衡性能、实现复杂度和应用场景‌。</p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://luminku.github.io">布谷博客</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行 "+diffDay+" 天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.disabled=true;
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","LuminKu/luminku.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+
+
+</script>
+
+
+</html>
