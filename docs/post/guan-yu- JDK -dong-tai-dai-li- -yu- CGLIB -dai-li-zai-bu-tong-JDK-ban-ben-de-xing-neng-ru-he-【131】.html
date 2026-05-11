@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html data-color-mode="light" data-dark-theme="dark" data-light-theme="light" lang="zh-CN">
+<head>
+    <meta content="text/html; charset=utf-8" http-equiv="content-type" />
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link href='https://mirrors.sustech.edu.cn/cdnjs/ajax/libs/Primer/21.0.7/primer.css' rel='stylesheet' />
+    
+    <link rel="icon" href="https://avatars.githubusercontent.com/u/240149665?v=4"><script>
+        let theme = localStorage.getItem("meek_theme") || "light";
+        document.documentElement.setAttribute("data-color-mode", theme);
+    </script>
+<meta name="description" content="关于 JDK 动态代理 与 CGLIB 代理在不同 JDK 版本中的性能表现，结合当前（2026 年）可查的权威公开资料，结论如下：
+
+---
+
+核心性能对比结论
+
+- JDK 动态代理：基于 Java 反射机制，创建代理对象速度快，但方法调用涉及反射开销。">
+<meta property="og:title" content="关于 JDK 动态代理 与 CGLIB 代理在不同JDK版本的性能如何【131】">
+<meta property="og:description" content="关于 JDK 动态代理 与 CGLIB 代理在不同 JDK 版本中的性能表现，结合当前（2026 年）可查的权威公开资料，结论如下：
+
+---
+
+核心性能对比结论
+
+- JDK 动态代理：基于 Java 反射机制，创建代理对象速度快，但方法调用涉及反射开销。">
+<meta property="og:type" content="article">
+<meta property="og:url" content="https://luminku.github.io/post/guan-yu-%20JDK%20-dong-tai-dai-li-%20-yu-%20CGLIB%20-dai-li-zai-bu-tong-JDK-ban-ben-de-xing-neng-ru-he-%E3%80%90131%E3%80%91.html">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/240149665?v=4">
+<title>关于 JDK 动态代理 与 CGLIB 代理在不同JDK版本的性能如何【131】</title>
+
+
+
+</head>
+<style>
+body{box-sizing: border-box;min-width: 200px;max-width: 900px;margin: 20px auto;padding: 45px;font-size: 16px;font-family: sans-serif;line-height: 1.25;}
+#header{display:flex;padding-bottom:8px;border-bottom: 1px solid var(--borderColor-muted, var(--color-border-muted));margin-bottom: 16px;}
+#footer {margin-top:64px; text-align: center;font-size: small;}
+
+</style>
+
+<style>
+.postTitle{margin: auto 0;font-size:40px;font-weight:bold;}
+.title-right{display:flex;margin:auto 0 0 auto;}
+.title-right .circle{padding: 14px 16px;margin-right:8px;}
+#postBody{border-bottom: 1px solid var(--color-border-default);padding-bottom:36px;}
+#postBody hr{height:2px;}
+#cmButton{height:48px;margin-top:48px;}
+#comments{margin-top:64px;}
+.g-emoji{font-size:24px;}
+@media (max-width: 600px) {
+    body {padding: 8px;}
+    .postTitle{font-size:24px;}
+}
+
+</style>
+
+
+
+
+<body>
+    <div id="header">
+<h1 class="postTitle">关于 JDK 动态代理 与 CGLIB 代理在不同JDK版本的性能如何【131】</h1>
+<div class="title-right">
+    <a href="https://luminku.github.io" id="buttonHome" class="btn btn-invisible circle" title="首页">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathHome" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+    <a href="https://github.com/LuminKu/luminku.github.io/issues/133" target="_blank" class="btn btn-invisible circle" title="Issue">
+        <svg class="octicon" width="16" height="16">
+            <path id="pathIssue" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+    
+
+    <a class="btn btn-invisible circle" onclick="modeSwitch();" title="切换主题">
+        <svg class="octicon" width="16" height="16" >
+            <path id="themeSwitch" fill-rule="evenodd"></path>
+        </svg>
+    </a>
+
+</div>
+</div>
+    <div id="content">
+<div class="markdown-body" id="postBody"><p>关于 JDK 动态代理 与 CGLIB 代理在不同 JDK 版本中的性能表现，结合当前（2026 年）可查的权威公开资料，结论如下：</p>
+<hr>
+<p>核心性能对比结论</p>
+<ul>
+<li>JDK 动态代理：基于 Java 反射机制，创建代理对象速度快，但方法调用涉及反射开销。</li>
+<li>CGLIB 代理：基于字节码生成（使用 ASM），创建代理对象慢（需生成子类字节码），但方法调用直接通过索引调用，无反射，执行更快。</li>
+</ul>
+<blockquote>
+<p><g-emoji class="g-emoji" alias="warning">⚠️</g-emoji> 注意：早期（JDK 6 及以前）普遍认为 CGLIB 性能显著优于 JDK 动态代理；但 JDK 7 和 JDK 8 对反射机制进行了重大优化，导致性能格局发生逆转。</p>
+</blockquote>
+<hr>
+<p>不同 JDK 版本下的性能演变</p>
+<ol>
+<li>
+<p>JDK 6 及更早版本</p>
+<ul>
+<li>CGLIB 方法调用性能 略优于 JDK 动态代理（尤其在高频调用场景下）。</li>
+<li>JDK 动态代理因反射开销大，在大量调用时明显较慢。</li>
+</ul>
+</li>
+<li>
+<p>JDK 7</p>
+<ul>
+<li>JDK 动态代理性能显著提升。</li>
+<li>在百万次调用测试中，JDK 动态代理比 CGLIB 快约 30% 。</li>
+</ul>
+</li>
+<li>
+<p>JDK 8 及以后（包括当前主流的 JDK 11/17/21）</p>
+<ul>
+<li>JDK 动态代理整体性能优于 CGLIB，无论是在代理创建速度还是方法调用效率上 。</li>
+<li>CGLIB 仅在以下情况可能仍有优势：
+<ul>
+<li>目标类没有实现接口（此时必须使用 CGLIB）；</li>
+<li>极端高频调用 + 代理对象已缓存（避免重复生成）。</li>
+</ul>
+</li>
+</ul>
+</li>
+</ol>
+<hr>
+<p>关键影响因素总结</p>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>维度</th>
+<th>JDK 动态代理</th>
+<th>CGLIB 代理</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>代理前提</td>
+<td>目标类必须实现接口</td>
+<td>目标类不能是 <code class="notranslate">final</code>，不能代理 <code class="notranslate">final</code> 方法</td>
+</tr>
+<tr>
+<td>代理创建速度</td>
+<td>快（原生 API）</td>
+<td>慢（需生成字节码）</td>
+</tr>
+<tr>
+<td>方法调用性能</td>
+<td>JDK 8+ 已优于 CGLIB</td>
+<td>早期更快，JDK 8 后相对落后</td>
+</tr>
+<tr>
+<td>内存占用</td>
+<td>较小</td>
+<td>较大（生成更多类）</td>
+</tr>
+<tr>
+<td>依赖</td>
+<td>无需第三方库</td>
+<td>需引入 CGLIB + ASM</td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<hr>
+<p>实际建议（尤其适用于 Spring 等框架）</p>
+<ul>
+<li>优先使用 JDK 动态代理：若目标类已实现接口，JDK 代理更轻量、性能更好，且无额外依赖 。</li>
+<li>仅在必要时使用 CGLIB：如代理无接口的类、或需代理具体方法（非接口方法）。</li>
+<li>Spring 默认策略（Spring Boot 2.x+）：
+<ul>
+<li>有接口 → 默认使用 JDK 动态代理；</li>
+<li>无接口 → 自动回退为 CGLIB 代理 。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>✅ 最佳实践：面向接口编程，让 JDK 动态代理成为默认选择；仅在无法避免时启用 CGLIB。</p>
+</blockquote>
+<hr>
+<p>如需验证具体场景下的性能，可参考 <a href="https://blog.csdn.net/weixin_40757930/article/details/125961520" rel="nofollow">CSDN 上的 JMH 性能测试示例</a> 。</p></div>
+<div style="font-size:small;margin-top:8px;float:right;"></div>
+
+<button class="btn btn-block" type="button" onclick="openComments()" id="cmButton">评论</button>
+<div class="comments" id="comments"></div>
+
+</div>
+    <div id="footer"><div id="footer1">Copyright © <span id="copyrightYear"></span> <a href="https://luminku.github.io">布谷博客</a></div>
+<div id="footer2">
+    <span id="runday"></span><span>Powered by <a href="https://meekdai.com/Gmeek.html" target="_blank">Gmeek</a></span>
+</div>
+
+<script>
+var now=new Date();
+document.getElementById("copyrightYear").innerHTML=now.getFullYear();
+
+if(""!=""){
+    var startSite=new Date("");
+    var diff=now.getTime()-startSite.getTime();
+    var diffDay=Math.floor(diff/(1000*60*60*24));
+    document.getElementById("runday").innerHTML="网站运行 "+diffDay+" 天"+" • ";
+}
+</script></div>
+</body>
+<script>
+var IconList={'sun': 'M8 10.5a2.5 2.5 0 100-5 2.5 2.5 0 000 5zM8 12a4 4 0 100-8 4 4 0 000 8zM8 0a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0V.75A.75.75 0 018 0zm0 13a.75.75 0 01.75.75v1.5a.75.75 0 01-1.5 0v-1.5A.75.75 0 018 13zM2.343 2.343a.75.75 0 011.061 0l1.06 1.061a.75.75 0 01-1.06 1.06l-1.06-1.06a.75.75 0 010-1.06zm9.193 9.193a.75.75 0 011.06 0l1.061 1.06a.75.75 0 01-1.06 1.061l-1.061-1.06a.75.75 0 010-1.061zM16 8a.75.75 0 01-.75.75h-1.5a.75.75 0 010-1.5h1.5A.75.75 0 0116 8zM3 8a.75.75 0 01-.75.75H.75a.75.75 0 010-1.5h1.5A.75.75 0 013 8zm10.657-5.657a.75.75 0 010 1.061l-1.061 1.06a.75.75 0 11-1.06-1.06l1.06-1.06a.75.75 0 011.06 0zm-9.193 9.193a.75.75 0 010 1.06l-1.06 1.061a.75.75 0 11-1.061-1.06l1.06-1.061a.75.75 0 011.061 0z', 'moon': 'M9.598 1.591a.75.75 0 01.785-.175 7 7 0 11-8.967 8.967.75.75 0 01.961-.96 5.5 5.5 0 007.046-7.046.75.75 0 01.175-.786zm1.616 1.945a7 7 0 01-7.678 7.678 5.5 5.5 0 107.678-7.678z', 'sync': 'M1.705 8.005a.75.75 0 0 1 .834.656 5.5 5.5 0 0 0 9.592 2.97l-1.204-1.204a.25.25 0 0 1 .177-.427h3.646a.25.25 0 0 1 .25.25v3.646a.25.25 0 0 1-.427.177l-1.38-1.38A7.002 7.002 0 0 1 1.05 8.84a.75.75 0 0 1 .656-.834ZM8 2.5a5.487 5.487 0 0 0-4.131 1.869l1.204 1.204A.25.25 0 0 1 4.896 6H1.25A.25.25 0 0 1 1 5.75V2.104a.25.25 0 0 1 .427-.177l1.38 1.38A7.002 7.002 0 0 1 14.95 7.16a.75.75 0 0 1-1.49.178A5.5 5.5 0 0 0 8 2.5Z', 'home': 'M6.906.664a1.749 1.749 0 0 1 2.187 0l5.25 4.2c.415.332.657.835.657 1.367v7.019A1.75 1.75 0 0 1 13.25 15h-3.5a.75.75 0 0 1-.75-.75V9H7v5.25a.75.75 0 0 1-.75.75h-3.5A1.75 1.75 0 0 1 1 13.25V6.23c0-.531.242-1.034.657-1.366l5.25-4.2Zm1.25 1.171a.25.25 0 0 0-.312 0l-5.25 4.2a.25.25 0 0 0-.094.196v7.019c0 .138.112.25.25.25H5.5V8.25a.75.75 0 0 1 .75-.75h3.5a.75.75 0 0 1 .75.75v5.25h2.75a.25.25 0 0 0 .25-.25V6.23a.25.25 0 0 0-.094-.195Z', 'github': 'M8 0c4.42 0 8 3.58 8 8a8.013 8.013 0 0 1-5.45 7.59c-.4.08-.55-.17-.55-.38 0-.27.01-1.13.01-2.2 0-.75-.25-1.23-.54-1.48 1.78-.2 3.65-.88 3.65-3.95 0-.88-.31-1.59-.82-2.15.08-.2.36-1.02-.08-2.12 0 0-.67-.22-2.2.82-.64-.18-1.32-.27-2-.27-.68 0-1.36.09-2 .27-1.53-1.03-2.2-.82-2.2-.82-.44 1.1-.16 1.92-.08 2.12-.51.56-.82 1.28-.82 2.15 0 3.06 1.86 3.75 3.64 3.95-.23.2-.44.55-.51 1.07-.46.21-1.61.55-2.33-.66-.15-.24-.6-.83-1.23-.82-.67.01-.27.38.01.53.34.19.73.9.82 1.13.16.45.68 1.31 2.69.94 0 .67.01 1.3.01 1.49 0 .21-.15.45-.55.38A7.995 7.995 0 0 1 0 8c0-4.42 3.58-8 8-8Z'};
+var utterancesLoad=0;
+
+let themeSettings={
+    "dark": ["dark","moon","#00f0ff","dark-blue"],
+    "light": ["light","sun","#ff5000","github-light"],
+    "auto": ["auto","sync","","preferred-color-scheme"]
+};
+function changeTheme(mode, icon, color, utheme){
+    document.documentElement.setAttribute("data-color-mode",mode);
+    document.getElementById("themeSwitch").setAttribute("d",value=IconList[icon]);
+    document.getElementById("themeSwitch").parentNode.style.color=color;
+    if(utterancesLoad==1){utterancesTheme(utheme);}
+}
+function modeSwitch(){
+    let currentMode=document.documentElement.getAttribute('data-color-mode');
+    let newMode = currentMode === "light" ? "dark" : currentMode === "dark" ? "auto" : "light";
+    localStorage.setItem("meek_theme", newMode);
+    if(themeSettings[newMode]){
+        changeTheme(...themeSettings[newMode]);
+    }
+}
+function utterancesTheme(theme){
+    const message={type:'set-theme',theme: theme};
+    const iframe=document.getElementsByClassName('utterances-frame')[0];
+    iframe.contentWindow.postMessage(message,'https://utteranc.es');
+}
+if(themeSettings[theme]){changeTheme(...themeSettings[theme]);}
+console.log("\n %c Gmeek last https://github.com/Meekdai/Gmeek \n","padding:5px 0;background:#02d81d;color:#fff");
+</script>
+
+<script>
+document.getElementById("pathHome").setAttribute("d",IconList["home"]);
+document.getElementById("pathIssue").setAttribute("d",IconList["github"]);
+
+
+
+function openComments(){
+    cm=document.getElementById("comments");
+    cmButton=document.getElementById("cmButton");
+    cmButton.disabled=true;
+    cmButton.innerHTML="loading";
+    span=document.createElement("span");
+    span.setAttribute("class","AnimatedEllipsis");
+    cmButton.appendChild(span);
+
+    script=document.createElement("script");
+    script.setAttribute("src","https://utteranc.es/client.js");
+    script.setAttribute("repo","LuminKu/luminku.github.io");
+    script.setAttribute("issue-term","title");
+    
+    if(localStorage.getItem("meek_theme")=="dark"){script.setAttribute("theme","dark-blue");}
+    else if(localStorage.getItem("meek_theme")=="light") {script.setAttribute("theme","github-light");}
+    else{script.setAttribute("theme","preferred-color-scheme");}
+    
+    script.setAttribute("crossorigin","anonymous");
+    script.setAttribute("async","");
+    cm.appendChild(script);
+
+    int=self.setInterval("iFrameLoading()",200);
+}
+
+function iFrameLoading(){
+    var utterances=document.getElementsByClassName('utterances');
+    if(utterances.length==1){
+        if(utterances[0].style.height!=""){
+            utterancesLoad=1;
+            int=window.clearInterval(int);
+            document.getElementById("cmButton").style.display="none";
+            console.log("utterances Load OK");
+        }
+    }
+}
+
+
+
+</script>
+
+
+</html>
